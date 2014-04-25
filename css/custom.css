@@ -1,0 +1,22 @@
+.labs{
+	-moz-column-count:6;
+	-webkit-column-count:6;
+	-o-column-count:6;
+	column-count:6;
+	-moz-column-gap:20px;
+	-webkit-column-gap:20px;
+	-o-column-gap:20px;
+	column-gap:20px;
+	-webkit-column-rule-width:3px;
+	-webkit-column-rule-color:#404650;
+	-webkit-column-rule-style:solid;
+	-moz-column-rule-width:3px;
+	-moz-column-rule-color:#404650;
+	-moz-column-rule-style:solid;
+	-o-column-rule-width:3px;
+	-o-column-rule-color:#404650;
+	-o-column-rule-style:solid;
+	column-rule-width:3px;
+	column-rule-color:#404650;
+	column-rule-style:solid;
+}
