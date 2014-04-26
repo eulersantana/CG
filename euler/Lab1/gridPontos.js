@@ -115,7 +115,7 @@ function drawScene(gl, shader) {
 	gl.enableVertexAttribArray(shader.vColorAttr);	
 	gl.vertexAttribPointer(shader.vColorAttr, vColorBuf.itemSize, gl.FLOAT, false, 0, 0);
 	
-	gl.uniform1f(shader.uPSizeAttr, vPSize);
+	// gl.uniform1f(shader.uPSizeAttr, vPSize);
 	
 	gl.drawArrays(gl.LINES, 0, vPosBuf.numItems);
 	
@@ -128,8 +128,8 @@ function drawScene(gl, shader) {
 // ********************************************************
 function webGLStart() {
 	var canvas = document.getElementById("gridPoints");
-	var slider = document.getElementById("pSize");
-	vPSize = slider.value;	
+/*	var slider = document.getElementById("pSize");
+	vPSize = slider.value;*/	
 	
 	var gl = initGL(canvas);
 
@@ -156,7 +156,7 @@ function webGLStart() {
 		}
 	build2DGrid(30,30);
 	initBuffers(gl);
-	drawScene(gl, shader, vPSize);
+	drawScene(gl, shader);
 }
 
 
