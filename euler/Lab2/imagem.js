@@ -119,7 +119,7 @@ function initTexture(gl, shader) {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		drawScene(gl, shader);
 		}
-	image.src = "image/baboon.png";
+	image.src = "image/lena.png";
 }
 
 // ********************************************************

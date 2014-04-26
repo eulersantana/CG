@@ -20,6 +20,7 @@
 	<link href="../../css/vertical-timeline.css" rel="stylesheet">
 	<link href="../../css/style.min.css" rel="stylesheet">
 	<link href="../../css/custom.css" rel="stylesheet">
+
 <script id="shader-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
 	attribute vec2 aVertexTexture;
@@ -36,8 +37,6 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-
-	uniform int cor;
 	
 	varying vec2 vTextureCoord;
 		
@@ -46,39 +45,27 @@
 		/*Tons de cinza:*/
 		float cinza = ( c.r +  c.g +  c.b)/3.0;
 		/*Binarização:*/
-		/*if(cinza < 0.5){
-			cinza = 0.0;
-		}else{
-			cinza = 1.0;
-		}
+		// if(cinza < 0.5){
+		// 	cinza = 0.0;
+		// }else{
+		// 	cinza = 1.0;
+		// }
+		/*
 		Negativo:
 		1.0 - c.r , 1.0 - c.g , 1.0 - c.b
 
 		Escurecendo:
 		c.r -0.3, c.g-0.3 , c.b-0.3
+
 		*/
-		if(cor == 0){
-			gl_FragColor = vec4(c.r, c.g , c.b, 1.0);
-		}
 
-		if(cor == 1){	
-			gl_FragColor = vec4(c.r, 0.0, 0.0,1.0);	
+		gl_FragColor = vec4(1.0 - c.r , 1.0 - c.g , 1.0 - c.b, 1.0);
 		}
-
-		if(cor == 2){	
-			gl_FragColor = vec4(0.0, c.g, 0.0, 1.0);	
-		}
-
-		if(cor == 3){	
-			gl_FragColor = vec4(0.0, 0.0, c.b, 1.0);	
-		}
-	}
 </script>
 
 <script type="text/javascript" src="../lib/webgl-utils.js"></script>
 <script type="text/javascript" src="../lib/shaders.js"></script>
-<script type="text/javascript" src="image.js"></script>
-
+<script type="text/javascript" src="imagem.js"></script>
 <!--[if IE]><link href="css/ie.css" rel="stylesheet"><![endif]-->
   <style type="text/css">
   body{
@@ -96,7 +83,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">Laboratorio 4 - Exercico 1</a>
+				<a class="navbar-brand" href="#">Laboratorio 2 - Exercico 3</a>
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 					<ul class="nav navbar-nav subMenu">
@@ -110,13 +97,17 @@
 	</nav>
 	<div class="container" id="content" style="margin-top: 80px;">
 			<div id="letter-head" class="nav-letter-head exe" style="background-color: rgb(46, 204, 113); border-color: rgb(41, 183, 101);">
-				<p>Mostrando os canais RGB</p>
+				<p>Deixando a imagem com tons negativos com base na original</p>
 			</div>
-    <div id="output"><br> Dimensao = 512 <i>x</i> 512</div>
-    <br>
-    <canvas id="imagem" style="border: none;" width="512" height="512"></canvas>
+				<h1></h1>
+				
+	    <div id="output"><br> Dimensao = 512 <i>x</i> 512</div>
+	    <br>
+	    <img src="image/lena.png">
+	    <canvas id="imagem" style="border: none;" width="512" height="512"></canvas>
+	</div>
 
-</div>
 
 
-</body></html>
+	</body>
+</html>

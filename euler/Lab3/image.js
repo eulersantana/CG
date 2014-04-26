@@ -135,7 +135,7 @@ function initTexture(gl, shader) {
 		drawScene(gl, shader);
 
 		}
-	image.src = "../Lab2/image/fruits.png";
+	image.src = "../Lab2/image/lena.png";
 
 
 }

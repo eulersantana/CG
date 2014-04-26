@@ -8,12 +8,12 @@ var vPSize;
 
 // ********************************************************
 // ********************************************************
-function changePSize(v) {
+/*function changePSize(v) {
 	var text = document.getElementById("output");
 	text.innerHTML = "Point Size = " + v;
 	vPSize = v;	
-	drawScene(gl, shader, vPSize);
-}
+	drawScene(gl, shader);
+}*/
 
 // ********************************************************
 // ********************************************************
@@ -129,11 +129,7 @@ var dy = 2.0/15;
 
 				vPos.push(-1.0+i*dx);
 				vPos.push(-1.0+j*dy);
-				vPos.push(0.0);
-
-
-
-				
+				vPos.push(0.0);	
 				
 				
 
@@ -194,7 +190,7 @@ function drawScene(gl, shader) {
 	gl.enableVertexAttribArray(shader.vColorAttr);	
 	gl.vertexAttribPointer(shader.vColorAttr, vColorBuf.itemSize, gl.FLOAT, false, 0, 0);
 	
-	gl.uniform1f(shader.uPSizeAttr, vPSize);
+	/*gl.uniform1f(shader.uPSizeAttr);*/
 	
 	gl.drawArrays(gl.LINES, 0, vPosBuf.numItems);
 	
@@ -207,8 +203,8 @@ function drawScene(gl, shader) {
 // ********************************************************
 function webGLStart() {
 	var canvas = document.getElementById("gridPoints");
-	var slider = document.getElementById("pSize");
-	vPSize = slider.value;	
+	/*var slider = document.getElementById("pSize");
+	vPSize = slider.value;*/	
 	
 	var gl = initGL(canvas);
 
@@ -224,8 +220,8 @@ function webGLStart() {
 		}
 
 	shader.vPosAttr 	= gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	shader.vColorAttr 	= gl.getAttribLocation(shaderProgram, "aVertexColor");
-	shader.uPSizeAttr	= gl.getUniformLocation(shaderProgram, "uVertexPSize");
+	shader.vColorAttr 	= gl.getAttribLocation(shaderProgram, "aVertexColor");/*
+	shader.uPSizeAttr	= gl.getUniformLocation(shaderProgram, "uVertexPSize");*/
 
 	if ( 	(shader.vPosAttr < 0) ||
 			(shader.vColorAttr < 0) ||
@@ -235,7 +231,7 @@ function webGLStart() {
 		}
 	build2DGrid(30,30);
 	initBuffers(gl);
-	drawScene(gl, shader, vPSize);
+	drawScene(gl, shader);
 }
 
 
