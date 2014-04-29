@@ -119,9 +119,9 @@ function initTexture(gl, shader) {
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		var u_textureSize = gl.getUniformLocation(shader, "u_textureSize");
+		/*var u_textureSize = gl.getUniformLocation(shader, "u_textureSize");
 		gl.uniform2fv(u_textureSize,image.width,image.height); 
-		drawScene(gl, shader);
+		*/drawScene(gl, shader);
 
 		}
 	image.src = "../Lab2/image/lena.png";
