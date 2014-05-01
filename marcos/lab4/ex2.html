@@ -1,0 +1,75 @@
+<html>
+
+    <head>
+        <title>MATA65 - Computação Gráfica</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;
+            attribute vec2 aVertexTexture;
+
+            varying vec2 vTextureCoord;
+
+            void main(void) {
+            gl_Position   = vec4(aVertexPosition, 1.0);
+            vTextureCoord = aVertexTexture;
+            }
+        </script>
+
+        <script id="shader-fs" type="x-shader/x-fragment">
+
+            precision mediump float;
+
+            uniform sampler2D uSampler;
+            uniform vec2 uTextureSize;
+            uniform int uSelecionado;
+
+            varying vec2 vTextureCoord;
+
+            void main(void){
+
+            const int N = 35;
+            const int base = N / 2;
+            const int invBase = base*(-1);
+
+            float n = pow(float(N),2.0);
+
+            vec2 px = vec2(1.0,1.0) / uTextureSize;
+            vec4 c  = texture2D(uSampler, vTextureCoord);
+
+            vec4 soma = texture2D(uSampler, vTextureCoord + px * vec2(base,base));
+
+            for(int i = invBase; i <= base; i++){
+            for(int j = invBase; j < base; j++){
+            soma += texture2D(uSampler, vTextureCoord + px * vec2(i,j));
+            }	
+            }
+
+            vec3 rgb = (soma / n).rgb;
+            gl_FragColor = vec4(rgb, 1.0);
+
+            }
+        </script>
+
+        <script src="../../lib/webgl-debug.js"></script>
+        <script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+        <script type="text/javascript" src="../../lib/shaders.js"></script>
+        <script type="text/javascript" src="ex2.js"></script>
+
+    </head>
+
+    <body onload="webGLStart();">
+        <h1>Laboratorio 4 - Exercício 2</h1>
+        <p>
+            Desenhando imagens com efeito blur.
+            <script>function goBack() {
+                        window.history.back()
+                    }</script>
+            <button onclick="goBack()">Voltar</button>
+        </p>
+        <div id="ui"></div>
+        <br/>
+        <img id="img" src="../../images/lena.png"/>
+        <canvas id="imagem" style="border: none;" width="500" height="500"></canvas>
+    </body>
+
+</html>

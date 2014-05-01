@@ -1,0 +1,99 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+	
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	#define N 9
+
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+	uniform float uKernel[N];
+	uniform vec2 uTextureSize;
+
+	varying vec2 vTextureCoord;
+
+	void main(void){
+		vec2 px = vec2(1.0,1.0) / uTextureSize;
+		vec4 c = texture2D(uSampler, vTextureCoord);
+
+		vec4 colorSum = 
+			texture2D(uSampler, vTextureCoord + px * vec2(-1.0,1)) * uKernel[0] + 
+			texture2D(uSampler, vTextureCoord + px * vec2(0,-1)) * uKernel[1] + 
+			texture2D(uSampler, vTextureCoord + px * vec2(1,-1)) * uKernel[2] +
+			texture2D(uSampler, vTextureCoord + px * vec2(-1,0)) * uKernel[3] + 
+			texture2D(uSampler, vTextureCoord + px * vec2( 0,0)) * uKernel[4] + 
+			texture2D(uSampler, vTextureCoord + px * vec2( 1,0)) * uKernel[5] + 
+			texture2D(uSampler, vTextureCoord + px * vec2( 1,1)) * uKernel[6] + 
+			texture2D(uSampler, vTextureCoord + px * vec2( 0,1)) * uKernel[7] + 
+			texture2D(uSampler, vTextureCoord + px * vec2(-1,-1)) * uKernel[8] ;
+		
+		float peso = 
+			uKernel[0] + 
+			uKernel[1] + 
+			uKernel[2] + 
+			uKernel[3] + 
+			uKernel[4] + 
+			uKernel[5] + 
+			uKernel[6] + 
+			uKernel[7] + 
+			uKernel[8] ; 
+
+		if(peso <= 0.0) peso = 1.0;
+
+		gl_FragColor = vec4((colorSum / peso).rgb, 1.0);
+	}
+</script>
+
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="filtro.js"></script>
+
+<style>
+	ul{
+		list-style:none;
+	}
+	ul li{
+		display: inline;
+	}
+</style>
+</head>
+
+<body onload="webGLStart();">
+    <h1>Laboratorio 3</h1>
+    <p>Desenha uma imagem como textura.</p>
+    <ul>
+    	<li><a href="binarizacao.html">Binarização</a></li>
+    	<li><a href="cinza.html">Cinza</a></li>
+    	<li><a href="clarear.html">Clarear</a></li>
+    	<li><a href="escurecer.html">Escurecer</a></li>
+    	<li><a href="inversao.html">Inversão</a></li>
+    	<li><a href="vermelho.html">Red</a></li>
+    	<li><a href="verde.html">Green</a></li>
+    	<li><a href="azul.html">Blue</a></li>
+    	<li><a href="ciano.html">Cyan</a></li>
+    	<li><a href="margenta.html">Margenta</a></li>
+    	<li><a href="amarelo.html">Yellow</a></li>
+    </ul>
+    <div id="ui"></div>
+    <br/>
+    <div id="canvas">
+    </div>
+    <div id="output"> </div>
+    <br/>
+</body>
+
+</html>
