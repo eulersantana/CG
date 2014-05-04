@@ -1,0 +1,133 @@
+
+<head>
+<title>MATA65 - Computacao Grafica</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script type="text/javascript">
+
+var objPto = function(x,y,cor) {
+		this.x 		= x;
+		this.y 		= y;
+		this.cor	= cor;
+		};
+		
+var ptos = new Array();
+var canvas;
+var ctx; 
+var index;
+var cor = "Black";
+
+objPto.prototype.draw = function(ctx) {
+	ctx.beginPath();
+	ctx.fillStyle = this.cor;
+	ctx.fillRect(this.x-1, this.y-1, 2, 2);
+	ctx.closePath();
+	}
+
+objPto.prototype.drawLine = function(ctx, pto) {
+	ctx.beginPath();
+	ctx.fillStyle = this.cor
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = this.cor
+	ctx.moveTo(this.x,this.y)
+	ctx.lineTo(pto.x, pto.y)
+	ctx.stroke()
+	this.draw(ctx)
+	ctx.closePath();
+}
+
+	function initCanvas() 
+	{
+		canvas = document.getElementById("myCanvas");
+		ctx = canvas.getContext("2d");
+	}
+		
+	function getPoint(event) 
+	{
+		var rect = canvas.getBoundingClientRect();
+		var pto = new objPto(event.clientX - rect.left, event.clientY - rect.top, cor);
+		index = ptoExists(pto)
+
+		if (index != -1)
+    	{
+			canvas.onmousemove = movePto
+			canvas.onmouseup = endMove
+		}
+    	else
+		{
+			canvas.onmousemove = null
+			canvas.onmouseup = null
+			
+			ptos.push(pto)
+			redraw()		
+		}
+    }
+
+    function t(event) { console.log("tewst");  }
+
+    function ptoExists(pto)
+    {
+    	for (var i = 0; i < ptos.length; i++)
+		{    		
+			var p = ptos[i]
+			if (Math.abs(pto.x - p.x) < 3 && Math.abs(pto.y - p.y) < 3)
+				return i
+		}
+    	return -1
+    }
+		
+    function movePto(event)
+    {
+    	var rect = canvas.getBoundingClientRect();
+		var pto = new objPto(event.clientX - rect.left, event.clientY - rect.top, ptos[index].cor);
+		
+		ptos[index] = pto
+    	
+    	clean()
+		redraw()
+    }
+
+    function endMove(event)
+    {
+    	if (canvas.onmousemove != null)
+    		canvas.onmousemove = null
+    }
+
+    function clean()
+	{
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
+    function redraw()
+    {
+    	console.log(ptos)
+
+    	if (ptos.length == 1)
+			ptos[0].draw(ctx)
+		else
+    		for (i = 0; i < ptos.length - 1; i++)
+				ptos[i].drawLine(ctx,ptos[i+1])
+    }
+
+    function setColor(event)
+    {
+    	cor = document.getElementById('color').value
+    }
+
+</script>
+
+</head>
+<body onload="initCanvas()">
+    <h1>Laboratorio 0 - Exercicio 2</h1><br />
+    <p>Editor de Linhas com pontos moveis</p>
+    <br/>
+    <div id="output"> </div>
+    <br/>
+    <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;" onmousedown="getPoint(event)" >
+    	Seu navegador nao tem suporte a tag HTML5 canvas.
+    </canvas>
+    <input id='color' type='color' onchange='setColor(event)'/>
+    <a href="../index.php"> Voltar </a>
+</body>
+
+</html>
