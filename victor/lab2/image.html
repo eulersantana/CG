@@ -26,9 +26,24 @@
 	void main(void) {	
 		vec4 c = texture2D(uSampler, vTextureCoord);
 		
-		float inc = 0.3;
+		float radius = 0.3;
 
-		gl_FragColor = vec4(c.r - inc, c.g - inc, c.b - inc, 1.0);
+		if (c.r > 0.5 + radius)
+			c.r = 1.0;
+		else if (c.r < 0.5 - radius)
+			c.r = 0.0;
+
+		if (c.g > 0.5 + radius)
+			c.g = 1.0;
+		else if (c.g < 0.5 - radius)
+			c.g = 0.0;
+
+		if (c.b > 0.5 + radius)
+			c.b = 1.0;
+		else if (c.b < 0.5 - radius)
+			c.b = 0.0;
+
+		gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
 		}
 </script>
 
