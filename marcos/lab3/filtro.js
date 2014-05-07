@@ -262,7 +262,7 @@ function initTexture(gl, shader,i) {
   		
   		drawScene(gl, shader,initialSelection,image);
 	}
-	image.src = "../images/monarch.png";
+	image.src = "../../images/monarch.png";
 	
 }
 
