@@ -33,21 +33,21 @@
 		else if (c.r < 0.5 - radius)
 			c.r = 0.0;
 		else
-			c.r = c.r / (0.5 + radius)
+			c.r = c.r / (0.5 + radius);
 
 		if (c.g > 0.5 + radius)
 			c.g = 1.0;
 		else if (c.g < 0.5 - radius)
 			c.g = 0.0;
 		else
-			c.g = c.g / (0.5 + radius)
+			c.g = c.g / (0.5 + radius);
 
 		if (c.b > 0.5 + radius)
 			c.b = 1.0;
 		else if (c.b < 0.5 - radius)
 			c.b = 0.0;
 		else
-			c.b = c.b / (0.5 + radius)
+			c.b = c.b / (0.5 + radius);
 
 		gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
 		}
