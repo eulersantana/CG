@@ -26,6 +26,45 @@ function gotStream(stream)  {
 	stream.onended = noStream;
 }
 
+function build2DGrid(nx, ny) {
+
+var dx = 2.0/nx;
+var dy = 2.0/ny;
+
+		for (i=0 ; i <= nx ; i++) {
+			for(j=0 ; j <= ny; j++) {
+				
+
+				
+				
+				if( (Math.pow(((-1.0+i*dx) - 0),2) + Math.pow(((-1.0+j*dx) - 0),2)) < Math.pow(0.5,2)){
+					vColor.push(1.0);
+					vColor.push(1.0);
+					vColor.push(0.0);
+					
+					vPos.push(0.0);
+					vPos.push(0.0);
+					vPos.push(0.0);
+
+				}else{
+					vColor.push(i*dx);
+					vColor.push(j*dy);
+					vColor.push(0.0);
+
+					vPos.push(-1.0+i*dx);
+					vPos.push(-1.0+j*dy);
+					vPos.push(0.0);
+				}
+
+
+				
+
+			}			
+						
+		}
+
+		
+}
 // ********************************************************
 // ********************************************************
 function noStream(e) {
@@ -77,6 +116,7 @@ var vTex = new Array;
 	vPos.push(-1.0);	// V3
 	vPos.push( 1.0);
 	vPos.push( 0.0);
+	
 	vertPosBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vPos), gl.STATIC_DRAW);
@@ -104,7 +144,7 @@ var vTex = new Array;
 
 // ********************************************************
 // ********************************************************
-function drawScene(luz) {
+function drawScene() {
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	
@@ -130,6 +170,7 @@ function drawScene(luz) {
 	gl.uniform1f(shader.LuzAttr, vPSize);
 	gl.uniform1f(shader.SatAttr, vPSat);
 	gl.uniform1f(shader.ContAttr, vCont);
+	gl.uniform2f(shader.PixelSizeUniform, 1.0/gl.viewportWidth, 1.0/gl.viewportHeight);
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
@@ -193,6 +234,7 @@ function webGLStart() {
 	shader.LuzAttr					= gl.getUniformLocation(shader, "luz");
 	shader.SatAttr					= gl.getUniformLocation(shader, "sat");
 	shader.ContAttr					= gl.getUniformLocation(shader, "cont");
+	shader.PixelSizeUniform	 		= gl.getUniformLocation(shader, "uPixelSize");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
@@ -204,6 +246,7 @@ function webGLStart() {
 		
 	initBuffers(gl);
 	initTexture(gl, shader);
+	
 	animate(gl, shader);
 }
 
@@ -218,6 +261,7 @@ function render() {
 		videoImageContext.drawImage( video, 0, 0, videoImage.width, videoImage.height );
 		videoTexture.needsUpdate = true;
 	}
+
 	drawScene();
 }
 
@@ -226,7 +270,7 @@ function changePSize() {
 	var slider = document.getElementById("pSize");
 	v = slider.value;
 	text.innerHTML = "Brilho: " + v;
-	vPSize = v;
+	vPSize = v / 100.0;
 	render();
 }
 function changePSat() {
@@ -234,7 +278,7 @@ function changePSat() {
 	var slider = document.getElementById("pSat");
 	v = slider.value;
 	text.innerHTML = "Saturação " + v;
-	vPSat = v;
+	vPSat = v  / 100.0;
 	render();
 }
 function changePCont() {
