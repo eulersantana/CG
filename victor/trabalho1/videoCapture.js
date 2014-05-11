@@ -2,6 +2,9 @@ var vertPosBuf;
 var vertTextBuf;
 var gl;
 var shader;
+var vPSize;
+var vPSat;
+var vCont;
 
 var video, videoImage, videoImageContext, videoTexture;
 
@@ -101,7 +104,7 @@ var vTex = new Array;
 
 // ********************************************************
 // ********************************************************
-function drawScene() {
+function drawScene(luz) {
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	
@@ -123,6 +126,10 @@ function drawScene() {
 	gl.enableVertexAttribArray(shader.vertexTextAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
+	/*Tamanho da imagem*/
+	gl.uniform1f(shader.LuzAttr, vPSize);
+	gl.uniform1f(shader.SatAttr, vPSat);
+	gl.uniform1f(shader.ContAttr, vCont);
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
@@ -147,6 +154,14 @@ function webGLStart() {
 			"Sorry. <code>navigator.getUserMedia()</code> is not available.";
 		}
 	navigator.getUserMedia({video: true}, gotStream, noStream);
+	var slider = document.getElementById("pSize");
+	vPSize = slider.value;
+
+	var slid = document.getElementById("pSat");
+	vPSat = slid.value;
+
+	var slid = document.getElementById("pCont");
+	vCont = slid.value;
 
 	// assign variables to HTML elements
 	video = document.getElementById("monitor");
@@ -175,10 +190,14 @@ function webGLStart() {
 	shader.vertexPositionAttribute 	= gl.getAttribLocation(shader, "aVertexPosition");
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
+	shader.LuzAttr					= gl.getUniformLocation(shader, "luz");
+	shader.SatAttr					= gl.getUniformLocation(shader, "sat");
+	shader.ContAttr					= gl.getUniformLocation(shader, "cont");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
-			(shader.SamplerUniform < 0) ) {
+			(shader.SamplerUniform < 0)||
+			(shader.LuzAttr	 < 0) ){
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
 		}
@@ -202,4 +221,27 @@ function render() {
 	drawScene();
 }
 
-
+function changePSize() {
+	var text = document.getElementById("output");
+	var slider = document.getElementById("pSize");
+	v = slider.value;
+	text.innerHTML = "Brilho: " + v;
+	vPSize = v;
+	render();
+}
+function changePSat() {
+	var text = document.getElementById("outputs");
+	var slider = document.getElementById("pSat");
+	v = slider.value;
+	text.innerHTML = "Saturação " + v;
+	vPSat = v;
+	render();
+}
+function changePCont() {
+	var text = document.getElementById("outputc");
+	var slider = document.getElementById("pCont");
+	v = slider.value;
+	text.innerHTML = "Contraste " + v;
+	vCont = v;
+	render();
+}
