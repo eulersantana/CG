@@ -37,17 +37,22 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-
+	uniform vec2 tamPixel;
 	uniform int cor;
-	uniform vec2 u_textureSize;
 	
 	varying vec2 vTextureCoord;
 		
 	void main(void) {	
-		vec4 c = texture2D(uSampler, vTextureCoord);
-		vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
+		vec4 c = (texture2D(uSampler, vTextureCoord)+
+				  texture2D(uSampler, vTextureCoord+vec2(0.0,tamPixel.y))+
+				  texture2D(uSampler, vTextureCoord+vec2(0.0,-tamPixel.y))+
+				  texture2D(uSampler, vTextureCoord+vec2(tamPixel.x,-tamPixel.y))+
+				  texture2D(uSampler, vTextureCoord+vec2(-tamPixel.x,0.0))+
+				  texture2D(uSampler, vTextureCoord+vec2(tamPixel.x,0.0))
+
+			)/6.0;
 		
-		gl_FragColor = vec4(c.r, c.g , c.b, 1.0);
+		gl_FragColor = c ;
 		
 	}
 </script>
@@ -90,6 +95,7 @@
 			</div>
     <div id="output"><br> Dimensao = 512 <i>x</i> 512</div>
     <br>
+    <img src="../Lab2/image/lena.png">
     <canvas id="imagem" style="border: none;" width="512" height="512"></canvas>
 
 </div>
