@@ -20,20 +20,27 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-	uniform sampler2D uSampler2;
-	uniform vec2 uPixelSize;
-	// uniform bool uChoice;
+	
+	uniform sampler2D uSamplerBck;
+	uniform vec3 uColorChoice;
 
 	varying vec2 vTextureCoord;
 		
 	void main(void) {	
 		vec4 src;
+		vec4 bck;
 
-		src = texture2D(uSampler2, vTextureCoord);
+		src = texture2D(uSampler, vTextureCoord);
+		bck = texture2D(uSamplerBck, vTextureCoord);
 
-		if (vTextureCoord.x > 0.5)
-			src = texture2D(uSampler, vTextureCoord);
-		
+		if (abs(src.r - uColorChoice.r) < 0.1 && 
+			abs(src.g - uColorChoice.g) < 0.1 && 
+			abs(src.b - uColorChoice.b) < 0.1 &&
+			uColorChoice.r >= 0.0)
+		// if (src.r == uColorChoice.r && 
+		// 	src.g == uColorChoice.g && 
+		// 	src.b == uColorChoice.b)
+			src = bck;		
 
 		gl_FragColor = src; //+ diff;//(src.r + diff.r, src.g + diff.g, src.b + diff.b);
 		}
@@ -41,19 +48,20 @@
 
 <script type="text/javascript" src="../../lib/webgl-utils.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
-<script type="text/javascript" src="test.js"></script>
+<script type="text/javascript" src="q3.js"></script>
 
 </head>
 
 <body onload="webGLStart();">
-    <h1>Laboratorio 3 - Exemplo 1</h1><br />
-    <p>Desenha uma imagem como textura.</p>
+    <h1>Trabalho</h1><br />
+    <p>Captura e manipulação de video em WebGL.</p>
     <br/>
     <div id="output"> </div>
     <br/>
-    <img src="../../images/lena.png"/>
-    <canvas id="imagem" style="border: none;" width="500" height="500"></canvas>
-
+	<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
+	<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+	<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+    <input id="color" type="color" onchange="change(this.value)"/>
 </body>
 
 </html>
