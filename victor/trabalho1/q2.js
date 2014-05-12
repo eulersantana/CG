@@ -5,37 +5,11 @@ var shader;
 
 var video, videoImage, videoImageContext, videoTexture;
 
-var texture;
-var color = { r: -1, g : -1, b : -1};
-var diff = 0.1;
+var center;
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
-function changeColor(value)
-{
-	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
-    color = result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-	
-	var text = document.getElementById("cor");
-	text.innerText = "Color = " + value;
-
-    drawScene();
-}
-
-function changeDiff(value)
-{
-	diff = value;
-
-	var text = document.getElementById("range");
-	text.innerHTML = "Diff = " + value;
-
-	drawScene();
-}
 
 // ********************************************************
 // ********************************************************
@@ -145,11 +119,7 @@ function drawScene() {
 	videoTexture.needsUpdate = false;	
 	gl.uniform1i(shader.SamplerUniform, 0);
 
-	gl.activeTexture(gl.TEXTURE1);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shader.SamplerBckUniform, 1);
-	gl.uniform3f(shader.ColorChoiceUniform, color.r / 255, color.g / 255, color.b / 255);
-	gl.uniform1f(shader.DiffUniform, diff);
+	gl.uniform2f(shader.CenterUniform, center.x, center.y);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
@@ -172,17 +142,7 @@ function initTexture(gl, shader) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	videoTexture.needsUpdate = false;
 
-	texture = gl.createTexture();
-	var bck = new Image();
-	bck.onload = function()
-	{
-		gl.bindTexture(gl.TEXTURE_2D, texture);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bck);
-	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	}
-
-	bck.src = "../../images/monarch.png";
+	center = { x: 128, y: 128 };
 }
 
 // ********************************************************
@@ -223,15 +183,12 @@ function webGLStart() {
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 
-	shader.SamplerBckUniform	 	= gl.getUniformLocation(shader, "uSamplerBck");
-	shader.ColorChoiceUniform	    = gl.getUniformLocation(shader, "uColorChoice");
-	shader.DiffUniform	    		= gl.getUniformLocation(shader, "uDiff");
+	shader.CenterUniform	    	= gl.getUniformLocation(shader, "uCenter");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
 			(shader.SamplerUniform < 0)  ||
-			(shader.SamplerUniform2 < 0)  ||
-			(shader.ColorChoiceUniform < 0) ) {
+			(shader.CenterUniform < 0) ) {
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
 		}

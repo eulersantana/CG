@@ -1,0 +1,67 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+		
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+	
+	uniform vec2 uCenter;
+
+	varying vec2 vTextureCoord;
+		
+	void main(void) {	
+		
+		vec4 src = texture2D(uSampler, vTextureCoord);
+
+		// float x = pow(vTextureCoord.x - uCenter.x, 2.0);
+		// float y = pow(vTextureCoord.y - uCenter.y, 2.0);
+
+		// float result = sqrt(x + y);
+
+		if (vTextureCoord.x > 0.5)
+			src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
+
+		gl_FragColor = src;
+		}
+</script>
+
+<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="q2.js"></script>
+
+</head>
+
+<body onload="webGLStart();">
+    <h1>Trabalho</h1><br />
+    <p>Captura e manipulação de video em WebGL.</p>
+    <br/>
+    <div id="output"> </div>
+        
+	<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
+	<div>
+		<image src="../../images/monarch.png" style="visibility: hidden;"/>		
+	</div>
+	
+    <div>
+		<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+		<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+	</div>    
+</body>
+
+</html>
