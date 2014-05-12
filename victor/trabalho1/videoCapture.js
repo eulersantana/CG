@@ -5,6 +5,7 @@ var shader;
 var vPSize;
 var vPSat;
 var vCont;
+var vNit;
 
 var video, videoImage, videoImageContext, videoTexture;
 
@@ -170,6 +171,7 @@ function drawScene() {
 	gl.uniform1f(shader.LuzAttr, vPSize);
 	gl.uniform1f(shader.SatAttr, vPSat);
 	gl.uniform1f(shader.ContAttr, vCont);
+	gl.uniform1f(shader.NitAttr, vNit);
 	gl.uniform2f(shader.PixelSizeUniform, 1.0/gl.viewportWidth, 1.0/gl.viewportHeight);
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
@@ -204,6 +206,9 @@ function webGLStart() {
 	var slid = document.getElementById("pCont");
 	vCont = slid.value;
 
+	var slid = document.getElementById("pNit");
+	vNit = slid.value;
+
 	// assign variables to HTML elements
 	video = document.getElementById("monitor");
 	videoImage = document.getElementById("videoImage");
@@ -234,6 +239,7 @@ function webGLStart() {
 	shader.LuzAttr					= gl.getUniformLocation(shader, "luz");
 	shader.SatAttr					= gl.getUniformLocation(shader, "sat");
 	shader.ContAttr					= gl.getUniformLocation(shader, "cont");
+	shader.NitAttr					= gl.getUniformLocation(shader, "nit");
 	shader.PixelSizeUniform	 		= gl.getUniformLocation(shader, "uPixelSize");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
@@ -287,5 +293,14 @@ function changePCont() {
 	v = slider.value;
 	text.innerHTML = "Contraste " + v;
 	vCont = v;
+	render();
+}
+
+function changePNit() {
+	var text = document.getElementById("outputn");
+	var slider = document.getElementById("pNit");
+	v = slider.value;
+	text.innerHTML = "Nitidez " + v;
+	vNit = v;
 	render();
 }
