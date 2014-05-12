@@ -7,11 +7,12 @@ var video, videoImage, videoImageContext, videoTexture;
 
 var texture;
 var color = { r: -1, g : -1, b : -1};
+var diff = 0.1;
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
-function change(value)
+function changeColor(value)
 {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
     color = result ? {
@@ -19,8 +20,21 @@ function change(value)
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
-
+	
+	var text = document.getElementById("cor");
+	text.innerText = "Color = " + value;
+    
     webGLStart();
+}
+
+function changeDiff(value)
+{
+	diff = value;
+
+	var text = document.getElementById("range");
+	text.innerHTML = "Diff = " + value;
+
+	webGLStart();
 }
 
 // ********************************************************
@@ -135,6 +149,7 @@ function drawScene() {
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.uniform1i(shader.SamplerBckUniform, 1);
 	gl.uniform3f(shader.ColorChoiceUniform, color.r / 255, color.g / 255, color.b / 255);
+	gl.uniform1f(shader.DiffUniform, diff);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
@@ -210,6 +225,7 @@ function webGLStart() {
 
 	shader.SamplerBckUniform	 	= gl.getUniformLocation(shader, "uSamplerBck");
 	shader.ColorChoiceUniform	    = gl.getUniformLocation(shader, "uColorChoice");
+	shader.DiffUniform	    		= gl.getUniformLocation(shader, "uDiff");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
