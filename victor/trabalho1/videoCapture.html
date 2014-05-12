@@ -11,7 +11,8 @@
 	varying vec2 vTextureCoord;
 	
 	void main(void) {
-		gl_Position = vec4(aVertexPosition, 1.0);
+		
+		gl_Position = vec4(aVertexPosition,1.0);
 		vTextureCoord = aVertexTexture;
 	}
 </script>
@@ -25,6 +26,7 @@
 	uniform float luz;
 	uniform float sat;
 	uniform float cont;
+	uniform vec2 uPixelSize;
 	
 	varying vec2 vTextureCoord;
 	
@@ -98,7 +100,7 @@
 	    if (hue < 0.0)
 	        hue += 1.0;
 
-	    return vec4( hue, sat*sate, lum*luz, col.a );
+	    return vec4( hue, sat+sate, lum+luz, col.a );
 	}
 	vec4 convertHSLtoRGB( vec4 col)
 	{
@@ -145,8 +147,8 @@
 	}
 	void main(void) {
 		
-
-		vec4 c = texture2D(uSampler, vTextureCoord);		
+		vec4 c = texture2D(uSampler, vTextureCoord);
+		
 		vec4 cN = convertHSLtoRGB(convertRGBtoHSL(c,luz,sat));
 		gl_FragColor = vec4(pow(cN.r,cont),pow(cN.g,cont),pow(cN.b,cont),1.0);
 	}
@@ -163,16 +165,16 @@
     <p>Captura e manipulação de video em WebGL.</p>
     <br/>
     <div id="output">Brilho: 0.1</div><br\><br\>
-    <input type="range" id="pSize" min="0.0" max="2.0" step="0.1" value="0.0" onchange="changePSize(this.value)"><br/><br/>
+    <input type="range" id="pSize" min="-100.0" max="100.0" step="0.1" value="0.1" onchange="changePSize(this.value)"><br/><br/>
     <div id="outputs">Saturação: 0.1</div><br\><br\>
-    <input type="range" id="pSat" min="0.0" max="2.0" step="0.1" value="0.0" onchange="changePSat(this.value)"><br/><br/>
+    <input type="range" id="pSat" min="-100.0" max="100.0" step="0.1" value="0.1" onchange="changePSat(this.value)"><br/><br/>
     <div id="output"> </div>
      <div id="outputc">Contraste: 0.1</div><br\><br\>
-    <input type="range" id="pCont" min="0.0" max="5.0" step="0.1" value="0.0" onchange="changePCont(this.value)"><br/><br/>
+    <input type="range" id="pCont" min="0.0" max="5.0" step="0.1" value="1.8" onchange="changePCont(this.value)"><br/><br/>
     <div id="output"> </div>
     <br/>
 	<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
-	<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+	<video id="monitor" autoplay width="320" height="240" style="visibility: visible;"></video>
 	<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
 </body>
 
