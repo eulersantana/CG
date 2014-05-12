@@ -23,8 +23,8 @@ function changeColor(value)
 	
 	var text = document.getElementById("cor");
 	text.innerText = "Color = " + value;
-    
-    webGLStart();
+
+    drawScene();
 }
 
 function changeDiff(value)
@@ -34,7 +34,7 @@ function changeDiff(value)
 	var text = document.getElementById("range");
 	text.innerHTML = "Diff = " + value;
 
-	webGLStart();
+	drawScene();
 }
 
 // ********************************************************
