@@ -34,7 +34,7 @@
 
 		float gray = (src.r + src.g + src.b) / 3.0;
 
-		if (color == 0)
+		if (uColor == 0)
 		{
 			if (gray < uLevel1)
 				// 0, 0 , 0
@@ -46,7 +46,7 @@
 				// 1, 1, 1
 				src = vec4(1.0, 1.0, 1.0, 1.0);	
 		}
-		else if (color == 1)
+		else if (uColor == 1)
 		{
 			if (gray < uLevel1)
 				// 0, 0 , 0
@@ -58,7 +58,7 @@
 				// 1, 1, 1
 				src = vec4(1.0, 0.0, 1.0, 1.0);	
 		}
-		else if (color == 2)
+		else if (uColor == 2)
 		{
 			if (gray < uLevel1)
 				// 0, 0 , 0
@@ -70,7 +70,7 @@
 				// 1, 1, 1
 				src = vec4(1.0, 1.0, 1.0, 1.0);	
 		}
-		else if (color == 3)
+		else if (uColor == 3)
 		{
 			if (gray < uLevel1)
 				// 0, 0 , 0
