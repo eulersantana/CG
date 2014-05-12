@@ -21,8 +21,8 @@ function changeColor(value)
         b: parseInt(result[3], 16)
     } : null;
 	
-	var text = document.getElementById("cor");
-	text.innerText = "Color = " + value;
+	var text = document.getElementById("color");
+	text.innerText = "Color = " + value + ". RGB = " + color.r + " " + color.g + " " + color.b;
 
     drawScene();
 }

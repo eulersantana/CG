@@ -5,9 +5,26 @@ var shader;
 
 var video, videoImage, videoImageContext, videoTexture;
 
+var  level1, level2;
+
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
+function changeLevel1(value)
+{
+	var text = document.getElementById("range1");
+	text.innerText = "Nivel 1 = " + value;
+	level1 = value;
+    drawScene();
+}
+
+function changeLevel2(value)
+{
+	var text = document.getElementById("range2");
+	text.innerText = "Nivel 2 = " + value;
+	level2 = value;
+    drawScene();
+}
 
 // ********************************************************
 // ********************************************************
@@ -43,11 +60,20 @@ function initGL() {
 	if (!gl) {
 		return (null);
 		}
-	gl.viewportWidth 	= canvas.width*2 ;
-	gl.viewportHeight 	= canvas.height*2 ;
+
+
+	canvas.width *= 2;
+	canvas.height *= 2;
+	gl.viewportWidth 	= canvas.width / 2;
+	gl.viewportHeight 	= canvas.height / 2;
+
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	//return gl;
+
+	level1 = 0.1;
+	level2 = 0.2;
+
+	return gl;
 }
 
 // ********************************************************
@@ -102,7 +128,7 @@ var vTex = new Array;
 // ********************************************************
 // ********************************************************
 function drawScene() {
-	gl.viewport(0, 0, gl.viewportWidth / 2.0, gl.viewportHeight / 2.0);
+	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	
 	if (!videoTexture.needsUpdate) 
@@ -116,6 +142,10 @@ function drawScene() {
 	videoTexture.needsUpdate = false;	
 	gl.uniform1i(shader.SamplerUniform, 0);
 
+	gl.uniform1i(shader.ColorUniform, 0);
+	gl.uniform1f(shader.Level1Uniform, level1);
+	gl.uniform1f(shader.Level2Uniform, level2);
+
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, vertPosBuf.itemSize, gl.FLOAT, false, 0, 0);
@@ -126,6 +156,18 @@ function drawScene() {
 
 	
 
+	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
+
+	gl.viewport(gl.viewportWidth, 0, gl.viewportWidth, gl.viewportHeight);
+	gl.uniform1i(shader.ColorUniform, 1);
+	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
+
+	gl.viewport(0, gl.viewportHeight, gl.viewportWidth, gl.viewportHeight);
+	gl.uniform1i(shader.ColorUniform, 2);
+	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
+
+	gl.viewport(gl.viewportWidth, gl.viewportHeight, gl.viewportWidth, gl.viewportHeight);
+	gl.uniform1i(shader.ColorUniform, 3);
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
 
@@ -157,12 +199,11 @@ function webGLStart() {
 	
 	// background color if no video present
 	videoImageContext.fillStyle = "#005337";
-	videoImageContext.fillRect( 0, 0, videoImage.width / 2.0, videoImage.height / 2.0 );
+	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
 	
 	
 	canvas = document.getElementById("videoGL");
-	//gl = initGL();
-	initGL();
+	gl = initGL();
 	
 	if (!gl) { 
 		alert("Could not initialise WebGL, sorry :-(");
@@ -178,6 +219,9 @@ function webGLStart() {
 	shader.vertexPositionAttribute 	= gl.getAttribLocation(shader, "aVertexPosition");
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
+	shader.Level1Uniform	 		= gl.getUniformLocation(shader, "uLevel1");
+	shader.Level2Uniform	 		= gl.getUniformLocation(shader, "uLevel2");
+	shader.ColorUniform	 		    = gl.getUniformLocation(shader, "uColor");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
@@ -200,7 +244,7 @@ function animate(gl, shader) {
 function render() {	
 	
 	if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
-		videoImageContext.drawImage( video, 0, 0, videoImage.width / 2.0, videoImage.height / 2.0 );
+		videoImageContext.drawImage( video, 0, 0, videoImage.width, videoImage.height);
 		videoTexture.needsUpdate = true;
 	}
 	drawScene();
