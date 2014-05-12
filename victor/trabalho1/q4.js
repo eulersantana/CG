@@ -43,8 +43,8 @@ function initGL() {
 	if (!gl) {
 		return (null);
 		}
-	gl.viewportWidth 	= canvas.width / 2.0;
-	gl.viewportHeight 	= canvas.height / 2.0;
+	gl.viewportWidth 	= canvas.width*2 ;
+	gl.viewportHeight 	= canvas.height*2 ;
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	//return gl;
@@ -124,6 +124,8 @@ function drawScene() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
 
+	
+
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
 
@@ -179,10 +181,11 @@ function webGLStart() {
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
-			(shader.SamplerUniform < 0) {
+			(shader.SamplerUniform < 0) ){
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
 		}
+
 		
 	initBuffers(gl);
 	initTexture(gl, shader);
