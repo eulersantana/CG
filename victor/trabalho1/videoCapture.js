@@ -5,6 +5,9 @@ var shader;
 var vPSize;
 var vPSat;
 var vCont;
+var vNit;
+var vAt;
+
 
 var video, videoImage, videoImageContext, videoTexture;
 
@@ -167,9 +170,12 @@ function drawScene() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
 	/*Tamanho da imagem*/
-	gl.uniform1f(shader.LuzAttr, vPSize);
-	gl.uniform1f(shader.SatAttr, vPSat);
-	gl.uniform1f(shader.ContAttr, vCont);
+	gl.uniform1f(shader.LuzAttr, 	vPSize);
+	gl.uniform1f(shader.SatAttr, 	vPSat);
+	gl.uniform1f(shader.ContAttr, 	vCont);
+	gl.uniform1f(shader.NitAttr, 	vNit);
+	gl.uniform1i(shader.AtAttr, 	vAt);
+
 	gl.uniform2f(shader.PixelSizeUniform, 1.0/gl.viewportWidth, 1.0/gl.viewportHeight);
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
@@ -204,6 +210,12 @@ function webGLStart() {
 	var slid = document.getElementById("pCont");
 	vCont = slid.value;
 
+	var slid = document.getElementById("pNit");
+	vNit = slid.value;
+
+	var slid = document.getElementById("check");
+	vAt = slid.value;
+
 	// assign variables to HTML elements
 	video = document.getElementById("monitor");
 	videoImage = document.getElementById("videoImage");
@@ -234,6 +246,8 @@ function webGLStart() {
 	shader.LuzAttr					= gl.getUniformLocation(shader, "luz");
 	shader.SatAttr					= gl.getUniformLocation(shader, "sat");
 	shader.ContAttr					= gl.getUniformLocation(shader, "cont");
+	shader.NitAttr					= gl.getUniformLocation(shader, "nit");
+	shader.AtAttr					= gl.getUniformLocation(shader, "at");
 	shader.PixelSizeUniform	 		= gl.getUniformLocation(shader, "uPixelSize");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
@@ -288,4 +302,33 @@ function changePCont() {
 	text.innerHTML = "Contraste " + v;
 	vCont = v;
 	render();
+}
+
+function changePNit() {
+	var text = document.getElementById("outputn");
+	var slider = document.getElementById("pNit");
+	v = slider.value;
+	text.innerHTML = "Nitidez " + v;
+	vNit = v;
+	render();
+}
+
+function ativarRange() {
+	var slider = document.getElementById("check");
+	var nit = document.getElementById("pNit");
+	v = slider.value;
+	if( v == 0){
+		
+		slider.value = 1;
+		vAt = slider.value;
+
+		nit.style.visibility = "visible";
+	}else{
+		
+		slider.value = 0;
+		vAt = slider.value;
+		nit.style.visibility = "hidden";
+	}
+	
+	
 }
