@@ -126,18 +126,45 @@ var vTex = new Array;
 	vertPosBuf.itemSize = 3;
 	vertPosBuf.numItems = vPos.length/vertPosBuf.itemSize;
 		
-	vTex.push( 0.0); 	// V0
+	/*vTex.push( 0.0); 	// V0
 	vTex.push( 0.0);
 	vTex.push( 1.0);	// V1
 	vTex.push( 0.0);
 	vTex.push( 1.0);	// V2
-	vTex.push( 1.0);
+	vTex.push( 0.5);
 	vTex.push( 0.0); 	// V0
 	vTex.push( 0.0);
 	vTex.push( 1.0);	// V2
 	vTex.push( 1.0);
 	vTex.push( 0.0);	// V3
-	vTex.push( 1.0);
+	vTex.push( 1.0);*/
+var dx = 2.0/canvas.width;
+var dy = 2.0/canvas.width;
+	for (i=0 ; i <= canvas.width ; i++) {
+			for(j=0 ; j <= canvas.width; j++) {
+				
+
+				
+				
+				if( (Math.pow(((-1.0+i*dx) - 0),2) + Math.pow(((-1.0+j*dx) - 0),2)) < Math.pow(0.5,2)){
+										
+					vTex.push(0.0);
+					vTex.push(0.0);
+					vTex.push(0.0);
+
+				}else{
+
+					vTex.push(-1.0+i*dx);
+					vTex.push(-1.0+j*dy);
+					vTex.push(0.0);
+				}
+
+
+				
+
+			}			
+						
+		}
 	vertTextBuf = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vTex), gl.STATIC_DRAW);
@@ -147,6 +174,8 @@ var vTex = new Array;
 
 // ********************************************************
 // ********************************************************
+
+
 function drawScene() {
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	gl.clear(gl.COLOR_BUFFER_BIT);
@@ -177,6 +206,8 @@ function drawScene() {
 	gl.uniform1i(shader.AtAttr, 	vAt);
 
 	gl.uniform2f(shader.PixelSizeUniform, 1.0/gl.viewportWidth, 1.0/gl.viewportHeight);
+
+
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
