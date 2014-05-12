@@ -27,6 +27,7 @@
 	uniform float sat;
 	uniform float cont;
 	uniform float nit;
+	uniform int   at;
 	uniform vec2 uPixelSize;
 	
 	varying vec2 vTextureCoord;
@@ -147,50 +148,50 @@
 	    return vec4( rgb, col.a );
 	}
 	void main(void) {
-		
-		/*vec4 c = texture2D(uSampler, vTextureCoord);
-		
-		vec4 cN = convertHSLtoRGB(convertRGBtoHSL(c,luz,sat));
-		gl_FragColor = vec4(pow(cN.r,cont),pow(cN.g,cont),pow(cN.b,cont),1.0);*/
-		
+		if(at == 0){
+			vec4 c = texture2D(uSampler, vTextureCoord);
+			
+			vec4 cN = convertHSLtoRGB(convertRGBtoHSL(c,luz,sat));
+			gl_FragColor = vec4(pow(cN.r,cont),pow(cN.g,cont),pow(cN.b,cont),1.0);
+			
+           }else{
+                       float n = 8.0;
            
-            float n = 8.0;
-
-            vec2 px = uPixelSize;
-            //LaPlaciano
-            vec4 soma = texture2D(uSampler, vTextureCoord + px * vec2 (0, 0)) * -4.0 +
-            texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
-            texture2D(uSampler, vTextureCoord + px * vec2( 0,-1)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0; 
-
-            soma += vec4(1.5,1.5,1.5,1.5);
-
-            n = nit;
-
-            //Isotrópico 45°
-            vec4 s = texture2D(uSampler, vTextureCoord + px * vec2( 0, 0)) + 
-            texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 0,1)) + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 1)) +
-            texture2D(uSampler, vTextureCoord + px * vec2( -1, 1)) + 
-            texture2D(uSampler, vTextureCoord + px * vec2(0,-1)) +
-            texture2D(uSampler, vTextureCoord + px * vec2(-1, -1)) +
-             texture2D(uSampler, vTextureCoord + px * vec2( 0, -1)) ;
-
-            soma =  texture2D(uSampler, vTextureCoord + px * vec2(0, 0)) * -8.0 +
-            texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
-            texture2D(uSampler, vTextureCoord + px * vec2( 0,-1)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
-            texture2D(uSampler, vTextureCoord + px * vec2(-1,-1)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1,-1)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2( 1, 1)) * 1.0 + 
-            texture2D(uSampler, vTextureCoord + px * vec2(-1, 1)) * 1.0; 
-
-            vec3 rgb = ((s/8.0+soma) / n).rgb;
-            gl_FragColor = vec4(rgb, 1.0);
+                       vec2 px = uPixelSize;
+                       //LaPlaciano
+                       vec4 soma = texture2D(uSampler, vTextureCoord + px * vec2 (0, 0)) * -4.0 +
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
+                       texture2D(uSampler, vTextureCoord + px * vec2( 0,-1)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0; 
+           
+                       soma += vec4(1.5,1.5,1.5,1.5);
+           
+                       n = nit;
+           
+                       //Isotrópico 45°
+                       vec4 s = texture2D(uSampler, vTextureCoord + px * vec2( 0, 0)) + 
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 0,1)) + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 1)) +
+                       texture2D(uSampler, vTextureCoord + px * vec2( -1, 1)) + 
+                       texture2D(uSampler, vTextureCoord + px * vec2(0,-1)) +
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1, -1)) +
+                        texture2D(uSampler, vTextureCoord + px * vec2( 0, -1)) ;
+           
+                       soma =  texture2D(uSampler, vTextureCoord + px * vec2(0, 0)) * -8.0 +
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1, 0)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
+                       texture2D(uSampler, vTextureCoord + px * vec2( 0,-1)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 0)) * 1.0 +
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1,-1)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1,-1)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2( 1, 1)) * 1.0 + 
+                       texture2D(uSampler, vTextureCoord + px * vec2(-1, 1)) * 1.0; 
+           
+                       vec3 rgb = ((s/8.0+soma) / n).rgb;
+                       gl_FragColor = vec4(rgb, 1.0);}
 	}
 </script>
 
@@ -212,7 +213,8 @@
      <div id="outputc">Contraste: 0.1</div><br\><br\>
     <input type="range" id="pCont" min="0.0" max="5.0" step="0.1" value="1.8" onchange="changePCont(this.value)"><br/><br/>
     <div id="outputn">Nitidez: 0.1</div><br\><br\>
-     <input type="range" id="pNit" min="0.0" max="5.0" step="0.1" value="1.0" onchange="changePNit(this.value)"><br/><br/>
+    <input type="checkbox" id="check" name="Ativar" value="0" onchange="ativarRange(this.value)">
+     <input type="range" id="pNit" min="0.0" max="5.0" step="0.1" value="1.0" style="visibility:hidden" onchange="changePNit(this.value)"><br/><br/>
     <div id="output"> </div>
     <br/>
 	<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
