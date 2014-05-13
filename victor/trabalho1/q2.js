@@ -2,7 +2,7 @@ var vertPosBuf;
 var vertTextBuf;
 var gl;
 var shader;
-var vEscolha
+var vEscolha;
 
 var video, videoImage, videoImageContext, videoTexture;
 
@@ -166,8 +166,9 @@ function webGLStart() {
 	videoImageContext.fillStyle = "#005337";
 	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
 	
-	var slid = document.getElementById("check");
-	vEscolha = slid.value;
+
+		vEscolha = 0;
+	
 
 	canvas = document.getElementById("videoGL");
 	gl = initGL(canvas);
@@ -220,7 +221,6 @@ function render() {
 function efeito() {
 	var slider = document.getElementById("efeito");
 	v = slider.value;
-	alert(v);
 	vEscolha = v;
 	render();
 }

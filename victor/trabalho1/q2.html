@@ -48,7 +48,6 @@
 	void main(void) {	
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
-	
 		if(escolha == 1){
 			x = pow(vTextureCoord.x , 3.0);
 			y = pow(vTextureCoord.y, 3.0);
@@ -116,15 +115,12 @@
 			</div>
 			</div>
 		        <div id="output"></div>
-		       
+		        Efeito 1: <input type="checkbox" id="check" name="Ativar" value="1" onchange="efeito(this.value)" checked>
+		        Efeito 2: <input type="checkbox" id="check" name="Ativar" value="1" onchange="efeito(this.value)">
 			<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
 			<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
 			<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
-			    <select  id="efeito" onchange="efeito(this.value)"> 
-		        	<option >Escola um valor</option>
-		         	<option  value="1">Volvo</option>
-  					<option  value="2">Saab</option>
-		        </select>
+			   
 		</div>
 	</div>
   <!-- Le javascript
