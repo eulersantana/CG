@@ -29,13 +29,19 @@
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
 
-		// float x = pow(vTextureCoord.x - uCenter.x, 2.0);
-		// float y = pow(vTextureCoord.y - uCenter.y, 2.0);
+	/*	float x = pow(vTextureCoord.x , 2.0);
+		float y = pow(vTextureCoord.y, 2.0);*/
+		float x = vTextureCoord.x;
+		float y = vTextureCoord.y;
+
 
 		// float result = sqrt(x + y);
 
-		if (vTextureCoord.x > 0.5)
-			src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
+		/*if (vTextureCoord.x > 0.5)
+			src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));*/
+
+		
+			src = texture2D(uSampler, vec2(x,y));
 
 		gl_FragColor = src;
 		}
