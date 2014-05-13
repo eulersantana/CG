@@ -131,7 +131,7 @@ var vTex = new Array;
 	vTex.push( 1.0);	// V1
 	vTex.push( 0.0);
 	vTex.push( 1.0);	// V2
-	vTex.push( 0.0);
+	vTex.push( 1.0);
 	vTex.push( 0.0); 	// V0
 	vTex.push( 0.0);
 	vTex.push( 1.0);	// V2
@@ -288,7 +288,7 @@ function changePSize() {
 	var text = document.getElementById("output");
 	var slider = document.getElementById("pSize");
 	v = slider.value;
-	text.innerHTML = "Brilho: " + v;
+	text.innerHTML = "<span class='icon-adjust'></span>&nbsp;<strong>"+"<strong>"+"Brilho: " + v+"</strong>";
 	vPSize = v / 100.0;
 	render();
 }
@@ -296,7 +296,7 @@ function changePSat() {
 	var text = document.getElementById("outputs");
 	var slider = document.getElementById("pSat");
 	v = slider.value;
-	text.innerHTML = "Saturação " + v;
+	text.innerHTML = "<span class=' icon-tint'></span>&nbsp;<strong>"+"<strong>"+"Saturação: " + v+"</strong>";
 	vPSat = v  / 100.0;
 	render();
 }
@@ -304,7 +304,7 @@ function changePCont() {
 	var text = document.getElementById("outputc");
 	var slider = document.getElementById("pCont");
 	v = slider.value;
-	text.innerHTML = "Contraste " + v;
+	text.innerHTML = "<span class='icon-cog'></span>&nbsp;<strong>"+"<strong>"+"Contraste: " + v+"</strong>";
 	vCont = v;
 	render();
 }
@@ -313,7 +313,7 @@ function changePNit() {
 	var text = document.getElementById("outputn");
 	var slider = document.getElementById("pNit");
 	v = slider.value;
-	text.innerHTML = "Nitidez " + v;
+	text.innerHTML = "<span class='icon-eye-open'></span>&nbsp;<strong>"+"Nitidez: " + v+"</strong>   ";
 	vNit = v;
 	render();
 }
