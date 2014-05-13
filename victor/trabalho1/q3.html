@@ -34,30 +34,33 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-	
+
+ 	// Textura usada no background	
 	uniform sampler2D uSamplerBck;
+	
+	// Cor escolhida para Chroma Key
 	uniform vec3 uColorChoice;
+	
+	// Intervalo de tolerancia 
+	// ( ( Cor do Pixel - Cor Escolhida ) < Tolerancia ) -> ( Cor do Pixel = Cor Escolhida )
 	uniform float uDiff;
 
 	varying vec2 vTextureCoord;
 		
 	void main(void) {	
-		vec4 src;
-		vec4 bck;
+		
+		vec4 src = texture2D(uSampler, vTextureCoord);
 
-		src = texture2D(uSampler, vTextureCoord);
-		bck = texture2D(uSamplerBck, vTextureCoord);
+		// Se a diferença entre a cor do pixel e a cor escolhida estiver no
+		// intervalo de tolerancia, entao assumimos que a cor do pixel eh
+		// igual a cor escolhida
+		if ( abs(src.r - uColorChoice.r) < uDiff && 
+			 abs(src.g - uColorChoice.g) < uDiff && 
+			 abs(src.b - uColorChoice.b) < uDiff &&
+			 uColorChoice.r >= 0.0 )
+				src = texture2D(uSamplerBck, vTextureCoord);
 
-		if (abs(src.r - uColorChoice.r) < uDiff && 
-			abs(src.g - uColorChoice.g) < uDiff && 
-			abs(src.b - uColorChoice.b) < uDiff &&
-			uColorChoice.r >= 0.0)
-		// if (src.r == uColorChoice.r && 
-		// 	src.g == uColorChoice.g && 
-		// 	src.b == uColorChoice.b)
-			src = bck;		
-
-		gl_FragColor = src; //+ diff;//(src.r + diff.r, src.g + diff.g, src.b + diff.b);
+		gl_FragColor = src; 
 		}
 </script>
 <link rel="stylesheet" type="text/css" href="css/style.css">

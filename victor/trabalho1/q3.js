@@ -12,6 +12,11 @@ var diff = 0.1;
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
+// ********************************************************
+// ********************************************************
+// Muda a cor escolhida pelo usuario
+// value = Cor em hexadecimal
+// color = Cor em RGB
 function changeColor(value)
 {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
@@ -24,9 +29,14 @@ function changeColor(value)
 	var text = document.getElementById("color");
 	text.innerText = "Color = " + value + ". RGB = " + color.r + " " + color.g + " " + color.b;
 
-    drawScene();
+    render();
 }
 
+// ********************************************************
+// ********************************************************
+// Muda o intervalo de tolerancia definido pelo usuario
+// value = Intervalo de tolerancia
+// diff = ""	""		""
 function changeDiff(value)
 {
 	diff = value;
@@ -34,7 +44,7 @@ function changeDiff(value)
 	var text = document.getElementById("range");
 	text.innerHTML = "Diff = " + value;
 
-	drawScene();
+	render();
 }
 
 // ********************************************************
@@ -145,10 +155,15 @@ function drawScene() {
 	videoTexture.needsUpdate = false;	
 	gl.uniform1i(shader.SamplerUniform, 0);
 
+	// Faz o binding da textura de background, e a associa com o uniform correspondente
 	gl.activeTexture(gl.TEXTURE1);
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.uniform1i(shader.SamplerBckUniform, 1);
+
+	// Associa o valor da cor, com a variavel a ser passada ao fragment shader
 	gl.uniform3f(shader.ColorChoiceUniform, color.r / 255, color.g / 255, color.b / 255);
+
+	// Associa o valor do intervalo, com a variavel a ser passada ao fragment shader
 	gl.uniform1f(shader.DiffUniform, diff);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
@@ -172,8 +187,11 @@ function initTexture(gl, shader) {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	videoTexture.needsUpdate = false;
 
+	// Cria uma nova textura e uma nova imagem
 	texture = gl.createTexture();
 	var bck = new Image();
+
+	// Associa a imagem com a textura
 	bck.onload = function()
 	{
 		gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -203,8 +221,7 @@ function webGLStart() {
 	// background color if no video present
 	videoImageContext.fillStyle = "#005337";
 	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-	
-	
+		
 	canvas = document.getElementById("videoGL");
 	gl = initGL(canvas);
 	
@@ -223,6 +240,7 @@ function webGLStart() {
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 
+	// Criacao das variaveis a serem utilizadas no fragment shader
 	shader.SamplerBckUniform	 	= gl.getUniformLocation(shader, "uSamplerBck");
 	shader.ColorChoiceUniform	    = gl.getUniformLocation(shader, "uColorChoice");
 	shader.DiffUniform	    		= gl.getUniformLocation(shader, "uDiff");
@@ -230,8 +248,9 @@ function webGLStart() {
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
 			(shader.SamplerUniform < 0)  ||
-			(shader.SamplerUniform2 < 0)  ||
-			(shader.ColorChoiceUniform < 0) ) {
+			(shader.SamplerBckUniform < 0)  ||
+			(shader.ColorChoiceUniform < 0) ||
+			(shader.DiffUniform < 0) ) {
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
 		}
