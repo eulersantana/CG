@@ -35,11 +35,18 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-	// fix
-	uniform vec2 uCenter;
+	
+	// Intervalo entre o preto, e o cinza medio
+	// Se x < uLevel1, entao x eh preto
 	uniform float uLevel1;
+
+	// Intervalo entre o cinza medio e o branco
+	// Se x < uLevel2, entao x eh cinza medio.
+	// Senao, x eh branco
 	uniform float uLevel2;
-	uniform int uColor;
+
+	// A qual das "cameras" pertence o fragmento atual
+	uniform int uSector;
 
 	varying vec2 vTextureCoord;
 		
@@ -47,54 +54,58 @@
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
 
+		// Calculo do tom de cinza
 		float gray = (src.r + src.g + src.b) / 3.0;
 
-		if (uColor == 0)
+		// Para cada setor, define-se um conjunto de cores
+		// a serem utilizadas
+		if (uSector == 0)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é preto
 				src = vec4(0.0, 0.0, 0.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é verde
 				src = vec4(1.0, 0.0, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é branco
 				src = vec4(1.0, 1.0, 1.0, 1.0);	
 		}
-		else if (uColor == 1)
+		else if (uSector == 1)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é azul
 				src = vec4(0.0, 0.5, 1.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é amarelo
 				src = vec4(1.0, 1.0, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é magenta
 				src = vec4(1.0, 0.0, 0.3, 1.0);	
 		}
-		else if (uColor == 2)
+		else if (uSector == 2)
 		{
+
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é verde
 				src = vec4(0.0, 0.5, 0.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é amarelo claro
 				src = vec4(0.9, 0.9, 0.5, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é rosa
 				src = vec4(0.9, 0.0, 1.0, 1.0);	
 		}
-		else if (uColor == 3)
+		else if (uSector == 3)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é roxo
 				src = vec4(0.3, 0.0, 0.3, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é laranja
 				src = vec4(1.0, 0.5, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é azul claro
 				src = vec4(0.0, 0.6, 0.6, 1.0);	
 		}
 

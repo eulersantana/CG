@@ -5,8 +5,11 @@ var shader;
 
 var video, videoImage, videoImageContext, videoTexture;
 
+// Textura de background
 var texture;
+// Cor escolhida pelo usuario
 var color = { r: -1, g : -1, b : -1};
+// Intervalo de tolerancia, tambem especificado pelo usuario
 var diff = 0.1;
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
@@ -149,7 +152,6 @@ function drawScene() {
 	
    	gl.useProgram(shader);
    	
-	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, videoTexture);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, videoImage);
 	videoTexture.needsUpdate = false;	
