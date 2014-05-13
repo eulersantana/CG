@@ -202,7 +202,7 @@ function initTexture(gl, shader) {
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 	}
 
-	bck.src = "../../images/monarch.png";
+	bck.src = "/img/monarch.png";
 }
 
 // ********************************************************
