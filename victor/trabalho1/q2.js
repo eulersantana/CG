@@ -165,9 +165,8 @@ function webGLStart() {
 	// background color if no video present
 	videoImageContext.fillStyle = "#005337";
 	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
-	
-
-		vEscolha = 0;
+	 var slid = document.getElementById("efeito");
+	vEscolha = slid.value;
 	
 
 	canvas = document.getElementById("videoGL");
@@ -189,7 +188,7 @@ function webGLStart() {
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 
 	shader.CenterUniform	    	= gl.getUniformLocation(shader, "uCenter");
-	shader.EscolharUniform	    	= gl.getUniformLocation(shader, "escolhar");
+	shader.EscolharUniform	    	= gl.getUniformLocation(shader, "escolha");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
@@ -221,6 +220,7 @@ function render() {
 function efeito() {
 	var slider = document.getElementById("efeito");
 	v = slider.value;
+	alert(v);
 	vEscolha = v;
 	render();
 }

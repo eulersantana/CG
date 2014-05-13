@@ -49,24 +49,27 @@
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
 		if(escolha == 1){
-			x = pow(vTextureCoord.x , 3.0);
-			y = pow(vTextureCoord.y, 3.0);
-			/*float x = vTextureCoord.x;
-			float y = vTextureCoord.y;*/
-	    }
-		// float result = sqrt(x + y);
-		if(escolha == 2){
-			x = vTextureCoord.x;
-			y = vTextureCoord.y;
 
 			if (vTextureCoord.x > 0.5)
 				src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
 		}
+
+		if(escolha == 2){
+			x = pow(vTextureCoord.x , 2.0);
+			y = pow(vTextureCoord.y, 2.0);
 		
 			src = texture2D(uSampler, vec2(x,y));
+	    }
+		// // float result = sqrt(x + y);
+		// if(escolha == 0){
+		// 	x = vTextureCoord.x;
+		// 	y = vTextureCoord.y;
+		// }
+		
+		
 
 		gl_FragColor = src;
-		}
+	}
 </script>
 <link rel="stylesheet" type="text/css" href="css/style.css">
 <!-- Le styles -->
@@ -91,7 +94,7 @@
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="q1.html">Desafio 1</a></li>
-              <li><a href="q2.html">Desafio 2</a></li>
+              <li><a href="q2.html">Normal</a></li>
               <li><a href="q3.html">Desafio 3</a></li>
               <li><a href="q4.html">Desafio 4</a></li>
             </ul>
@@ -115,8 +118,12 @@
 			</div>
 			</div>
 		        <div id="output"></div>
-		        Efeito 1: <input type="checkbox" id="check" name="Ativar" value="1" onchange="efeito(this.value)" checked>
-		        Efeito 2: <input type="checkbox" id="check" name="Ativar" value="1" onchange="efeito(this.value)">
+		        <select id="efeito" onchange="efeito(this.value)">
+		        	<option value="0">Efeito 0</option>
+		        	<option value="1">Efeito 1</option>
+		        	<option value="2">Efeito 2</option>
+		        </select>
+		       
 			<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
 			<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
 			<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
