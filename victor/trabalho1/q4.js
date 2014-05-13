@@ -20,7 +20,7 @@ window.URL = window.URL || window.webkitURL;
 function changeLevel1(value)
 {
 	var text = document.getElementById("range1");
-	text.innerText = "Nivel 1 = " + value;
+	text.innerHTML = "Nivel 1 = " + value;
 	level1 = value;
     render();
 }
@@ -33,7 +33,7 @@ function changeLevel1(value)
 function changeLevel2(value)
 {
 	var text = document.getElementById("range2");
-	text.innerText = "Nivel 2 = " + value;
+	text.innerHTML = "Nivel 2 = " + value;
 	level2 = value;
     render();
 }
@@ -252,9 +252,9 @@ function webGLStart() {
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
-			(shader.SamplerUniform < 0)
-			(shader.Level1Uniform < 0)
-			(shader.Level2Uniform < 0)
+			(shader.SamplerUniform < 0) ||
+			(shader.Level1Uniform < 0) ||
+			(shader.Level2Uniform < 0) ||
 			(shader.SectorUniform < 0) ) {
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
