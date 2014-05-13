@@ -220,7 +220,6 @@ function render() {
 function efeito() {
 	var slider = document.getElementById("efeito");
 	v = slider.value;
-	alert(v);
 	vEscolha = v;
 	render();
 }
