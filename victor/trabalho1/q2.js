@@ -2,6 +2,7 @@ var vertPosBuf;
 var vertTextBuf;
 var gl;
 var shader;
+var vEscolha
 
 var video, videoImage, videoImageContext, videoTexture;
 
@@ -120,6 +121,7 @@ function drawScene() {
 	gl.uniform1i(shader.SamplerUniform, 0);
 
 	gl.uniform2f(shader.CenterUniform, center.x, center.y);
+	gl.uniform1i(shader.EscolharUniform, vEscolha);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
@@ -164,7 +166,9 @@ function webGLStart() {
 	videoImageContext.fillStyle = "#005337";
 	videoImageContext.fillRect( 0, 0, videoImage.width, videoImage.height );
 	
-	
+	var slid = document.getElementById("check");
+	vEscolha = slid.value;
+
 	canvas = document.getElementById("videoGL");
 	gl = initGL(canvas);
 	
@@ -184,6 +188,7 @@ function webGLStart() {
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 
 	shader.CenterUniform	    	= gl.getUniformLocation(shader, "uCenter");
+	shader.EscolharUniform	    	= gl.getUniformLocation(shader, "escolhar");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
@@ -212,4 +217,11 @@ function render() {
 	drawScene();
 }
 
+function efeito() {
+	var slider = document.getElementById("efeito");
+	v = slider.value;
+	alert(v);
+	vEscolha = v;
+	render();
+}
 
