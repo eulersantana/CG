@@ -94,7 +94,7 @@
           <div class="nav-collapse collapse">
             <ul class="nav">
               <li class="active"><a href="q1.html">Desafio 1</a></li>
-              <li><a href="q2.html">Normal</a></li>
+              <li><a href="q2.html">Desafio 2</a></li>
               <li><a href="q3.html">Desafio 3</a></li>
               <li><a href="q4.html">Desafio 4</a></li>
             </ul>
@@ -113,21 +113,29 @@
 			</div>
 			<div id="collapseOne" class="accordion-body collapse in">
 			  <div class="accordion-inner">
-			    Ajuste de brilho, contraste, saturação e nitidez do fluxo de vídeo
+			    Um efeito de deformação, que modifique a geometria de cada imagem do video preservando as suas bordas.
 			  </div>
 			</div>
 			</div>
 		        <div id="output"></div>
-		        <select id="efeito" onchange="efeito(this.value)">
-		        	<option value="0">Normal</option>
-		        	<option value="1">Efeito 1</option>
-		        	<option value="2">Efeito 2</option>
-		        </select>
-		       
-			<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
-			<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
-			<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
-			   
+		       <div class="row-fluid">
+		       <div class="span4">
+		       <h3>Selecione um Efeito:</h3>
+						 <select id="efeito" onchange="efeito(this.value)">
+					        	<option value="0">Normal</option>
+					        	<option value="1">Efeito 1</option>
+					        	<option value="2">Efeito 2</option>
+					        </select>
+					     </div>
+		  				<div class="span10">
+					    <img src="img/tv.png"> 
+						<canvas id="videoGL" class="dsf" width="320" height="240" style="visibility: visible;"></canvas>
+						</div>
+						
+			     </div>	
+				<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+				<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+		   
 		</div>
 	</div>
   <!-- Le javascript

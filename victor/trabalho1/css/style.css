@@ -8,6 +8,15 @@
 	right:  359px;
 	top:	184px;
 }
+#b2{
+    border: 12px solid #333;
+    width: 100%;
+}
+
+#b1{
+    border: 8px solid black;
+    width: 608px;
+}
 
 input[type="range"]{
     background: rgb(94, 30, 30);

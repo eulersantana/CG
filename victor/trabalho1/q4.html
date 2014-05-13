@@ -156,9 +156,11 @@
     <div id="range2"> Nivel 2 = 0.2 </div>
 	<input type="range" onchange="changeLevel2(this.value)" min="0.2" max="0.9" step="0.01" value="0.2"/>
     <br/><br/>
-
-	<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
-	
+     <div id="b1">
+     	<div id="b2">
+			<canvas id="videoGL"  width="320" height="240" style="visibility: visible;"></canvas>
+		</div>
+	</div>
     <div style="visibility: hidden;">
 		<video id="monitor" autoplay width="320" height="240"></video>
 		<canvas id="videoImage" width="256" height="256"></canvas>

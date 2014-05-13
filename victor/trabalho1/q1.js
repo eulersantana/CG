@@ -320,19 +320,29 @@ function changePNit() {
 
 function ativarRange() {
 	var slider = document.getElementById("check");
-	var nit = document.getElementById("pNit");
+	var nit = document.getElementById("pNit");	
+	var cont = document.getElementById("pCont");
+	var sat = document.getElementById("pSat");
+	var bri = document.getElementById("pSize");
+
 	v = slider.value;
 	if( v == 0){
 		
 		slider.value = 1;
 		vAt = slider.value;
-
-		nit.style.visibility = "visible";
+		nit.removeAttribute("disabled");
+		cont.setAttribute("disabled", "");
+		sat.setAttribute("disabled", "");
+		bri.setAttribute("disabled", "");
 	}else{
 		
 		slider.value = 0;
 		vAt = slider.value;
-		nit.style.visibility = "hidden";
+		nit.setAttribute("disabled", "");
+		cont.removeAttribute("disabled");
+		sat.removeAttribute("disabled");
+		bri.removeAttribute("disabled");
+		
 	}
 	
 	
