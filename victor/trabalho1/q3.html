@@ -2,10 +2,10 @@
 <html lang="pt">
   <head>
     <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
+    <title>Trabalho de Computacao Grafica - UFBA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Primeiro Trabalho de Computacao Grafica - UFBA">
-    <meta name="author" content="Euler Santana e Victor Marciel">
+    <meta name="author" content="Euler Santana e Victor Maciel">
 
     
     <style>
@@ -54,9 +54,9 @@
 		// Se a diferença entre a cor do pixel e a cor escolhida estiver no
 		// intervalo de tolerancia, entao assumimos que a cor do pixel eh
 		// igual a cor escolhida
-		if ( abs(src.r - uColorChoice.r) < uDiff && 
-			 abs(src.g - uColorChoice.g) < uDiff && 
-			 abs(src.b - uColorChoice.b) < uDiff &&
+		if ( abs(src.r - uColorChoice.r) <= uDiff && 
+			 abs(src.g - uColorChoice.g) <= uDiff && 
+			 abs(src.b - uColorChoice.b) <= uDiff &&
 			 uColorChoice.r >= 0.0 )
 				src = texture2D(uSamplerBck, vTextureCoord);
 
@@ -67,8 +67,8 @@
 <!-- Le styles -->
 <link href="css/bootstrap.css" rel="stylesheet">
 
-<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
-<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="lib/webgl-utils.js"></script>
+<script type="text/javascript" src="lib/shaders.js"></script>
 <script type="text/javascript" src="q3.js"></script>
 
 </head>
@@ -85,9 +85,9 @@
           <a class="brand" href="#">Trablho de CG</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="q1.html">Desafio 1</a></li>
+              <li><a href="q1.html">Desafio 1</a></li>
               <li><a href="q2.html">Desafio 2</a></li>
-              <li><a href="q3.html">Desafio 3</a></li>
+              <li class="active"><a href="q3.html">Desafio 3</a></li>
               <li><a href="q4.html">Desafio 4</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -106,16 +106,17 @@
 			<div id="collapseOne" class="accordion-body collapse in">
 			  <div class="accordion-inner">
 			  O efeito de mistura de uma imagem estática com parte da cena capturada, no estilo chroma key, onde a escolha da cor a ser substituída deve ser feita pelo usuário.
+
 			  </div>
 			</div>
 			</div>
 		        <div id="output"></div>
     
-    <div id="color"> Color = #000000 </div>
+    <div id="color"> Color = #000000. RGB = 00 00 00 </div>
 	<input type="color" onchange="changeColor(this.value)"/>
 	    
-    <div id="range"> Diff = 0.1 </div>
-	<input type="range" onchange="changeDiff(this.value)" min="0.01" max="1.0" step="0.01" value="0.1"/>
+    <div id="range"> Tolerance = 0.1 </div>
+	<input type="range" onchange="changeDiff(this.value)" min="0.0" max="1.0" step="0.01" value="0.1"/>
     <br/><br/>
 
      <img src="img/tv.png"> 

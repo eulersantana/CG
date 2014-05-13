@@ -2,10 +2,10 @@
 <html lang="pt">
   <head>
     <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
+    <title>Trabalho de Computacao Grafica - UFBA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Primeiro Trabalho de Computacao Grafica - UFBA">
-    <meta name="author" content="Euler Santana e Victor Marciel">
+    <meta name="author" content="Euler Santana e Victor Maciel">
 
     
     <style>
@@ -35,11 +35,18 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-	// fix
-	uniform vec2 uCenter;
+	
+	// Intervalo entre o preto, e o cinza medio
+	// Se x < uLevel1, entao x eh preto
 	uniform float uLevel1;
+
+	// Intervalo entre o cinza medio e o branco
+	// Se x < uLevel2, entao x eh cinza medio.
+	// Senao, x eh branco
 	uniform float uLevel2;
-	uniform int uColor;
+
+	// A qual das "cameras" pertence o fragmento atual
+	uniform int uSector;
 
 	varying vec2 vTextureCoord;
 		
@@ -47,54 +54,58 @@
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
 
+		// Calculo do tom de cinza
 		float gray = (src.r + src.g + src.b) / 3.0;
 
-		if (uColor == 0)
+		// Para cada setor, define-se um conjunto de cores
+		// a serem utilizadas
+		if (uSector == 0)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é preto
 				src = vec4(0.0, 0.0, 0.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é verde
 				src = vec4(1.0, 0.0, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é branco
 				src = vec4(1.0, 1.0, 1.0, 1.0);	
 		}
-		else if (uColor == 1)
+		else if (uSector == 1)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é azul
 				src = vec4(0.0, 0.5, 1.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é amarelo
 				src = vec4(1.0, 1.0, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é magenta
 				src = vec4(1.0, 0.0, 0.3, 1.0);	
 		}
-		else if (uColor == 2)
+		else if (uSector == 2)
 		{
+
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é verde
 				src = vec4(0.0, 0.5, 0.0, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é amarelo claro
 				src = vec4(0.9, 0.9, 0.5, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é rosa
 				src = vec4(0.9, 0.0, 1.0, 1.0);	
 		}
-		else if (uColor == 3)
+		else if (uSector == 3)
 		{
 			if (gray < uLevel1)
-				// 0, 0 , 0
+				// Se a cor é preto, a nova cor é roxo
 				src = vec4(0.3, 0.0, 0.3, 1.0);
 			else if (gray < uLevel2)
-				// 0.5, 0.5, 0.5
+				// Se a cor é cinza, a nova cor é laranja
 				src = vec4(1.0, 0.5, 0.0, 1.0);
 			else
-				// 1, 1, 1
+				// Se a cor é branco, a nova cor é azul claro
 				src = vec4(0.0, 0.6, 0.6, 1.0);	
 		}
 
@@ -105,8 +116,8 @@
 <!-- Le styles -->
 <link href="css/bootstrap.css" rel="stylesheet">
 
-<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
-<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="lib/webgl-utils.js"></script>
+<script type="text/javascript" src="lib/shaders.js"></script>
 <script type="text/javascript" src="q4.js"></script>
 
 </head>
@@ -123,10 +134,10 @@
           <a class="brand" href="#">Trablho de CG</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="q1.html">Desafio 1</a></li>
+              <li><a href="q1.html">Desafio 1</a></li>
               <li><a href="q2.html">Desafio 2</a></li>
               <li><a href="q3.html">Desafio 3</a></li>
-              <li><a href="q4.html">Desafio 4</a></li>
+              <li class="active"><a href="q4.html">Desafio 4</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -143,7 +154,7 @@
 			</div>
 			<div id="collapseOne" class="accordion-body collapse in">
 			  <div class="accordion-inner">
-			    Ajuste de brilho, contraste, saturação e nitidez do fluxo de vídeo
+			    Efeito Andy Warhol no fluxo do video
 			  </div>
 			</div>
 			</div>

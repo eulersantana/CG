@@ -5,25 +5,37 @@ var shader;
 
 var video, videoImage, videoImageContext, videoTexture;
 
+// Intervalos entre preto e cinza medio e
+// cinza medio e branco, respectivamente
 var  level1, level2;
 
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
+// ********************************************************
+// ********************************************************
+// Muda o intervalo entre preto e cinza medio
+// value = Intervalo entre preto e cinza medio
+// level1 = ""		""		""		""		""
 function changeLevel1(value)
 {
 	var text = document.getElementById("range1");
-	text.innerText = "Nivel 1 = " + value;
+	text.innerHTML = "Nivel 1 = " + value;
 	level1 = value;
-    drawScene();
+    render();
 }
 
+// ********************************************************
+// ********************************************************
+// Muda o intervalo entre cinza medio e o branco
+// value = Intervalo entre cinza medio e o branco
+// level2 = ""		""		""		""		""
 function changeLevel2(value)
 {
 	var text = document.getElementById("range2");
-	text.innerText = "Nivel 2 = " + value;
+	text.innerHTML = "Nivel 2 = " + value;
 	level2 = value;
-    drawScene();
+    render();
 }
 
 // ********************************************************
@@ -70,6 +82,7 @@ function initGL() {
 	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
+	// Inicialização dos intervalos
 	level1 = 0.1;
 	level2 = 0.2;
 
@@ -142,8 +155,13 @@ function drawScene() {
 	videoTexture.needsUpdate = false;	
 	gl.uniform1i(shader.SamplerUniform, 0);
 
-	gl.uniform1i(shader.ColorUniform, 0);
+	// Associa o valor do setor, com a variavel a ser passada ao fragment shader
+	gl.uniform1i(shader.SectorUniform, 0);
+
+	// Associa o valor do intervalo, com a variavel a ser passada ao fragment shader
 	gl.uniform1f(shader.Level1Uniform, level1);
+
+	// Associa o valor do intervalo, com a variavel a ser passada ao fragment shader
 	gl.uniform1f(shader.Level2Uniform, level2);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
@@ -154,20 +172,27 @@ function drawScene() {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
 
-	
-
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 
+	// Redefine o viewport, permitindo que a imagem seja desenhada em outro setor
 	gl.viewport(gl.viewportWidth, 0, gl.viewportWidth, gl.viewportHeight);
-	gl.uniform1i(shader.ColorUniform, 1);
+	// Associa o valor do setor, com a variavel a ser passada ao fragment shader
+	gl.uniform1i(shader.SectorUniform, 1);
+
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 
+	// Redefine o viewport, permitindo que a imagem seja desenhada em outro setor
 	gl.viewport(0, gl.viewportHeight, gl.viewportWidth, gl.viewportHeight);
-	gl.uniform1i(shader.ColorUniform, 2);
+	// Associa o valor do setor, com a variavel a ser passada ao fragment shader
+	gl.uniform1i(shader.SectorUniform, 2);
+
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 
+	// Redefine o viewport, permitindo que a imagem seja desenhada em outro setor
 	gl.viewport(gl.viewportWidth, gl.viewportHeight, gl.viewportWidth, gl.viewportHeight);
-	gl.uniform1i(shader.ColorUniform, 3);
+	// Associa o valor do setor, com a variavel a ser passada ao fragment shader
+	gl.uniform1i(shader.SectorUniform, 3);
+
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
 
@@ -219,13 +244,18 @@ function webGLStart() {
 	shader.vertexPositionAttribute 	= gl.getAttribLocation(shader, "aVertexPosition");
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
+
+	// Criacao das variaveis a serem utilizadas no fragment shader
 	shader.Level1Uniform	 		= gl.getUniformLocation(shader, "uLevel1");
 	shader.Level2Uniform	 		= gl.getUniformLocation(shader, "uLevel2");
-	shader.ColorUniform	 		    = gl.getUniformLocation(shader, "uColor");
+	shader.SectorUniform			= gl.getUniformLocation(shader, "uSector");
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
-			(shader.SamplerUniform < 0) ){
+			(shader.SamplerUniform < 0) ||
+			(shader.Level1Uniform < 0) ||
+			(shader.Level2Uniform < 0) ||
+			(shader.SectorUniform < 0) ) {
 		alert("Shader attribute ou uniform nao localizado!");
 		return;
 		}
