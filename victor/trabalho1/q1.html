@@ -53,28 +53,22 @@
 		if((r >= g) && (r >= b)){
 			return r;
 		}
-
-		if((g >= r) && (g >= b)){
+		else if((g >= r) && (g >= b)){
 			return g;
 		}
 
-		if((b >= g) && (b >= r)){
-			return b;
-		}
+		return b;
 	}
 	/*Função para verificar o menor valor do canal RGB*/
 	float minM(float r, float g, float b){
 		if((r <= g) && (r <= b)){
 			return r;
 		}
-
-		if((g <= r) && (g <= b)){
+		else if((g <= r) && (g <= b)){
 			return g;
 		}
 
-		if((b <= g) && (b <= r)){
-			return b;
-		}
+		return b;		
 	}
 
 	/*Função responsavel pela conversão do RGB para HSL que recebe como entrada um vec4 em RGB, com a quantidade de brilho e de saturação*/
