@@ -29,45 +29,7 @@ function gotStream(stream)  {
 	stream.onended = noStream;
 }
 
-function build2DGrid(nx, ny) {
 
-var dx = 2.0/nx;
-var dy = 2.0/ny;
-
-		for (i=0 ; i <= nx ; i++) {
-			for(j=0 ; j <= ny; j++) {
-				
-
-				
-				
-				if( (Math.pow(((-1.0+i*dx) - 0),2) + Math.pow(((-1.0+j*dx) - 0),2)) < Math.pow(0.5,2)){
-					vColor.push(1.0);
-					vColor.push(1.0);
-					vColor.push(0.0);
-					
-					vPos.push(0.0);
-					vPos.push(0.0);
-					vPos.push(0.0);
-
-				}else{
-					vColor.push(i*dx);
-					vColor.push(j*dy);
-					vColor.push(0.0);
-
-					vPos.push(-1.0+i*dx);
-					vPos.push(-1.0+j*dy);
-					vPos.push(0.0);
-				}
-
-
-				
-
-			}			
-						
-		}
-
-		
-}
 // ********************************************************
 // ********************************************************
 function noStream(e) {
