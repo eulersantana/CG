@@ -45,7 +45,7 @@ function changeDiff(value)
 	diff = value;
 
 	var text = document.getElementById("range");
-	text.innerHTML = "Diff = " + value;
+	text.innerHTML = "Tolerance = " + value;
 
 	render();
 }
