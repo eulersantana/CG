@@ -50,8 +50,10 @@
 		vec4 src = texture2D(uSampler, vTextureCoord);
 		if(escolha == 1){
 
-			if (vTextureCoord.x > 0.5)
+			if (vTextureCoord.x > 0.5){
 				src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
+			}
+			
 		}
 
 		if(escolha == 2){
@@ -59,6 +61,10 @@
 			y = pow(vTextureCoord.y, 2.0);
 		
 			src = texture2D(uSampler, vec2(x,y));
+	    }
+
+	    if(escolha == 3){
+	    	src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
 	    }
 		// // float result = sqrt(x + y);
 		// if(escolha == 0){
@@ -127,6 +133,7 @@
 					        	<option value="0">Normal</option>
 					        	<option value="1">Efeito 1</option>
 					        	<option value="2">Efeito 2</option>
+					        	<option value="3">Efeito 2</option>
 					        </select>
 					     </div>
 		  				<div class="span10">
