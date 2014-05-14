@@ -22,10 +22,14 @@
 <script id="shader-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
 	attribute vec2 aVertexTexture;
-		
+	
+
+	uniform vec2 uPixelSize;
+
 	varying vec2 vTextureCoord;
 	
 	void main(void) {
+
 		gl_Position = vec4(aVertexPosition, 1.0);
 		vTextureCoord = aVertexTexture;
 	}
@@ -36,7 +40,9 @@
 
 	float x;
 	float y;
-		
+	float theta = 10.0;	
+	float radius = 50.0;
+	vec2 cood;
 	uniform sampler2D uSampler;
 
 	uniform int escolha;
@@ -48,29 +54,28 @@
 	void main(void) {	
 		
 		vec4 src = texture2D(uSampler, vTextureCoord);
+		/*Filtro 1 */
 		if(escolha == 1){
-
+		       
 			if (vTextureCoord.x > 0.5){
-				src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
+				src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.s, vTextureCoord.t));
 			}
 			
 		}
-
+		/*Filtro 2*/
 		if(escolha == 2){
 			x = pow(vTextureCoord.x , 2.0);
 			y = pow(vTextureCoord.y, 2.0);
 		
 			src = texture2D(uSampler, vec2(x,y));
 	    }
-
+	    /*Filtro 3*/
 	    if(escolha == 3){
-	    	src = texture2D(uSampler, vec2(2.0 * uCenter.x - vTextureCoord.x, vTextureCoord.y));
-	    }
-		// // float result = sqrt(x + y);
-		// if(escolha == 0){
-		// 	x = vTextureCoord.x;
-		// 	y = vTextureCoord.y;
-		// }
+	    	x = sqrt(vTextureCoord.x );
+			y = sqrt(vTextureCoord.y);
+		
+			src = texture2D(uSampler, vec2(x,y));
+		}
 		
 		
 
@@ -133,7 +138,7 @@
 					        	<option value="0">Normal</option>
 					        	<option value="1">Efeito 1</option>
 					        	<option value="2">Efeito 2</option>
-					        	<option value="3">Efeito 2</option>
+					        	<option value="3">Efeito 3</option>
 					        </select>
 					     </div>
 		  				<div class="span10">

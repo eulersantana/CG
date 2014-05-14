@@ -4,6 +4,8 @@ var gl;
 var shader;
 var vEscolha;
 
+
+
 var video, videoImage, videoImageContext, videoTexture;
 
 var center;
@@ -123,6 +125,8 @@ function drawScene() {
 	gl.uniform2f(shader.CenterUniform, center.x, center.y);
 	gl.uniform1i(shader.EscolharUniform, vEscolha);
 
+
+
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertPosBuf);
 	gl.vertexAttribPointer(shader.vertexPositionAttribute, vertPosBuf.itemSize, gl.FLOAT, false, 0, 0);
@@ -130,6 +134,9 @@ function drawScene() {
 	gl.enableVertexAttribArray(shader.vertexTextAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
+
+	/*gl.uniform2f(shader.PixelSizeUniform, 1.0/gl.viewportWidth, 1.0/gl.viewportHeight);*/
+
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
@@ -189,7 +196,9 @@ function webGLStart() {
 
 	shader.CenterUniform	    	= gl.getUniformLocation(shader, "uCenter");
 	shader.EscolharUniform	    	= gl.getUniformLocation(shader, "escolha");
-
+/*
+	shader.PixelSizeUniform	 		= gl.getUniformLocation(shader, "uPixelSize");
+*/
 	if ( 	(shader.vertexPositionAttribute < 0) ||
 			(shader.vertexTextAttribute < 0) ||
 			(shader.SamplerUniform < 0)  ||
