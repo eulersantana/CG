@@ -1,0 +1,124 @@
+
+<head>
+<title>MATA65 - Computacao Grafica</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script type="text/javascript">
+
+var objPto = function(x,y,cor) {
+		this.x 		= x;
+		this.y 		= y;
+		this.cor	= cor;
+		};
+		
+var ptos = new Array();
+var canvas;
+var ctx; 
+var cor;
+
+objPto.prototype.draw = function(ctx) {
+	ctx.beginPath();
+	ctx.fillStyle = this.cor;
+	ctx.fill
+	ctx.fillRect(this.x-1, this.y-1, 2, 2);
+	ctx.closePath();
+	}
+
+objPto.prototype.drawLine = function(ctx, pto) {
+	ctx.beginPath();
+	ctx.fillStyle = this.cor
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = this.cor
+	ctx.moveTo(this.x,this.y)
+	ctx.lineTo(pto.x, pto.y)
+	ctx.stroke()
+	pto.draw(ctx)
+	this.draw(ctx)
+	ctx.closePath();
+}
+	
+	function initCanvas() 
+	{
+		canvas = document.getElementById("myCanvas");
+		ctx = canvas.getContext("2d");
+		var pto = new objPto(30,200,cor)
+		ptos.push(pto)
+		pto = new objPto(370,200,cor)
+		ptos.push(pto)
+		draw()
+	}
+	
+	function draw()
+	{
+		for (i = 0; i < ptos.length - 1; i++)
+			ptos[i].drawLine(ctx,ptos[i+1])
+	}
+
+	function clean()
+	{
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
+	function koch(type) 
+	{
+		// Metodo interativo (variavel 'j' é global)
+			// newPtos(ptos[j], ptos[j + 1], j + 1)
+			// j += 8
+			// if (j >= ptos.length - 1)
+			// 	j = 0
+		// ------------------------------------------------*/
+		clean()		
+		if (type == "Up")
+			for (var i = 0; i < ptos.length - 1; i+=8)
+				newPtos(ptos[i], ptos[i + 1], i + 1)
+		else if (type == "Down")
+			for (var i = 1; i < ptos.length - 1; i++)
+				ptos.splice(i,7)
+		draw()		
+	}
+
+	function newPtos(pto0, pto1, index)
+	{
+		var distX = pto1.x-pto0.x
+		var distY = pto1.y-pto0.y
+
+		var fourthX = distX / 4
+		var fourthY = distY / 4
+
+		var ptoB = new objPto(pto0.x + fourthX, pto0.y + fourthY, cor)
+		var ptoA = new objPto(pto0.x + fourthX * 3, pto0.y + fourthY * 3, cor)
+
+		var ptoM1 = new objPto(ptoB.x + fourthY, ptoB.y - fourthX, cor) 
+		var ptoM2 = new objPto(ptoB.x + fourthX + fourthY, ptoB.y - fourthX + fourthY, cor) 
+		var ptoM3 = new objPto(ptoB.x + fourthX, ptoB.y + fourthY, cor) 
+		var ptoM4 = new objPto(ptoA.x - fourthY - fourthX, ptoB.y + fourthX + fourthY, cor) 
+		var ptoM5 = new objPto(ptoA.x - fourthY, ptoA.y + fourthX, cor) 
+
+		ptos.splice(index,0,ptoB,ptoM1,ptoM2,ptoM3,ptoM4,ptoM5,ptoA)
+	}
+
+	function setColor(event)
+    {
+    	cor = document.getElementById('color').value
+    }
+
+</script>
+
+
+</head>
+<body onload="initCanvas()">
+    <h1>Laboratorio 0 - Exercicio 4b</h1><br />
+    <p>Curva de Coch</p>
+    <br/>
+    <div id="output"> </div>
+    <br/>
+    <button onclick="koch('Up')">Aumentar Nivel</button>
+    <button onclick="koch('Down')">Diminuir Nivel</button>
+    <canvas id="myCanvas" width="400" height="400" style="border:1px solid #000000;" >
+    	Seu navegador nao tem suporte a tag HTML5 canvas.
+    </canvas>
+    <input id='color' type='color' onchange='setColor(event)'/>
+    <a href="../../index.php"> Voltar </a>
+</body>
+
+</html>

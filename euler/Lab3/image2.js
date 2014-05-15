@@ -82,6 +82,7 @@ function drawScene(gl, shader) {
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.uniform1i(shader.SamplerCor, 0);
+	gl.uniform2f(shader.SamplertamPixel,1.0/ gl.viewportWidth,1.0/ gl.viewportHeight);
 
 	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
@@ -119,9 +120,7 @@ function initTexture(gl, shader) {
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		/*var u_textureSize = gl.getUniformLocation(shader, "u_textureSize");
-		gl.uniform2fv(u_textureSize,image.width,image.height); 
-		*/drawScene(gl, shader);
+		drawScene(gl, shader);
 
 		}
 	image.src = "../Lab2/image/lena.png";
@@ -151,6 +150,7 @@ function webGLStart() {
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shaderProgram, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 	shader.SamplerCor	 			= gl.getUniformLocation(shader, "cor");
+	shader.SamplerCor	 			= gl.getUniformLocation(shader, "tamPixel");
 
 
 	if ( 	(shader.vertexPositionAttribute < 0) ||
