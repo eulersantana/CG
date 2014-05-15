@@ -39,9 +39,9 @@
             vec4 soma = texture2D(uSampler, vTextureCoord + px * vec2(base,base));
 
             for(int i = invBase; i <= base; i++){
-            for(int j = invBase; j < base; j++){
-            soma += texture2D(uSampler, vTextureCoord + px * vec2(i,j));
-            }	
+                for(int j = invBase; j < base; j++){
+                    soma += texture2D(uSampler, vTextureCoord + px * vec2(i,j));
+                }	
             }
 
             vec3 rgb = (soma / n).rgb;
