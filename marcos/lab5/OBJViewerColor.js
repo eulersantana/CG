@@ -3,7 +3,7 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var scale 		= 1.0;
+var scale 		= 1;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -163,6 +163,13 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	
+	var inputScale = document.getElementById("scale");	
+	scale = inputScale.value;
+	inputScale.onchange = function(){
+		scale = this.value;
+		drawScene(gl);
+	}
+
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uScale) {
 		console.log("Error getAttribLocation"); 
