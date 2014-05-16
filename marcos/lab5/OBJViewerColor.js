@@ -8,6 +8,9 @@ var scale 		= 1;
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
 
+var vPos = new Array;
+var vAxisVertexBuf;
+
 // ********************************************************
 // ********************************************************
 function initGL(canvas) {
@@ -61,7 +64,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-var groupModel = null;
+	var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -73,7 +76,7 @@ var groupModel = null;
 		if (groupModel.vertexBuffer) {		
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.vertexBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.vertices[o], gl.STATIC_DRAW);
-			}
+		}
 		else
 			alert("ERROR: can not create vertexBuffer");
 	
@@ -95,13 +98,35 @@ var groupModel = null;
 		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
 		model.push(groupModel);
-		}
+	}
 }
 
 // ********************************************************
 // ********************************************************
-
 function initAxisVertexBuffer(gl) {
+	initVPos();
+	vAxisVertexBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vAxisVertexBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vPos), gl.STATIC_DRAW);
+    vAxisVertexBuf.itemSize = 4;
+    vAxisVertexBuf.numItems = vPos.length / vAxisVertexBuf.itemSize;
+}
+
+function initVPos(){
+	vPos.push(1.0);
+    vPos.push(0.0);
+    vPos.push(0.0);
+    vPos.push(0.0);
+
+    vPos.push(0.0);
+    vPos.push(1.0);
+    vPos.push(0.0);
+    vPos.push(0.0);
+
+    vPos.push(0.0);
+    vPos.push(0.0);
+    vPos.push(1.0);
+    vPos.push(0.0);
 }
 
 // ********************************************************
@@ -112,7 +137,7 @@ function draw(gl, o, shaderProgram, primitive) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);  
-		}
+	}
 	else
 		alert("o.vertexBuffer == null");
 
@@ -120,12 +145,11 @@ function draw(gl, o, shaderProgram, primitive) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.colorBuffer);
 		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
-		}
+	}
 	else
 		alert("o.colorBuffer == null");
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.indexBuffer);
-
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
 
@@ -134,19 +158,18 @@ function draw(gl, o, shaderProgram, primitive) {
 function drawScene(gl) {
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
-
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
     try {
     	gl.useProgram(shader);
-		}
+	}
 	catch(err){
         alert(err);
         console.error(err.description);
-    	}
+	}
     		
 	gl.uniform1f(shader.uScale, scale);
-
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
 }
@@ -163,18 +186,26 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	
-	var inputScale = document.getElementById("scale");	
-	scale = inputScale.value;
+	var inputScale 	= document.getElementById("scale");
+	var step 		= document.getElementById("step");
+
+	scale = 1 / canvas.width;
+	inputScale.value = scale;
+	inputScale.step = step.value;
 	inputScale.onchange = function(){
 		scale = this.value;
 		drawScene(gl);
+	}
+
+	step.onchange = function(){
+		inputScale.step = this.value;
 	}
 
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uScale) {
 		console.log("Error getAttribLocation"); 
 		return;
-		}
+	}
 		
 	readOBJFile("../../modelos/simpleCube.obj", gl, 1, true);
 	
@@ -194,11 +225,13 @@ function webGLStart() {
 			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
 									+ g_drawingInfo.BBox.Center.y + " , " 
 									+ g_drawingInfo.BBox.Center.z + ")");
-			}
+		}
 		requestAnimationFrame(tick, canvas);
-		if (model.length > 0) 
+		if (model.length > 0){
+			initAxisVertexBuffer(gl); 
 			drawScene(gl);
-		};	
+		}
+	};	
 	tick();
 }
 

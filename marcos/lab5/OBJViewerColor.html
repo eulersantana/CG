@@ -38,13 +38,18 @@
 <script type="text/javascript" src="../../lib/myOBJParser.js"></script>
 <script type="text/javascript" src="../../lib/materialParser.js"></script>
 <script type="text/javascript" src="OBJViewerColor.js"></script>
-
+<style>
+	input{
+		width: 100px;
+	}
+</style>
 </head>
 
 <body onload="webGLStart();">
     <h1>Laboratorio 5</h1><br />
     <p>Visualizacao de Modelos 3D em formato OBJ.</p>
-	<label>Scale:<input type="number" min="0" max="1" id="scale" value="1" step="0.01"></label><br/>
+	<label>Scale:<input type="number" min="0" max="1" id="scale" value="1"></label> |
+	<label>Step:<input type="number" id="step" min="0" max="1" value="0.01"></label><br/>
     <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
 
 </body>

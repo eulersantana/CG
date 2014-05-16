@@ -139,7 +139,7 @@ function webGLStart() {
         return;
     }
 
-    shader.vPosAttr = gl.getAttribLocation(shader, "aVertexPosition");
+    shader.vPosAttr   = gl.getAttribLocation(shader, "aVertexPosition");
     shader.vColorAttr = gl.getAttribLocation(shader, "aVertexColor");
     shader.uPSizeAttr = gl.getUniformLocation(shader, "uVertexPSize");
 
