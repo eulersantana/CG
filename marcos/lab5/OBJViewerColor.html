@@ -9,12 +9,32 @@
 	attribute vec4 aVertexColor;
 	
 	uniform float uScale;
-		
+	uniform float uAngle;
+
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = vec4(aVertexPosition.xyz*uScale, 1.0);
+		float x, y, z;
+		
+ 		//gl_Position = vec4(aVertexPosition.xyz*uScale, 1.0);
+		
+		//Rotação em X
+ 		x = aVertexPosition.x;
+ 		y = aVertexPosition.y*cos(uAngle)-aVertexPosition.z*sin(uAngle);
+ 		z = aVertexPosition.y*sin(uAngle)+aVertexPosition.z*cos(uAngle);
+
+ 		//Rotação em Y
+ 		x = aVertexPosition.x*cos(uAngle)-aVertexPosition.z*sin(uAngle);
+ 		y = aVertexPosition.y;
+ 		z = aVertexPosition.x*sin(uAngle)+aVertexPosition.z*cos(uAngle); 
+ 		
+ 		//Rotacao em Z
+ 		x = aVertexPosition.x*cos(uAngle)-aVertexPosition.y*sin(uAngle);
+ 		y = aVertexPosition.x*sin(uAngle)+aVertexPosition.y*cos(uAngle); 
+ 		z = aVertexPosition.z;
+ 		
+ 		gl_Position = vec4(uScale*vec3(x,y,z), 1.0);
  		
 		vColor = aVertexColor;
 	}
@@ -49,7 +69,16 @@
     <h1>Laboratorio 5</h1><br />
     <p>Visualizacao de Modelos 3D em formato OBJ.</p>
 	<label>Scale:<input type="number" min="0" max="1" id="scale" value="1"></label> |
-	<label>Step:<input type="number" id="step" min="0" max="1" value="0.01"></label><br/>
+	<label>Step:<input type="number" id="step" min="0" max="1" value="0.01"></label>|
+	<label>Angulo:<input type="number" id="angle" min="0" max="360" value="45"></label>|
+	<label>
+		<select id="eixo" name="">
+			<option value="x" selected>Em relação ao X</option>
+			<option value="y">Em relação ao Y</option>
+			<option value="z">Em relação ao Z</option>
+		</select>
+	</label>
+	<br/>
     <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
 
 </body>

@@ -4,6 +4,7 @@ var model		= new Array;
 var axis		= null;
 var gl			= null;
 var scale 		= 1;
+var angle 		= 0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -169,11 +170,12 @@ function drawScene(gl) {
 	}
     		
 	gl.uniform1f(shader.uScale, scale);
+	gl.uniform1f(shader.angle, angle);
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
 }
-    
+
 // ********************************************************
 // ********************************************************
 function webGLStart() {
@@ -185,13 +187,17 @@ function webGLStart() {
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
+	shader.angle 			= gl.getUniformLocation(shader, "uAngle");
 	
 	var inputScale 	= document.getElementById("scale");
 	var step 		= document.getElementById("step");
+	var angulo	    = document.getElementById("angle");
 
-	scale = 1 / canvas.width;
+	scale = 0.5;//1 / canvas.width;
 	inputScale.value = scale;
-	inputScale.step = step.value;
+	inputScale.step  = step.value;
+	angle 			 = angulo.value;
+
 	inputScale.onchange = function(){
 		scale = this.value;
 		drawScene(gl);
@@ -201,13 +207,17 @@ function webGLStart() {
 		inputScale.step = this.value;
 	}
 
+	angulo.onchange = function(){
+		angle = this.value;
+	}
+
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uScale) {
 		console.log("Error getAttribLocation"); 
 		return;
 	}
 		
-	readOBJFile("../../modelos/simpleCube.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubo.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -228,7 +238,6 @@ function webGLStart() {
 		}
 		requestAnimationFrame(tick, canvas);
 		if (model.length > 0){
-			initAxisVertexBuffer(gl); 
 			drawScene(gl);
 		}
 	};	
