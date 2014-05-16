@@ -1,0 +1,23 @@
+# Simple plano
+
+mtllib plano.mtl
+
+v 0.0 0.0 0.0
+v 0.0 1.0 0.0
+v 0.0 -1.0 0.0
+
+v 1.0 0.0 0.0
+v -1.0 0.0 0.0
+
+v 0.0 0.0 1.0
+v 0.0 0.0 -1.0
+
+g plano
+f 1 2 3 1
+f 1 4 5 1
+f 1 6 7 1
+
+
+group plano
+usemtl AllFaces
+
