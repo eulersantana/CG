@@ -20,29 +20,27 @@
 	precision mediump float;
 		
 	uniform sampler2D uSampler;
-	uniform vec2 uPixelSize;
-
+	
+	uniform int cor;
 	varying vec2 vTextureCoord;
 		
 	void main(void) {	
-		vec4 c = (	texture2D(uSampler, vTextureCoord) 											+
-					texture2D(uSampler, vTextureCoord  + vec2(uPixelSize.x,0) ) 				+
-					texture2D(uSampler, vTextureCoord  + vec2(0, uPixelSize.y) ) 				+
-					texture2D(uSampler, vTextureCoord  + vec2(uPixelSize.x,uPixelSize.y) ) 		+
-					texture2D(uSampler, vTextureCoord  + vec2(-uPixelSize.x,0) ) 				+
-					texture2D(uSampler, vTextureCoord  + vec2(0, -uPixelSize.y) ) 				+
-					texture2D(uSampler, vTextureCoord  + vec2(-uPixelSize.x, -uPixelSize.y) ) 	+
-					texture2D(uSampler, vTextureCoord  + vec2(uPixelSize.x, -uPixelSize.y) ) 	+
-					texture2D(uSampler, vTextureCoord  + vec2(-uPixelSize.x, uPixelSize.y) ) 	
-				) / 9.0 ;
+		vec4 c = texture2D(uSampler, vTextureCoord);
 		
-		gl_FragColor = c;
-		}
+		if (cor == 0)
+			gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
+		else if (cor == 1)
+			gl_FragColor = vec4(c.r, 0.0, 0.0, 1.0);
+		else if (cor == 2)
+			gl_FragColor = vec4(0.0, c.g, 0.0, 1.0);
+		else if (cor == 3)
+			gl_FragColor = vec4(0.0, 0.0, c.b, 1.0);
+		}	
 </script>
 
 <script type="text/javascript" src="../../lib/webgl-utils.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
-<script type="text/javascript" src="lab4b.js"></script>
+<script type="text/javascript" src="lab3.js"></script>
 
 </head>
 
@@ -52,7 +50,6 @@
     <br/>
     <div id="output"> </div>
     <br/>
-    <img src="../../images/lena.png"/>
     <canvas id="imagem" style="border: none;" width="500" height="500"></canvas>
 
 </body>
