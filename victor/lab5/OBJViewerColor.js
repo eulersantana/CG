@@ -3,10 +3,17 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var scale 		= 1.0;
+var scale 		= 0.5;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
+
+function changeScale(value)
+{
+	scale = value;
+	var text = document.getElementById("outputS");
+	text.innerHTML = "Scale = " + scale;
+}
 
 // ********************************************************
 // ********************************************************
@@ -136,7 +143,7 @@ function drawScene(gl) {
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-	
+
     try {
     	gl.useProgram(shader);
 		}
@@ -146,6 +153,7 @@ function drawScene(gl) {
     	}
     		
 	gl.uniform1f(shader.uScale, scale);
+	gl.uniform3f(shader.uCenter, g_drawingInfo.BBox.Center.x, g_drawingInfo.BBox.Center.y, g_drawingInfo.BBox.Center.z);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -162,6 +170,7 @@ function webGLStart() {
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
+	shader.uCenter 			= gl.getUniformLocation(shader, "uCenter");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uScale) {
@@ -169,7 +178,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/cat.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubo.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available

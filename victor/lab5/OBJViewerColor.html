@@ -8,13 +8,14 @@
 	attribute vec3 aVertexPosition;
 	attribute vec4 aVertexColor;
 	
+	uniform vec3 uCenter;
 	uniform float uScale;
 		
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = vec4(aVertexPosition.xyz*uScale, 1.0);
+ 		gl_Position = vec4((aVertexPosition-uCenter).xyz*uScale, 1.0);
  		
 		vColor = aVertexColor;
 	}
@@ -45,8 +46,10 @@
     <h1>Laboratorio 5</h1><br />
     <p>Visualizacao de Modelos 3D em formato OBJ.</p>
 
-    <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
+    <div id="outputS">Scale = 0.5</div>
+    <input type="range" id="scale" min="0.25" max="1.0" step="0.25" value="0.5" onchange="changeScale(this.value)"><br/><br/>
 
+    <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
 </body>
 
 </html>
