@@ -4,6 +4,8 @@ var model		= new Array;
 var axis		= null;
 var gl			= null;
 var scale 		= 0.5;
+var rotation 	= {x: 0, y: 0, z: 0};
+var rType 		= 0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -13,6 +15,32 @@ function changeScale(value)
 	scale = value;
 	var text = document.getElementById("outputS");
 	text.innerHTML = "Scale = " + scale;
+}
+
+function changeRotation(type, value)
+{
+	var text;
+	switch (type)
+	{
+		case "x":
+					rotation.x = value
+					rType = 1
+					text = document.getElementById("outputX");
+					text.innerHTML = "X Rotation = " + rotation.x;
+					break;
+		case "y":
+					rotation.y = value
+					rType = 2
+					text = document.getElementById("outputY");
+					text.innerHTML = "Y Rotation = " + rotation.y;
+					break;
+		case "z":
+					rotation.z = value
+					rType = 3
+					text = document.getElementById("outputZ");
+					text.innerHTML = "Z Rotation = " + rotation.z;
+					break;	
+	}	
 }
 
 // ********************************************************
@@ -154,6 +182,8 @@ function drawScene(gl) {
     		
 	gl.uniform1f(shader.uScale, scale);
 	gl.uniform3f(shader.uCenter, g_drawingInfo.BBox.Center.x, g_drawingInfo.BBox.Center.y, g_drawingInfo.BBox.Center.z);
+	gl.uniform3f(shader.uRotation, rotation.x, rotation.y, rotation.z);
+	gl.uniform1i(shader.uRotationType, rType);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -171,6 +201,8 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uCenter 			= gl.getUniformLocation(shader, "uCenter");
+	shader.uRotation		= gl.getUniformLocation(shader, "uRotation");
+	shader.uRotationType	= gl.getUniformLocation(shader, "uRotationType");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uScale) {

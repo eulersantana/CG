@@ -9,15 +9,47 @@
 	attribute vec4 aVertexColor;
 	
 	uniform vec3 uCenter;
+	uniform vec3 uRotation;
+	uniform int uRotationType;
 	uniform float uScale;
 		
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = vec4((aVertexPosition-uCenter).xyz*uScale, 1.0);
- 		
-		vColor = aVertexColor;
+		vec4 src = vec4(aVertexPosition-uCenter, 1.0);
+
+		if (uRotationType == 1)
+			src = vec4(	src.x, 
+						src.y * cos(uRotation.x) + src.z * sin(uRotation.x), 
+						src.y * -sin(uRotation.x) + src.z * cos(uRotation.x),
+						1.0 );
+		else if (uRotationType == 2)
+			src = vec4(	src.x * cos(uRotation.y) + src.z * sin(uRotation.y), 
+						src.y,
+						src.x * -sin(uRotation.y) + src.z * cos(uRotation.y),
+						1.0 );
+		else if (uRotationType == 3)
+			src = vec4(	src.x * cos(uRotation.z) + src.y * sin(uRotation.z), 
+						src.x * -sin(uRotation.z) + src.y * cos(uRotation.z),
+						src.z, 
+						1.0 );
+
+		// src = vec4(	src.x * cos(uRotation.y) + src.z * sin(uRotation.y) 	+
+		// 			src.x * cos(uRotation.z) + src.y * sin(uRotation.z) 	+
+		// 			src.x, 
+
+		// 			src.x * -sin(uRotation.z) + src.y * cos(uRotation.z) 	+
+		// 			src.y  													+
+		// 			src.y * -sin(uRotation.x) + src.z * cos(uRotation.x),
+
+		// 			src.z 													+
+		// 			src.x * -sin(uRotation.y) + src.z * cos(uRotation.y)	+
+		// 			src.y * -sin(uRotation.x) + src.z * cos(uRotation.x), 
+		// 			1.0 );
+
+ 		gl_Position = vec4(src.xyz * uScale, 1.0);
+ 		vColor = aVertexColor;
 	}
 
 </script>
@@ -44,10 +76,19 @@
 
 <body onload="webGLStart();">
     <h1>Laboratorio 5</h1><br />
-    <p>Visualizacao de Modelos 3D em formato OBJ.</p>
+    <p>Visualizacao de Modelos 3D em formato OBJ. <b> Rotação ainda experimental </b></p>
 
     <div id="outputS">Scale = 0.5</div>
     <input type="range" id="scale" min="0.25" max="1.0" step="0.25" value="0.5" onchange="changeScale(this.value)"><br/><br/>
+
+    <div id="outputX">X Rotation = 0</div>
+    <input type="range" id="scale" min="0" max="360" step="1" value="0" onchange="changeRotation('x',this.value)"><br/><br/>
+
+    <div id="outputY">Y Rotation = 0</div>
+    <input type="range" id="scale" min="0" max="360" step="1" value="0" onchange="changeRotation('y',this.value)"><br/><br/>
+
+    <div id="outputZ">Z Rotation = 0</div>
+    <input type="range" id="scale" min="0" max="360" step="1" value="0" onchange="changeRotation('z',this.value)"><br/><br/>
 
     <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
 </body>
