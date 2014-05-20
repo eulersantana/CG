@@ -233,7 +233,7 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var modelMat = new Matrix4();
+	var modelMat = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -248,6 +248,12 @@ var modelMat = new Matrix4();
     	}
     	
 	modelMat.setIdentity();
+	modelMat.rotate(RotX, 1, 0, 0);
+	modelMat.rotate(RotY, 0, 1, 0);
+	modelMat.rotate(RotZ, 0, 0, 1);
+
+	modelMat.translate(TransX, TransY, TransZ);
+	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
 	draw(axis, shader, gl.LINES);
@@ -292,7 +298,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -342,16 +348,40 @@ function handleKeyDown(event) {
 	switch (String.fromCharCode(keyunicode)) {
 		case "X"	:	if (Upper) {
 							ScaleX += 0.1;
-							ScaleY += 0.1;
-							ScaleZ += 0.1;
 							}
 						else {
 							ScaleX -= 0.1;
-							ScaleY -= 0.1;
-							ScaleZ -= 0.1;
 							}
 						break;
-						
+
+		case "Y"	:	if (Upper) {
+							ScaleY += 0.1;
+							}
+						else {
+							ScaleY -= 0.1;
+							}
+						break;
+
+		case "Z"	:	if (Upper) {
+							ScaleZ += 0.1;
+							}
+						else {
+							ScaleZ -= 0.1;
+							}
+						break;	
+
+		case "D"	: 	TransX += 0.1;
+						break;
+		case "A"	: 	TransX -= 0.1;
+						break;
+		case "W"	: 	TransY += 0.1;
+						break;
+		case "S"	: 	TransY -= 0.1;
+						break;
+		case "Q"	: 	TransZ += 0.1;
+						break;
+		case "E"	: 	TransZ -= 0.1;
+						break;
 		}
 	drawScene();					
 }
@@ -360,18 +390,24 @@ function handleKeyDown(event) {
 // ********************************************************
 function changeRotX(v) {
 	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
+	RotX = v;
+	drawScene();
 }
     
 // ********************************************************
 // ********************************************************
 function changeRotY(v) {
 	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
+	RotY = v;
+	drawScene();
 }    
 
 // ********************************************************
 // ********************************************************
 function changeRotZ(v) {
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
+	RotZ = v;
+	drawScene();
 }
    
 
