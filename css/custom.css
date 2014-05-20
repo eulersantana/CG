@@ -16,25 +16,18 @@
 	padding: 10px 0;
 }
 
-.resposta{text-align: center;margin: 0;}
+.resposta{text-align: center;margin: 0; background-color: }
 .resposta.col-sm-10{margin: 0;padding: 0;}
 
-.laboratorio{
+.laboratorio, .h_32{
 	/* Internet Explorer 10 */
-	display:-ms-flexbox;
-	-ms-flex-align:center;
-
+	display:-ms-flexbox;-ms-flex-align:center;
 	/* Firefox */
-	display:-moz-box;
-	-moz-box-align:center;
-
+	display:-moz-box;-moz-box-align:center;
 	/* Safari, Chrome, and Opera */
-	display:-webkit-box;
-	-webkit-box-align:center;
-
+	display:-webkit-box;-webkit-box-align:center;
 	/* W3C */
-	display:box;
-	box-align:center;
+	display:box;box-align:center;
 }
 
 .none,.ok{height: 32px;width: 32px;margin: 0 auto;}
@@ -43,3 +36,5 @@
 ._25, .profile{width: 25%; float:left;}
 .profile{height: auto;}
 .profile #avatar img{width: 180px;}
+.title{color:#FFF;}
+.h_32{height: 32px;}
