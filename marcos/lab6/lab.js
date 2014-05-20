@@ -386,6 +386,16 @@ function handleKeyDown(event) {
 							TransZ -= 0.1;
 						}
 						break;
+		case "S"	:	if (Upper) {
+							ScaleX += 0.1;
+							ScaleY += 0.1;
+							ScaleZ += 0.1;
+						}else {
+							ScaleX -= 0.1;
+							ScaleY -= 0.1;
+							ScaleZ -= 0.1;
+						}
+						break;
 	}
 	drawScene();					
 }
