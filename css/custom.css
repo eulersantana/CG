@@ -13,4 +13,33 @@
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	border-bottom: 5px solid #111;
+	padding: 10px 0;
 }
+
+.resposta{text-align: center;margin: 0;}
+.resposta.col-sm-10{margin: 0;padding: 0;}
+
+.laboratorio{
+	/* Internet Explorer 10 */
+	display:-ms-flexbox;
+	-ms-flex-align:center;
+
+	/* Firefox */
+	display:-moz-box;
+	-moz-box-align:center;
+
+	/* Safari, Chrome, and Opera */
+	display:-webkit-box;
+	-webkit-box-align:center;
+
+	/* W3C */
+	display:box;
+	box-align:center;
+}
+
+.none,.ok{height: 32px;width: 32px;margin: 0 auto;}
+.none{background: url(../images/icon/no.png);background-size: 32px;background-repeat: no-repeat;}
+.ok{background: url(../images/icon/check.png);background-size: 32px;background-repeat: no-repeat;}
+._25, .profile{width: 25%; float:left;}
+.profile{height: auto;}
+.profile #avatar img{width: 180px;}
