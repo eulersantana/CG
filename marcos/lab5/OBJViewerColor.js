@@ -171,6 +171,7 @@ function drawScene(gl) {
     		
 	gl.uniform1f(shader.uScale, scale);
 	gl.uniform1f(shader.angle, angle);
+	gl.uniform1f(shader.eixo, document.getElementById("eixo").value);
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -188,16 +189,20 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.angle 			= gl.getUniformLocation(shader, "uAngle");
+	shader.eixo 			= gl.getUniformLocation(shader, "uEixo");
 	
 	var inputScale 	= document.getElementById("scale");
 	var step 		= document.getElementById("step");
 	var angulo	    = document.getElementById("angle");
-
-	scale = 0.5;//1 / canvas.width;
+	var inputCheck  = document.getElementById("loop");
+	
+	scale = 0.2;//1 / canvas.width;
 	inputScale.value = scale;
 	inputScale.step  = step.value;
-	angle 			 = angulo.value;
+	angle 			 = degreeToRad(angulo.value);
 
+	loopObjeto(inputCheck.checked);
+	
 	inputScale.onchange = function(){
 		scale = this.value;
 		drawScene(gl);
@@ -208,7 +213,11 @@ function webGLStart() {
 	}
 
 	angulo.onchange = function(){
-		angle = this.value;
+		angle = degreeToRad(this.value);
+	}
+
+	inputCheck.onchange = function(){
+		loopObjeto(this.checked);
 	}
 
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
@@ -217,8 +226,9 @@ function webGLStart() {
 		return;
 	}
 		
-	readOBJFile("../../modelos/cubo.obj", gl, 1, true);
+	readOBJFile("../../modelos/al.obj", gl, 1, true);
 	
+
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
 			
@@ -244,4 +254,19 @@ function webGLStart() {
 	tick();
 }
 
+var intervaloId;	
+function loopObjeto(value){
+	if(value){
+		intervaloId = setInterval(function(){
+		 	var angulo = document.getElementById("angle");
+		 	var value  = parseInt(angulo.value) + 10;
+		 	if(value > 360) value = 0;
+		 	angulo.value = value;
+			angle = degreeToRad(value);
+		 }, 1000);
+	}else{
+		clearInterval(intervaloId);
+	}
+}
 
+function degreeToRad(d){ return Math.PI/180 * d}
