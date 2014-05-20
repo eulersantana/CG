@@ -14,6 +14,7 @@ var TransX		= 0.0;
 var TransY		= 0.0;
 var TransZ		= 0.0;
 var Upper		= false;
+var Angle 		= 0.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -233,7 +234,7 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var modelMat = new Matrix4();
+	var modelMat = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -245,18 +246,26 @@ var modelMat = new Matrix4();
 	catch(err){
         alert(err);
         console.error(err.description);
-    	}
+    }
     	
 	modelMat.setIdentity();
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
 	draw(axis, shader, gl.LINES);
-
+	
+	modelMat.translate(TransX,TransY, TransZ);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	draw(axis, shader, gl.LINES);
+	
+	modelMat.rotate(RotX,1, 0, 0);
+	modelMat.rotate(RotY,0, 1, 0);
+	modelMat.rotate(RotZ,0, 0, 1);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	draw(axis, shader, gl.LINES);
+	
 	modelMat.scale(ScaleX, ScaleY, ScaleZ);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	
 	draw(axis, shader, gl.LINES);
-
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 }
@@ -342,16 +351,41 @@ function handleKeyDown(event) {
 	switch (String.fromCharCode(keyunicode)) {
 		case "X"	:	if (Upper) {
 							ScaleX += 0.1;
-							ScaleY += 0.1;
-							ScaleZ += 0.1;
-							}
-						else {
+						}else {
 							ScaleX -= 0.1;
-							ScaleY -= 0.1;
-							ScaleZ -= 0.1;
-							}
+						}
 						break;
-						
+		case "Y"	:	if (Upper) {
+							ScaleY += 0.1;
+						}else {
+							ScaleY -= 0.1;
+						}
+						break;
+		case "Z"	:	if (Upper) {
+							ScaleZ += 0.1;
+						}else {
+							ScaleZ -= 0.1;
+						}
+						break;
+		case "1"	:	if (!Upper) {
+							TransX += 0.1;
+						}else {
+							TransX -= 0.1;
+						}
+						console.log(1);
+						break;
+		case "2"	:	if (!Upper) {
+							TransY += 0.1;
+						}else {
+							TransY -= 0.1;
+						}
+						break;
+		case "3"	:	if (!Upper) {
+							TransZ += 0.1;
+						}else {
+							TransZ -= 0.1;
+						}
+						break;
 	}
 	drawScene();					
 }
@@ -360,18 +394,24 @@ function handleKeyDown(event) {
 // ********************************************************
 function changeRotX(v) {
 	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
+	RotX = v;
+	drawScene();
 }
     
 // ********************************************************
 // ********************************************************
 function changeRotY(v) {
 	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
+	RotY = v;
+	drawScene();
 }    
 
 // ********************************************************
 // ********************************************************
 function changeRotZ(v) {
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
+	RotZ = v;
+	drawScene();
 }
    
 
@@ -385,8 +425,4 @@ function resetTransfGeom() {
 	document.getElementById("RotZ").value = 0.0;
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
 }
-    
-  
-
-
 
