@@ -27,11 +27,12 @@ function initGL(canvas) {
 	if (!gl) { 
 		alert("Could not initialise WebGL, sorry :-(");
 		return gl;
-		}
+	}
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	
+	gl.enable(gl.DEPTH_TEST);
+
 	return gl;
 }
 
@@ -71,7 +72,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-var groupModel = null;
+	var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -236,7 +237,7 @@ function drawScene() {
 
 	var modelMat = new Matrix4();
 
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_TEST);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
