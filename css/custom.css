@@ -1,35 +1,41 @@
 #letter-head p{
-	font-size: 20px;
-	font-style: strong;
-	text-align: center;
+    font-size: 20px;
+    font-style: strong;
+    text-align: center;
 }
 
 #letter-head.exe{
-	height: 100% !important;
+    height: 100% !important;
 }
 
 #letter-head{
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
-	border-bottom: 5px solid #111;
-	padding: 10px 0;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    border-bottom: 5px solid #111;
+    padding: 10px 0;
 }
 
 .resposta{text-align: center;margin: 0;}
 .resposta.col-sm-10{margin: 0;padding: 0;}
 
 .laboratorio, .h_32{
-	/* Internet Explorer 10 */
-	display:-ms-flexbox;-ms-flex-align:center;
-	/* Firefox */
-	display:-moz-box;-moz-box-align:center;
-	/* Safari, Chrome, and Opera */
-	display:-webkit-box;-webkit-box-align:center;
-	/* W3C */
-	display:box;box-align:center;
+    /* Internet Explorer 10 */
+    display:-ms-flexbox;-ms-flex-align:center;
+    /* Firefox */
+    display:-moz-box;-moz-box-align:center;
+    /* Safari, Chrome, and Opera */
+    display:-webkit-box;-webkit-box-align:center;
+    /* W3C */
+    display:box;box-align:center;
 }
 
+table.lab{margin: 0 auto;width: 98.666667%;}
+table.lab tr{border: solid #fff 1px;}
+table.lab tr:nth-child(2n){background: #0F8542;}
+table.lab tr:nth-child(2n+1){   background: #84E6AE;}
+table.lab tr td.title{width: 12%; padding-left: 10px;background: #2ECC71;}
+table.lab tr td.activity{padding-left: 10px;width: 13%;}
 .none,.ok{height: 32px;width: 32px;margin: 0 auto;}
 .none{background: url(../images/icon/no.png);background-size: 32px;background-repeat: no-repeat;}
 .ok{background: url(../images/icon/check.png);background-size: 32px;background-repeat: no-repeat;}

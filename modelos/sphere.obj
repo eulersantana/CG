@@ -4,7 +4,6 @@
 #	LightWave3D OBJ Export v2.3
 #
 ####
-o boulder.obj
 mtllib boulder.mtl
 g default
 v -0.25 -1.53081e-017 -1.53081e-017
