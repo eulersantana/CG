@@ -44,3 +44,8 @@ table.lab tr td.activity{padding-left: 10px;width: 13%;}
 .profile #avatar img{width: 180px;}
 .title{color:#FFF;}
 .h_32{height: 32px;}
+
+.lab .popover {
+  position: relative;
+  display: block;
+}
