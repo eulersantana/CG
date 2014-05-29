@@ -264,6 +264,10 @@ function drawScene() {
 	var modelMat = new Matrix4();
 	var modelMatT = new Matrix4();
 	
+	/*Sempre chamar essa matriz*/
+	modelMat.setIdentity();
+	modelMatT.setIdentity();
+
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
@@ -282,27 +286,19 @@ function drawScene() {
 	modelMat.rotate(RotY, 0,1,0);
 	modelMat.rotate(RotZ, 0,0,1);
 	modelMat.scale(raioS,raioS,raioS);
+	
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.SampleruCorTerra,1);
 
-	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-	gl.uniform1i(shader.SampleruCorTerra,1);
+
+	
+	// TERRA
+    
 	modelMatT.translate(-0.7,0.0,0.0);
 	modelMatT.rotate(RotX, 1,0,0);
-
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	
-	// draw(axis, shader, gl.LINES);
-	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-
-	// TERRA
-    /*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-	modelMatT.setIdentity();
 
 	modelMatT.translate(-distanciaTS,0.0,0.0);
 	modelMatT.scale(raioT, raioT, raioT);
@@ -310,20 +306,11 @@ function drawScene() {
 	var t = distanciaTS+2*raioS;
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
-
+	gl.uniform1i(shader.SampleruCorTerra,2);
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
-	gl.uniform1i(shader.SampleruCorTerra,2);
-	/*draw(axis, shader, gl.LINES);*/
-	modelMat.translate(TransX,TransY,TransZ);
-	modelMat.rotate(RotX, 1,0,0);
-	modelMat.rotate(RotY, 0,1,0);
-	modelMat.rotate(RotZ, 0,0,1);
-	modelMat.scale(1.5, 1.5, 1.5);
-	// draw(axis, shader, gl.LINES);
-
-	
 	// LUA
 	var modelMatL = modelMatT;
 
@@ -331,7 +318,6 @@ function drawScene() {
 	modelMatL.translate(-distanciaLT,0.0,0.0);
 	modelMatL.scale(raioL, raioL, raioL);
 
-	
 	//rotacionar a lua em relação a terra
 	var posT = distanciaLT-distanciaTS;
 	t = posT+2*raioT+raioL;
@@ -341,14 +327,14 @@ function drawScene() {
 	modelMatL.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	
+	gl.uniform1i(shader.SampleruCorTerra,3);
+		
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-
-	gl.uniform1i(shader.SampleruCorTerra,3);
 	
 }
+
 var re = 0;
 function rotateEarth(){
 	re = setInterval(function(){
