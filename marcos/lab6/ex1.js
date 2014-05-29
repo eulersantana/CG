@@ -112,10 +112,10 @@ function onReadComplete(gl) {
 
 // ********************************************************
 // ********************************************************
+var vColor 	= new Array;
 function initAxisVertexBuffer() {
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
-	var vColor 	= new Array;
 	var vNormal	= new Array;
 	var lInd 	= new Array;
 
@@ -209,6 +209,7 @@ function initAxisVertexBuffer() {
 // ********************************************************
 // ********************************************************
 function draw(o, shaderProgram, primitive){
+
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
@@ -226,7 +227,6 @@ function draw(o, shaderProgram, primitive){
 		alert("o.colorBuffer == null");
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.indexBuffer);
-
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
 
@@ -264,8 +264,9 @@ function drawScene(){
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	draw(axis, shader, gl.LINES);
 	
-	for(var o = 0; o < model.length; o++)
+	for(var o = 0; o < model.length; o++){
 		draw(model[o], shader, gl.TRIANGLES);
+	}
 }
     
 // ********************************************************
