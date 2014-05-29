@@ -8,16 +8,13 @@ var ScaleX 		= 1.0;
 var ScaleY 		= 1.0;
 var ScaleZ 		= 1.0;
 var RotX		= 0.0;
-var RotLZ		= 0.0;
 var RotY		= 0.0;
 var RotZ		= 0.0;
 var TransX		= 0.0;
 var TransY		= 0.0;
 var TransZ		= 0.0;
 var Upper		= false;
-
-var raioT = 0.3, raioL = 0.5, raioS = 1; 
-var distanciaTS = 0.5, distanciaLT = 0.7;
+var ultimo      = 0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -34,7 +31,6 @@ function initGL(canvas) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
 }
@@ -95,7 +91,6 @@ var groupModel = null;
 		if (groupModel.colorBuffer) {		
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
-
 			}
 		else
 			alert("ERROR: can not create colorBuffer");
@@ -104,10 +99,10 @@ var groupModel = null;
 		if (groupModel.indexBuffer) {		
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo.indices[o], gl.STATIC_DRAW);
-		}
+			}
 		else
 			alert("ERROR: can not create indexBuffer");
-	
+		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
 		model.push(groupModel);
 		}
@@ -136,7 +131,6 @@ function initAxisVertexBuffer() {
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
-	
 	// V1
 	vPos.push(1.0);
 	vPos.push(0.0);
@@ -186,7 +180,7 @@ function initAxisVertexBuffer() {
 	if (axis.vertexBuffer) {		
 		gl.bindBuffer(gl.ARRAY_BUFFER, axis.vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vPos), gl.STATIC_DRAW);
-	}
+		}
 	else
 		alert("ERROR: can not create vertexBuffer");
 	
@@ -218,12 +212,8 @@ function draw(o, shaderProgram, primitive) {
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
-		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);
-	}
+		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);  
+		}
 	else
 		alert("o.vertexBuffer == null");
 
@@ -231,11 +221,7 @@ function draw(o, shaderProgram, primitive) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.colorBuffer);
 		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
-
-		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
-
-	}
+		}
 	else
 		alert("o.colorBuffer == null");
 
@@ -243,113 +229,42 @@ function draw(o, shaderProgram, primitive) {
 
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
-var angulo = 45.0;
-function gira(raio,ang){
-	if (ang == 360){
-		angulo = 0;
-		return ((Math.PI * ang / 180)*raio);
-	}
-	angulo++;
-	return ((Math.PI * ang / 180)*raio);
-}
-// ********************************************************
-// ********************************************************
 
+// ********************************************************
+// ********************************************************
 function drawScene() {
 
-	var modelMat = new Matrix4();
-	var modelMatT = new Matrix4();
-	
-	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+var modelMat = new Matrix4();
 
-	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+
+	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+	
     try {
     	gl.useProgram(shader);
-	}
+		}
 	catch(err){
         alert(err);
         console.error(err.description);
-	}
-	
-	// SOL	
-	/*draw(axis, shader, gl.LINES);*/
-	modelMat.translate(TransX,TransY,TransZ);
-	modelMat.rotate(RotX, 1,0,0);
-	modelMat.rotate(RotY, 0,1,0);
-	modelMat.rotate(RotZ, 0,0,1);
-	modelMat.scale(raioS,raioS,raioS);
-
-	// draw(axis, shader, gl.LINES);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,0);
-
-	// draw(axis, shader, gl.LINES);
-	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-
-	// TERRA
-    /*Sempre chamar essa matriz*/
+    	}
+    	
 	modelMat.setIdentity();
-	modelMatT.setIdentity();
 
-	modelMatT.translate(-distanciaTS,0.0,0.0);
-	modelMatT.scale(raioT, raioT, raioT);
-	
-	var t = distanciaTS+2*raioS;
+	modelMat.rotate(RotX, 1, 0, 0);
+	modelMat.rotate(RotY, 0, 1, 0);
+	modelMat.rotate(RotZ, 0, 0, 1);
 
-	modelMatT.translate(t,0.0,0.0);
-	modelMatT.rotate(RotY, 0,1,0);
-	modelMatT.translate(-t,0.0,0.0);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+
+	draw(axis, shader, gl.LINES);
+
+	modelMat.scale(ScaleX, ScaleY, ScaleZ);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
-	gl.uniform1i(shader.uColor,1);
+	draw(axis, shader, gl.LINES);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-	
-	// LUA
-	var modelMatL = modelMatT;
-
-	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	modelMatL.translate(-distanciaLT,0.0,0.0);
-	modelMatL.scale(raioL, raioL, raioL);
-	
-	//rotacionar a lua em relação a terra
-	var posT = distanciaLT-distanciaTS;
-	t = posT+2*raioT+raioL;
-
-	modelMatL.translate(t,0.0,0.0);
-	modelMatL.rotate(RotLZ, 0,0,1);
-	modelMatL.translate(-t,0.0,0.0);
-	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	gl.uniform1i(shader.uColor,2);
-	
-	// draw(axis, shader, gl.LINES);
-	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-	
-}
-var re = 0;
-function rotateEarth(){
-	re = setInterval(function(){
-		RotY += 10;
-		if(RotY > 360){
-			RotY = 0;
-		}
-		drawScene();
-	}, 1000);
-}
-
-var rl = 0;
-function rotateLunar(){
-	rl = setInterval(function(){
-		RotLZ += 10;
-		if(RotLZ > 360){
-			RotLZ = 0;
-		}
-		drawScene();
-	}, 100);
 }
     
 // ********************************************************
@@ -362,18 +277,17 @@ function webGLStart() {
 	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + RotY;
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + RotZ;
 	
-	canvas 					= document.getElementById("TransfGeom");
-	gl 						= initGL(canvas);
+	canvas 				= document.getElementById("TransfGeom");
+	gl 					= initGL(canvas);
 	
 	shader 					= initShaders("TransfGeom", gl);	
-	shader.vPositionAttr 	= gl.getAttribLocation(shader,  "aVertexPosition");		
-	shader.vColorAttr 		= gl.getAttribLocation(shader,  "aVertexColor");
+	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
+	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	shader.uColor			= gl.getUniformLocation(shader, "uColor");
-
+	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.uModelMat ) {
+		!shader.uModelMat) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
@@ -384,7 +298,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -402,16 +316,16 @@ function webGLStart() {
 			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
 									+ g_drawingInfo.BBox.Center.y + " , " 
 									+ g_drawingInfo.BBox.Center.z + ")");
-		}
-		
-		if (model.length > 0) 
+			}
+		if (model.length > 0){ 
+			requestAnimFrame(tick);
 			drawScene();
+			rotocaoY();
+		}
 		else
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
-	rotateEarth();
-	rotateLunar();
 }
 
 // ********************************************************
@@ -437,64 +351,15 @@ function handleKeyDown(event) {
 	switch (String.fromCharCode(keyunicode)) {
 		case "X"	:	if (Upper) {
 							ScaleX += 0.1;
-							
-							}
-						else {
-							ScaleX -= 0.1;
-							
-							}
-						break;
-		case "Y"	:	if (Upper) {
-							
 							ScaleY += 0.1;
-							
-							}
-						else {
-							
-							ScaleY -= 0.1;
-							
-							}
-						break;
-		case "Z"	:	if (Upper) {
-							
 							ScaleZ += 0.1;
 							}
 						else {
-							
+							ScaleX -= 0.1;
+							ScaleY -= 0.1;
 							ScaleZ -= 0.1;
 							}
 						break;
-		case "1"	:	if (Upper) {
-							TransX += 0.1;
-							
-							}
-						else {
-							TransX -= 0.1;
-							
-							}
-						break;
-		case "2"	:	if (Upper) {
-							
-							TransY += 0.1;
-							
-							}
-						else {
-							
-							TransY -= 0.1;
-							
-							}
-						break;
-		case "3"	:	if (Upper) {
-							
-							TransZ += 0.1;
-							}
-						else {
-							
-							TransZ -= 0.1;
-							}
-						break;
-
-
 						
 		}
 	drawScene();					
@@ -504,24 +369,33 @@ function handleKeyDown(event) {
 // ********************************************************
 function changeRotX(v) {
 	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
-	RotX = v;
-	drawScene();
 }
+// rotaciona em Y
+function rotocaoY() {
+	var agora = new Date().getTime();
+  if(ultimo != 0)
+  {
+    var diferenca = agora-ultimo;
+    
+    RotX  += ((90*diferenca)/1000.0) % 360.0;
+    RotY  += ((75*diferenca)/1000.0) % 360.0;
+    RotZ  += ((50*diferenca)/1000.0) % 360.0;
+  }
+  	ultimo = agora;
+	
+	drawScene();
+}   
     
 // ********************************************************
 // ********************************************************
 function changeRotY(v) {
 	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
-	RotY = v;
-	drawScene();
 }    
 
 // ********************************************************
 // ********************************************************
 function changeRotZ(v) {
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
-	RotZ = v;
-	drawScene();
 }
    
 
@@ -535,5 +409,8 @@ function resetTransfGeom() {
 	document.getElementById("RotZ").value = 0.0;
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
 }
+    
+  
+
 
 
