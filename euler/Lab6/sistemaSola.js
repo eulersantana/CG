@@ -264,6 +264,10 @@ function drawScene() {
 	var modelMat = new Matrix4();
 	var modelMatT = new Matrix4();
 	
+	/*Sempre chamar essa matriz*/
+	modelMat.setIdentity();
+	modelMatT.setIdentity();
+
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
@@ -284,37 +288,36 @@ function drawScene() {
 	modelMat.scale(raioS,raioS,raioS);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	
+	gl.uniform1i(shader.SampleruCorTerra,1);
+
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
+	
 	// TERRA
-    /*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-	modelMatT.setIdentity();
+    
+	modelMatT.translate(-0.7,0.0,0.0);
+	modelMatT.rotate(RotX, 1,0,0);
 
 	modelMatT.translate(-distanciaTS,0.0,0.0);
 	modelMatT.scale(raioT, raioT, raioT);
 	
 	var t = distanciaTS+2*raioS;
-
-	modelMatT.translate(t,0.0,0.0);
-	modelMatT.rotate(RotY, 0,1,0);
-	modelMatT.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
-
+	gl.uniform1i(shader.SampleruCorTerra,2);
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-	
+
 	// LUA
 	var modelMatL = modelMatT;
 
 	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	modelMatL.translate(-distanciaLT,0.0,0.0);
 	modelMatL.scale(raioL, raioL, raioL);
-	
+
 	//rotacionar a lua em relação a terra
 	var posT = distanciaLT-distanciaTS;
 	t = posT+2*raioT+raioL;
@@ -324,12 +327,14 @@ function drawScene() {
 	modelMatL.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	
+	gl.uniform1i(shader.SampleruCorTerra,3);
+		
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 	
 }
+
 var re = 0;
 function rotateEarth(){
 	re = setInterval(function(){
@@ -370,7 +375,7 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	
+	shader.SampleruCorTerra		= gl.getUniformLocation(shader, "uCorTerra");
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uModelMat ) {
 		console.log("Error getAttribLocation"); 
