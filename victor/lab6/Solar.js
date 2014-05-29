@@ -65,8 +65,6 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 		}
 		
 	g_objDoc = objDoc;
-
-	console.log(g_objDoc);
 }
 
 // ********************************************************
@@ -107,6 +105,8 @@ function onReadComplete(gl) {
 			alert("ERROR: can not create indexBuffer");
 		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
+		model.push(groupModel);
+		model.push(groupModel);
 		model.push(groupModel);
 		}
 }
@@ -237,6 +237,8 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
+	console.log(model);
+
 	var modelMat = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
@@ -250,25 +252,62 @@ function drawScene() {
         alert(err);
         console.error(err.description);
     	}
-    	
+
+    draw(axis, shader, gl.LINES);
+	
+	// Sun	
+	var radiusSun = 1;
+	
+	modelMat.scale(radiusSun,radiusSun,radiusSun);
+
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.uColor,0);
+
+	draw(model[0], shader, gl.TRIANGLES);
+
+	console.log(modelMat);
+
+	// Earth
+	var distanceEarthSun = 2;
+	var radiusEarth = 0.3;
+
+	// modelMat.setIdentity();
+	modelMat.translate(-distanceEarthSun, 0.0, 0.0);
+	modelMat.scale(radiusEarth, radiusEarth, radiusEarth);
+	
+	var t = radiusEarth+2*radiusSun;
+
+	modelMat.translate(t,0.0,0.0);
+	modelMat.rotate(RotY, 0,1,0);
+	modelMat.translate(-t,0.0,0.0);
+	
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.uColor,1);
+
+	draw(model[0], shader, gl.TRIANGLES);
+	
+	// Moon
+	var distanceMoonEarth = 0.6;
+	var radiusMoon = 0.5;
+	var rotMoonZ = 0.0;
+	var posEarth = distanceMoonEarth-radiusEarth;
+
 	modelMat.setIdentity();
-	// modelMat.rotate(RotX, 1, 0, 0);
-	// modelMat.rotate(RotY, 0, 1, 0);
-	// modelMat.rotate(RotZ, 0, 0, 1);
+	modelMat.translate(distanceMoonEarth,0.0,0.0);
+	modelMat.scale(radiusMoon, radiusMoon, radiusMoon);
+	
+	//rotacionar a lua em relaÃ§Ã£o a terra
+	
+	t = posEarth+2*radiusEarth+radiusMoon;
 
-	modelMat.translate(TransX, TransY, TransZ);
+	modelMat.translate(t,0.0,0.0);
+	modelMat.rotate(rotMoonZ, 0,0,1);
+	modelMat.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
-	draw(axis, shader, gl.LINES);
-
-	modelMat.scale(ScaleX, ScaleY, ScaleZ);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.uColor,2);
 	
-	draw(axis, shader, gl.LINES);
-
-	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
+	draw(model[0], shader, gl.TRIANGLES);
 }
     
 // ********************************************************
@@ -287,7 +326,7 @@ function webGLStart() {
 	shader 					= initShaders("TransfGeom", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
+	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
@@ -316,7 +355,7 @@ function webGLStart() {
 		if (model.length > 0) 
 		{
 			console.log("test")
-			TransX += 0.1
+			TransX += 1
 			drawScene();
 		}
 		else
