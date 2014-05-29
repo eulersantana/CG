@@ -49,3 +49,10 @@ table.lab tr td.activity{padding-left: 10px;width: 13%;}
   position: relative;
   display: block;
 }
+
+.lab .popover ul{
+    list-style: none;
+}
+.popover-content ul li .btn{
+    width: 100%;
+}
