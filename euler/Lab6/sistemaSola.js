@@ -284,7 +284,7 @@ function drawScene() {
 	modelMat.scale(raioS,raioS,raioS);
 
 	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
