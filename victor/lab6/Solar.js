@@ -14,6 +14,7 @@ var TransX		= 0.0;
 var TransY		= 0.0;
 var TransZ		= 0.0;
 var Upper		= false;
+var distanceMoonEarth = 0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -268,13 +269,13 @@ function drawScene() {
 	console.log(modelMat);
 
 	// Earth
-	var distanceEarthSun = 2;
-	var radiusEarth = 0.3;
+	var distanceEarthSun = 1;
+	var radiusEarth = 0.5;
 
 	// modelMat.setIdentity();
-	modelMat.translate(-distanceEarthSun, 0.0, 0.0);
 	modelMat.scale(radiusEarth, radiusEarth, radiusEarth);
-	
+	modelMat.translate(distanceEarthSun, 0.0, 0.0);
+		
 	var t = radiusEarth+2*radiusSun;
 
 	modelMat.translate(t,0.0,0.0);
@@ -287,12 +288,12 @@ function drawScene() {
 	draw(model[0], shader, gl.TRIANGLES);
 	
 	// Moon
-	var distanceMoonEarth = 0.6;
-	var radiusMoon = 0.5;
+	distanceMoonEarth = 0.6;
+	var radiusMoon = 0.3;
 	var rotMoonZ = 0.0;
 	var posEarth = distanceMoonEarth-radiusEarth;
 
-	modelMat.setIdentity();
+	// modelMat.setIdentity();
 	modelMat.translate(distanceMoonEarth,0.0,0.0);
 	modelMat.scale(radiusMoon, radiusMoon, radiusMoon);
 	
@@ -355,7 +356,7 @@ function webGLStart() {
 		if (model.length > 0) 
 		{
 			console.log("test")
-			TransX += 1
+			distanceMoonEarth+= 0.1
 			drawScene();
 		}
 		else
