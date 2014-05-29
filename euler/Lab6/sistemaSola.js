@@ -17,7 +17,6 @@ var Upper		= false;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
-var g_drawingInfo2 	= null;	// The information for drawing 3D model
 
 // ********************************************************
 // ********************************************************
@@ -60,7 +59,6 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 	if (!result) {
 		g_objDoc 		= null; 
 		g_drawingInfo 	= null;
-		g_drawingInfo2 	= null;
 		console.log("OBJ file parsing error.");
 		return;
 		}
@@ -74,24 +72,17 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 function onReadComplete(gl) {
 	
 var groupModel = null;
-var groupModel2 = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
-	g_drawingInfo2 	= g_objDoc.getDrawingInfo();
 	
 	for(var o = 0; o < g_drawingInfo.numObjects; o++) {
 		
 		groupModel = new Object();
 
-		groupModel2 = new Object();
-
 		groupModel.vertexBuffer = gl.createBuffer();
 		if (groupModel.vertexBuffer) {		
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.vertexBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.vertices[o], gl.STATIC_DRAW);
-			
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel2.vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo2.vertices[o], gl.STATIC_DRAW);
 			}
 		else
 			alert("ERROR: can not create vertexBuffer");
@@ -101,9 +92,6 @@ var groupModel2 = null;
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
 
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel2.colorBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo2.colors[o], gl.STATIC_DRAW);
-
 			}
 		else
 			alert("ERROR: can not create colorBuffer");
@@ -112,9 +100,6 @@ var groupModel2 = null;
 		if (groupModel.indexBuffer) {		
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo.indices[o], gl.STATIC_DRAW);
-
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel2.indexBuffer);
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo2.indices[o], gl.STATIC_DRAW);
 		}
 		else
 			alert("ERROR: can not create indexBuffer");
@@ -257,9 +242,18 @@ function draw(o, shaderProgram, primitive) {
 
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
+var angulo = 45.0;
+function gira(raio,ang){
+	if (ang == 360){
+		angulo = 0;
+		return ((Math.PI * ang / 180)*raio);
+	}
+	angulo++;
+	return ((Math.PI * ang / 180)*raio);
+}
+// ********************************************************
+// ********************************************************
 
-// ********************************************************
-// ********************************************************
 function drawScene() {
 
 var modelMat = new Matrix4();
@@ -281,44 +275,42 @@ var modelMatL = new Matrix4();
 	modelMatT.setIdentity();
 
 	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
-	modelMatL.translate(0.5,0.0,0.0);
+	
+	modelMatL.translate(-0.7,0.0,0.0);
 	modelMatL.rotate(RotX, 1,0,0);
-	modelMatL.rotate(RotY, 0,1,0);
+	modelMatL.rotate(RotY, 0,0.3,0);
 	modelMatL.rotate(RotZ, 0,0,1);
-	modelMatL.scale(0.8, 0.8, 0.8);
+	modelMatL.scale(0.3, 0.3, 0.3);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
 	// draw(axis, shader, gl.LINES);
-
-	modelMatT.translate(-0.5,0.0,0.0);
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
+	
+	modelMatT.translate(-0.7,0.0,0.0);
 	modelMatT.rotate(RotX, 1,0,0);
 	modelMatT.rotate(RotY, 0,1,0);
 	modelMatT.rotate(RotZ, 0,0,1);
-	modelMatT.scale(0.8, 0.8, 0.8);
-	
-	
-	/*draw(axis, shader, gl.LINES);
+	modelMatT.scale(0.5, 0.5, 0.5);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
 
-		draw(axis, shader, gl.LINES);*/
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
+	
+	/*draw(axis, shader, gl.LINES);*/
 	modelMat.translate(TransX,TransY,TransZ);
 	modelMat.rotate(RotX, 1,0,0);
 	modelMat.rotate(RotY, 0,1,0);
 	modelMat.rotate(RotZ, 0,0,1);
 	modelMat.scale(1.5, 1.5, 1.5);
+	// draw(axis, shader, gl.LINES);
 	
-	// draw(axis, shader, gl.LINES);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	// draw(axis, shader, gl.LINES);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
 	
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
-
-	
 }
 
     
@@ -371,17 +363,8 @@ function webGLStart() {
 			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
 									+ g_drawingInfo.BBox.Center.y + " , " 
 									+ g_drawingInfo.BBox.Center.z + ")");
-
-			console.log("BBox = (" 	+ g_drawingInfo2.BBox.Min.x + " , " 
-									+ g_drawingInfo2.BBox.Min.y + " , " 
-									+ g_drawingInfo2.BBox.Min.z + ")");
-			console.log("		(" 	+ g_drawingInfo2.BBox.Max.x + " , " 
-									+ g_drawingInfo2.BBox.Max.y + " , " 
-									+ g_drawingInfo2.BBox.Max.z + ")");
-			console.log("		(" 	+ g_drawingInfo2.BBox.Center.x + " , " 
-									+ g_drawingInfo2.BBox.Center.y + " , " 
-									+ g_drawingInfo2.BBox.Center.z + ")");
-			}
+		}
+		
 		if (model.length > 0) 
 			drawScene();
 		else
@@ -513,3 +496,5 @@ function resetTransfGeom() {
 	document.getElementById("RotZ").value = 0.0;
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
 }
+
+
