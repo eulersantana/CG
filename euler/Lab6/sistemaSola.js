@@ -276,17 +276,18 @@ var modelMatL = new Matrix4();
 
 	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	
-	modelMatL.translate(-0.7,0.0,0.0);
+	modelMatL.translate(-0.7,0.3,0.0);
 	modelMatL.rotate(RotX, 1,0,0);
-	modelMatL.rotate(RotY, 0,0.3,0);
+	modelMatL.rotate(RotY, 0,0.1,0);
 	modelMatL.rotate(RotZ, 0,0,1);
 	modelMatL.scale(0.3, 0.3, 0.3);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
+	
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-	
+	gl.uniform1i(shader.SampleruCorTerra,1);
 	modelMatT.translate(-0.7,0.0,0.0);
 	modelMatT.rotate(RotX, 1,0,0);
 	modelMatT.rotate(RotY, 0,1,0);
@@ -296,7 +297,7 @@ var modelMatL = new Matrix4();
 
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-	
+	gl.uniform1i(shader.SampleruCorTerra,2);
 	/*draw(axis, shader, gl.LINES);*/
 	modelMat.translate(TransX,TransY,TransZ);
 	modelMat.rotate(RotX, 1,0,0);
@@ -310,7 +311,7 @@ var modelMatL = new Matrix4();
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-
+	gl.uniform1i(shader.SampleruCorTerra,3);
 }
 
     
@@ -332,7 +333,7 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	
+	shader.SampleruCorTerra		= gl.getUniformLocation(shader, "uCorTerra");
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uModelMat ) {
 		console.log("Error getAttribLocation"); 
