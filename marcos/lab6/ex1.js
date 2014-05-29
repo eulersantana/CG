@@ -17,7 +17,7 @@ var TransZ		= 0.0;
 var Upper		= false;
 
 var raioT = 0.3, raioL = 0.5, raioS = 1; 
-var distanciaTS = 0.5, distanciaLT = 0.7;
+var distanciaTS = 0.5, distanciaLT = 0.6;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -258,7 +258,6 @@ function gira(raio,ang){
 function drawScene() {
 
 	var modelMat = new Matrix4();
-	var modelMatT = new Matrix4();
 	
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
@@ -288,14 +287,12 @@ function drawScene() {
 		draw(model[o], shader, gl.TRIANGLES);
 
 	// TERRA
-    /*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-	modelMatT.setIdentity();
+    var modelMatT = modelMat;
 
 	modelMatT.translate(-distanciaTS,0.0,0.0);
 	modelMatT.scale(raioT, raioT, raioT);
-	
-	var t = distanciaTS+2*raioS;
+		
+	var t = distanciaTS+raioS+raioT;
 
 	modelMatT.translate(t,0.0,0.0);
 	modelMatT.rotate(RotY, 0,1,0);
@@ -316,7 +313,7 @@ function drawScene() {
 	
 	//rotacionar a lua em relação a terra
 	var posT = distanciaLT-distanciaTS;
-	t = posT+2*raioT+raioL;
+	t = posT+raioT+raioL;
 
 	modelMatL.translate(t,0.0,0.0);
 	modelMatL.rotate(RotLZ, 0,0,1);
@@ -333,12 +330,12 @@ function drawScene() {
 var re = 0;
 function rotateEarth(){
 	re = setInterval(function(){
-		RotY += 10;
+		RotY += 3;
 		if(RotY > 360){
 			RotY = 0;
 		}
 		drawScene();
-	}, 1000);
+	}, 300);
 }
 
 var rl = 0;
