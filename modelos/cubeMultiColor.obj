@@ -44,4 +44,8 @@ usemtl Back
 group Left
 usemtl Left
 group Right
+<<<<<<< HEAD
 usemtl Right
+=======
+usemtl Right
+>>>>>>> ad2a6e19c95f17716b8d2b9e9a930afac52cd1f0
