@@ -8,7 +8,7 @@ var ScaleX 		= 1.0;
 var ScaleY 		= 1.0;
 var ScaleZ 		= 1.0;
 var RotX		= 0.0;
-var RotLZ		= 0.0;
+var RotYL		= 0.0;
 var RotY		= 0.0;
 var RotZ		= 0.0;
 var TransX		= 0.0;
@@ -235,10 +235,6 @@ function draw(o, shaderProgram, primitive) {
 		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
 
-
-		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
-
 		}
 	else
 		alert("o.colorBuffer == null");
@@ -247,15 +243,7 @@ function draw(o, shaderProgram, primitive) {
 
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
-var angulo = 45.0;
-function gira(raio,ang){
-	if (ang == 360){
-		angulo = 0;
-		return ((Math.PI * ang / 180)*raio);
-	}
-	angulo++;
-	return ((Math.PI * ang / 180)*raio);
-}
+
 // ********************************************************
 // ********************************************************
 
@@ -264,6 +252,9 @@ function drawScene() {
 	var modelMat = new Matrix4();
 	var modelMatT = new Matrix4();
 	
+	/*Sempre chamar essa matriz*/
+	modelMat.setIdentity();
+
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
@@ -276,99 +267,65 @@ function drawScene() {
 	}
 	
 	// SOL
-	/*draw(axis, shader, gl.LINES);*/
+	// draw(axis, shader, gl.LINES);
 	modelMat.translate(TransX,TransY,TransZ);
-	modelMat.rotate(RotX, 1,0,0);
+	// modelMat.rotate(RotX, 1,0,0);
 	modelMat.rotate(RotY, 0,1,0);
-	modelMat.rotate(RotZ, 0,0,1);
+	// modelMat.rotate(RotZ, 0,0,1);
 	modelMat.scale(raioS,raioS,raioS);
-
-	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	
-	// draw(axis, shader, gl.LINES);
-	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-	gl.uniform1i(shader.SampleruCorTerra,1);
-	modelMatT.translate(-0.7,0.0,0.0);
-	modelMatT.rotate(RotX, 1,0,0);
+	gl.uniform1i(shader.SampleruCorTerra,3);
 
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
-	// TERRA
-    /*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-	modelMatT.setIdentity();
-
-	modelMatT.translate(-distanciaTS,0.0,0.0);
-	modelMatT.scale(raioT, raioT, raioT);
-	
 	var t = distanciaTS+2*raioS;
 	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
-
+	// TERRA    
+	modelMat.translate(-0.7,0.0,0.0);
+	modelMat.scale(raioT, raioT, raioT);	
+	
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.SampleruCorTerra,1);
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
-	gl.uniform1i(shader.SampleruCorTerra,2);
-	/*draw(axis, shader, gl.LINES);*/
-	modelMat.translate(TransX,TransY,TransZ);
-	modelMat.rotate(RotX, 1,0,0);
-	modelMat.rotate(RotY, 0,1,0);
-	modelMat.rotate(RotZ, 0,0,1);
-	modelMat.scale(1.5, 1.5, 1.5);
-	// draw(axis, shader, gl.LINES);
-
-	
 	// LUA
-	var modelMatL = modelMatT;
 
-	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	modelMatL.translate(-distanciaLT,0.0,0.0);
-	modelMatL.scale(raioL, raioL, raioL);
-
-	
-	//rotacionar a lua em relação a terra
-	var posT = distanciaLT-distanciaTS;
-	t = posT+2*raioT+raioL;
-
-	modelMatL.translate(t,0.0,0.0);
-	modelMatL.rotate(RotLZ, 0,0,1);
-	modelMatL.translate(-t,0.0,0.0);
-	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	
+	modelMat.rotate(RotYL, 1,0,0);
+	modelMat.translate(0.0,0.4,0.0);
+	modelMat.scale(0.4, 0.4, 0.4);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.SampleruCorTerra,2);
+		
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
-
-	gl.uniform1i(shader.SampleruCorTerra,3);
 	
 }
+
 var re = 0;
 function rotateEarth(){
 	re = setInterval(function(){
-		RotY += 10;
-		if(RotY > 360){
-			RotY = 0;
+		RotYL += 10;
+		if(RotYL > 360){
+			RotYL = 0;
 		}
 		drawScene();
-	}, 1000);
+	}, 100);
 }
 
 var rl = 0;
 function rotateLunar(){
 	rl = setInterval(function(){
-		RotLZ += 10;
-		if(RotLZ > 360){
-			RotLZ = 0;
+		RotY += 10;
+		if(RotY > 360){
+			RotY = 0;
 		}
 		drawScene();
-	}, 100);
+	}, 350);
 }
     
 // ********************************************************
@@ -520,7 +477,7 @@ function handleKeyDown(event) {
 
 // ********************************************************
 // ********************************************************
-function changeRotX(v) {
+/*function changeRotX(v) {
 	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
 	RotX = v;
 	drawScene();
@@ -541,7 +498,7 @@ function changeRotZ(v) {
 	RotZ = v;
 	drawScene();
 }
-   
+   */
 
 // ********************************************************
 // ********************************************************
