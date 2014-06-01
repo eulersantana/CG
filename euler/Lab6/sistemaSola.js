@@ -8,6 +8,7 @@ var ScaleX 		= 1.0;
 var ScaleY 		= 1.0;
 var ScaleZ 		= 1.0;
 var RotX		= 0.0;
+var RotLZ		= 0.0;
 var RotY		= 0.0;
 var RotZ		= 0.0;
 var TransX		= 0.0;
@@ -15,9 +16,11 @@ var TransY		= 0.0;
 var TransZ		= 0.0;
 var Upper		= false;
 
+var raioT = 0.3, raioL = 0.5, raioS = 1; 
+var distanciaTS = 0.7, distanciaLT = 0.7;
+
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
-var g_drawingInfo2 	= null;	// The information for drawing 3D model
 
 // ********************************************************
 // ********************************************************
@@ -60,7 +63,6 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 	if (!result) {
 		g_objDoc 		= null; 
 		g_drawingInfo 	= null;
-		g_drawingInfo2 	= null;
 		console.log("OBJ file parsing error.");
 		return;
 		}
@@ -74,24 +76,17 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 function onReadComplete(gl) {
 	
 var groupModel = null;
-var groupModel2 = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
-	g_drawingInfo2 	= g_objDoc.getDrawingInfo();
 	
 	for(var o = 0; o < g_drawingInfo.numObjects; o++) {
 		
 		groupModel = new Object();
 
-		groupModel2 = new Object();
-
 		groupModel.vertexBuffer = gl.createBuffer();
 		if (groupModel.vertexBuffer) {		
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.vertexBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.vertices[o], gl.STATIC_DRAW);
-			
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel2.vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo2.vertices[o], gl.STATIC_DRAW);
 			}
 		else
 			alert("ERROR: can not create vertexBuffer");
@@ -101,9 +96,6 @@ var groupModel2 = null;
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
 
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel2.colorBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo2.colors[o], gl.STATIC_DRAW);
-
 			}
 		else
 			alert("ERROR: can not create colorBuffer");
@@ -112,9 +104,6 @@ var groupModel2 = null;
 		if (groupModel.indexBuffer) {		
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo.indices[o], gl.STATIC_DRAW);
-
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel2.indexBuffer);
-			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo2.indices[o], gl.STATIC_DRAW);
 		}
 		else
 			alert("ERROR: can not create indexBuffer");
@@ -147,6 +136,7 @@ function initAxisVertexBuffer() {
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
+	
 	// V1
 	vPos.push(1.0);
 	vPos.push(0.0);
@@ -196,7 +186,7 @@ function initAxisVertexBuffer() {
 	if (axis.vertexBuffer) {		
 		gl.bindBuffer(gl.ARRAY_BUFFER, axis.vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vPos), gl.STATIC_DRAW);
-		}
+	}
 	else
 		alert("ERROR: can not create vertexBuffer");
 	
@@ -257,70 +247,115 @@ function draw(o, shaderProgram, primitive) {
 
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
 }
+var angulo = 45.0;
+function gira(raio,ang){
+	if (ang == 360){
+		angulo = 0;
+		return ((Math.PI * ang / 180)*raio);
+	}
+	angulo++;
+	return ((Math.PI * ang / 180)*raio);
+}
+// ********************************************************
+// ********************************************************
 
-// ********************************************************
-// ********************************************************
 function drawScene() {
 
-var modelMat = new Matrix4();
-var modelMatT = new Matrix4();
-var modelMatL = new Matrix4();
+	var modelMat = new Matrix4();
+	var modelMatT = new Matrix4();
+	
+	/*Sempre chamar essa matriz*/
+	modelMat.setIdentity();
+	modelMatT.setIdentity();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
     try {
     	gl.useProgram(shader);
-		}
+	}
 	catch(err){
         alert(err);
         console.error(err.description);
-    	}
-    /*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-	modelMatT.setIdentity();
-
-	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
-	modelMatL.translate(0.5,0.0,0.0);
-	modelMatL.rotate(RotX, 1,0,0);
-	modelMatL.rotate(RotY, 0,1,0);
-	modelMatL.rotate(RotZ, 0,0,1);
-	modelMatL.scale(0.8, 0.8, 0.8);
+	}
 	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
-	// draw(axis, shader, gl.LINES);
-
-	modelMatT.translate(-0.5,0.0,0.0);
-	modelMatT.rotate(RotX, 1,0,0);
-	modelMatT.rotate(RotY, 0,1,0);
-	modelMatT.rotate(RotZ, 0,0,1);
-	modelMatT.scale(0.8, 0.8, 0.8);
-	
-	
-	/*draw(axis, shader, gl.LINES);
-
-		draw(axis, shader, gl.LINES);*/
+	// SOL
+	/*draw(axis, shader, gl.LINES);*/
 	modelMat.translate(TransX,TransY,TransZ);
 	modelMat.rotate(RotX, 1,0,0);
 	modelMat.rotate(RotY, 0,1,0);
 	modelMat.rotate(RotZ, 0,0,1);
-	modelMat.scale(1.5, 1.5, 1.5);
+	modelMat.scale(raioS,raioS,raioS);
 	
-	// draw(axis, shader, gl.LINES);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	// draw(axis, shader, gl.LINES);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
-	
+	gl.uniform1i(shader.SampleruCorTerra,1);
+
 	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
 
+	
+	// TERRA
+    
+	modelMatT.translate(-0.7,0.0,0.0);
+	modelMatT.rotate(RotX, 1,0,0);
 
+	modelMatT.translate(-distanciaTS,0.0,0.0);
+	modelMatT.scale(raioT, raioT, raioT);
+	
+	var t = distanciaTS+2*raioS;
+	
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatT.elements);
+	gl.uniform1i(shader.SampleruCorTerra,2);
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
+
+	// LUA
+	var modelMatL = modelMatT;
+
+	// gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	modelMatL.translate(-distanciaLT,0.0,0.0);
+	modelMatL.scale(raioL, raioL, raioL);
+
+	//rotacionar a lua em relação a terra
+	var posT = distanciaLT-distanciaTS;
+	t = posT+2*raioT+raioL;
+
+	modelMatL.translate(t,0.0,0.0);
+	modelMatL.rotate(RotLZ, 0,0,1);
+	modelMatL.translate(-t,0.0,0.0);
+	
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatL.elements);
+	gl.uniform1i(shader.SampleruCorTerra,3);
+		
+	// draw(axis, shader, gl.LINES);
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
 	
 }
 
+var re = 0;
+function rotateEarth(){
+	re = setInterval(function(){
+		RotY += 10;
+		if(RotY > 360){
+			RotY = 0;
+		}
+		drawScene();
+	}, 1000);
+}
+
+var rl = 0;
+function rotateLunar(){
+	rl = setInterval(function(){
+		RotLZ += 10;
+		if(RotLZ > 360){
+			RotLZ = 0;
+		}
+		drawScene();
+	}, 100);
+}
     
 // ********************************************************
 // ********************************************************
@@ -340,7 +375,7 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	
+	shader.SampleruCorTerra		= gl.getUniformLocation(shader, "uCorTerra");
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uModelMat ) {
 		console.log("Error getAttribLocation"); 
@@ -371,25 +406,16 @@ function webGLStart() {
 			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
 									+ g_drawingInfo.BBox.Center.y + " , " 
 									+ g_drawingInfo.BBox.Center.z + ")");
-
-			console.log("BBox = (" 	+ g_drawingInfo2.BBox.Min.x + " , " 
-									+ g_drawingInfo2.BBox.Min.y + " , " 
-									+ g_drawingInfo2.BBox.Min.z + ")");
-			console.log("		(" 	+ g_drawingInfo2.BBox.Max.x + " , " 
-									+ g_drawingInfo2.BBox.Max.y + " , " 
-									+ g_drawingInfo2.BBox.Max.z + ")");
-			console.log("		(" 	+ g_drawingInfo2.BBox.Center.x + " , " 
-									+ g_drawingInfo2.BBox.Center.y + " , " 
-									+ g_drawingInfo2.BBox.Center.z + ")");
-			}
+		}
+		
 		if (model.length > 0) 
 			drawScene();
 		else
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
-
-
+	rotateEarth();
+	rotateLunar();
 }
 
 // ********************************************************
@@ -513,3 +539,5 @@ function resetTransfGeom() {
 	document.getElementById("RotZ").value = 0.0;
 	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
 }
+
+

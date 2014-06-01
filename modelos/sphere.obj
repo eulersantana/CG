@@ -4,7 +4,8 @@
 #	LightWave3D OBJ Export v2.3
 #
 ####
-mtllib boulder.mtl
+#o 	boulder.obj
+mtllib sphere.mtl
 g default
 v -0.25 -1.53081e-017 -1.53081e-017
 v -0.241481 -0.0647048 -1.47865e-017
