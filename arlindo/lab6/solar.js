@@ -4,17 +4,33 @@ var model		= new Array;
 var axis		= null;
 var gl			= null;
 var globalScale = 1.0;
-var ScaleX 		= 1.0;
-var ScaleY 		= 1.0;
-var ScaleZ 		= 1.0;
+var ScaleX 		= 0.6;
+var ScaleY 		= 0.6;
+var ScaleZ 		= 0.6;
+var ScaleXL		= 0.1;
+var ScaleYL		= 0.1;
+var ScaleZL		= 0.1000;
 var RotX		= 0.0;
 var RotY		= 0.0;
 var RotZ		= 0.0;
+var RotXL		= 0.0;
+var RotYL		= 0.0;
+var RotZL		= 0.0;
+var RotXT		= 0.0;
+var RotYT		= 0.0;
+var RotZT		= 0.0;
 var TransX		= 0.0;
 var TransY		= 0.0;
 var TransZ		= 0.0;
+var TransXL		= 0.0;
+var TransYL		= 0.0;
+var TransZL		= 0.0;
 var Upper		= false;
 var ultimo      = 0;
+var aux			= 0;
+var auxR		= -1;
+var auxRL		= -1;
+var auxL        = 0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -235,6 +251,8 @@ function draw(o, shaderProgram, primitive) {
 function drawScene() {
 
 var modelMat = new Matrix4();
+var modelMatLua = new Matrix4();
+var modelMatSol = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -247,24 +265,105 @@ var modelMat = new Matrix4();
         alert(err);
         console.error(err.description);
     	}
-    	
+    
+
+	modelMatSol.setIdentity();
+	
+	modelMatSol.rotate(RotX, 1, 0, 0);
+	modelMatSol.rotate(RotY, 0, 1, 0);
+	modelMatSol.rotate(RotZ, 0, 0, 1);
+
+	//modelMat.translate(TransX, TransY, TransZ);
+
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatSol.elements);
+	
+	modelMatSol.scale(1.1, 1.1, 1.1);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatSol.elements);
+	gl.uniform1i(shader.uColor,1);
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);	
+
+    //terra
 	modelMat.setIdentity();
+	
+	modelMat.rotate(RotXT, 1, 0, 0);
+	modelMat.rotate(RotYT, 0, 1, 0);
+	modelMat.rotate(RotZT, 0, 0, 1);
 
-	modelMat.rotate(RotX, 1, 0, 0);
-	modelMat.rotate(RotY, 0, 1, 0);
-	modelMat.rotate(RotZ, 0, 0, 1);
+	modelMat.translate(TransX, TransY, TransZ);
 
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
-	draw(axis, shader, gl.LINES);
-
-	modelMat.scale(ScaleX, ScaleY, ScaleZ);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	
-	draw(axis, shader, gl.LINES);
-
+	modelMat.scale(ScaleX, ScaleX, ScaleX);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.uColor,3);
+	
 	for(var o = 0; o < model.length; o++) 
 		draw(model[o], shader, gl.TRIANGLES);
+
+	
+	
+
+	//lua
+
+	modelMatLua.setIdentity();
+	
+	modelMatLua.rotate(RotXL, 1, 0, 0);
+	modelMatLua.rotate(RotYL, 0, 1, 0);
+	modelMatLua.rotate(RotZL, 0, 0, 1);
+
+	modelMatLua.translate(TransX + TransYL, TransYL, TransZL);
+
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	
+	modelMatLua.scale(ScaleXL, ScaleXL, ScaleXL);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMatLua.elements);
+	gl.uniform1i(shader.uColor,2);
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
+	
+	
+	if(auxL == 1){
+		modelMat.setIdentity();
+	
+		modelMat.rotate(RotXT, 1, 0, 0);
+		modelMat.rotate(RotYT, 0, 1, 0);
+		modelMat.rotate(RotZT, 0, 0, 1);
+
+		modelMat.translate(TransX, TransY, TransZ);
+
+		gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+		
+		modelMat.scale(ScaleX, ScaleX, ScaleX);
+		gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+		gl.uniform1i(shader.uColor,3);
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(model[o], shader, gl.TRIANGLES);
+	}
+
+	if(aux == 1){
+		modelMatSol.setIdentity();
+	
+		modelMatSol.rotate(RotX, 1, 0, 0);
+		modelMatSol.rotate(RotY, 0, 1, 0);
+		modelMatSol.rotate(RotZ, 0, 0, 1);
+
+		//modelMat.translate(TransX, TransY, TransZ);
+
+		gl.uniformMatrix4fv(shader.uModelMat, false, modelMatSol.elements);
+		
+		modelMatSol.scale(1.1, 1.1, 1.1);
+		gl.uniformMatrix4fv(shader.uModelMat, false, modelMatSol.elements);
+		gl.uniform1i(shader.uColor,1);
+		
+		for(var o = 0; o < model.length; o++) 
+			draw(model[o], shader, gl.TRIANGLES);	
+	}
+
+	
 }
     
 // ********************************************************
@@ -285,6 +384,7 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
+	shader.uColor			= gl.getUniformLocation(shader, "uColor");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uModelMat) {
@@ -298,7 +398,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -377,15 +477,84 @@ function rotocaoY() {
   {
     var diferenca = agora-ultimo;
     
-    RotX  += ((90*diferenca)/1000.0) % 360.0;
-    RotY  += ((75*diferenca)/1000.0) % 360.0;
-    RotZ  += ((50*diferenca)/1000.0) % 360.0;
+    //RotZ  += ((90*diferenca)/1000.0) % 360.0;
+    //RotZL  += ((10*diferenca)/1000.0) % 360.0;
+
+    //TransX += ((1.1*diferenca)/1000.0) % 360.0;
+   // RotZ  += ((50*diferenca)/1000.0) % 360.0;
   }
   	ultimo = agora;
-	
+	translacaoX();
 	drawScene();
+	rotacaoZT();
+	rotacaoZL();
 }   
     
+ function translacaoX() {
+	//var agora = new Date().getTime();
+  if(aux == 1) {  
+  	TransX -= 0.002; 
+   	if (TransX < -0.8)
+  		aux = 0;
+  } 
+  else{
+  	TransX += 0.002;
+  	if (TransX > 0.8)
+  		aux = 1;
+  } 
+
+  if(auxL == 1) {  
+  	TransYL -= 0.002; 
+   	if (TransYL < -0.1199)
+  		auxL = 0;
+  } 
+  else{
+  	TransYL += 0.002;
+  	if (TransYL > 0.1199)
+  		auxL = 1;
+  } 
+  
+  		document.getElementById("outRotY").innerHTML = "Rotacao Y = "+ TransX ;
+} 
+
+ function rotacaoZT() {
+	//var agora = new Date().getTime();
+  	if((TransX < 0.1) && (TransX > -0.1)){
+  		if((TransX < 0.0)){
+  			auxR = 1;
+  		}
+  		if(TransX > 0.0){
+  			auxR = -1
+  		}
+  	}
+  	else{
+  		if (auxR == 1){
+  			ScaleX += 0.0005; 
+  		}else
+  			ScaleX -= 0.0005; 
+  	}
+  	
+} 
+
+function rotacaoZL() {
+	//var agora = new Date().getTime();
+  	if((TransYL < 0.005) && (TransYL > -0.005)){
+  		if((TransYL < 0.0)){
+  			auxRL = 1;
+  		}
+  		if(TransYL > 0.0){
+  			auxRL = -1
+  		}
+  	}
+  	else{
+  		if (auxRL == 1){
+  			ScaleXL += 0.0009; 
+  		}else
+  			ScaleXL -= 0.0009; 
+  	}
+  	
+} 
+
 // ********************************************************
 // ********************************************************
 function changeRotY(v) {
