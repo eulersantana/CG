@@ -242,16 +242,28 @@ var projMat 	= new Matrix4();
 	viewMat.setIdentity();
 	projMat.setIdentity();
 
+	viewMat.lookAt(cameraPos.elements[0],
+				   cameraPos.elements[1],
+				   cameraPos.elements[2],
+				   cameraLook.elements[0],
+				   cameraLook.elements[1],
+				   cameraLook.elements[2],
+				   cameraUp.elements[0],
+				   cameraUp.elements[1],
+				   cameraUp.elements[2]);
+
+	projMat.perspective(FOVy, 1.0, 0.01, 25);
+
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
 	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
 	
 	draw(gl, axis, shader, gl.LINES);
 
+	modelMat.translate(transX, transY, transZ);
 	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
 	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
 	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
-	modelMat.translate(transX, transY, transZ);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
@@ -285,7 +297,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -303,6 +315,7 @@ function webGLStart() {
 			cameraUp.elements[0] 	= 0.0;
 			cameraUp.elements[1] 	= 1.0;
 			cameraUp.elements[2] 	= 0.0;
+
 			
 			axis = initAxisVertexBuffer(g_drawingInfo.BBox.Max);
 			if (!axis) {
@@ -338,11 +351,59 @@ function handleKeyDown(event) {
 		Upper = true;
 
 	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:	break;
+		case "X"	:	cameraPos.elements[0] 	= 1.5 * g_drawingInfo.BBox.Max.x;
+						cameraPos.elements[1] 	= 0;
+						cameraPos.elements[2] 	= 0;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
+						break;
 						
-		case "Y"	:	break;
+		case "Y"	:	cameraPos.elements[0] 	= 0;
+						cameraPos.elements[1] 	= g_drawingInfo.BBox.Max.y;
+						cameraPos.elements[2] 	= 0;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
+						break;
 						
-		case "Z"	:	break;
+		case "Z"	:	cameraPos.elements[0] 	= 0;
+						cameraPos.elements[1] 	= 0;
+						cameraPos.elements[2] 	= 1.5 * g_drawingInfo.BBox.Max.z;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
+						break;
+
+		case "A"	: 	transX-= 0.1;
+						break;
+
+		case "D"	: 	transX+= 0.1;
+						break;
+
+		case "W"	: 	transY+= 0.1;
+						break;
+
+		case "S"	: 	transY-= 0.1;
+						break;
+
+		case "Q"	: 	transZ-= 0.1;
+						break;
+
+		case "E"	: 	transZ+= 0.1;
+						break;
 		}
 		
 	switch (keyunicode) {
@@ -356,19 +417,32 @@ function handleKeyDown(event) {
 					cameraUp.elements[0] 	= 0.0;
 					cameraUp.elements[1] 	= 1.0;
 					cameraUp.elements[2] 	= 0.0;
+					transX		= 0.0;
+					transY		= 0.0; 
+					transZ		= 0.0;
+					rotX		= 0.0;
+					rotY		= 0.0; 
+					rotZ		= 0.0;
+					FOVy 		= 75;
 					break;
 						
 		case 33	:	// Page Up
+					FOVy -= 10;
 					break;
 		case 34	:	// Page Down
+					FOVy += 10;
 					break;
 		case 37	:	// Left cursor key
+					rotX -= 1.5;
 					break;
 		case 38	:	// Up cursor key
+					rotY -= 1.5;
 					break;
 		case 39	:	// Right cursor key
+					rotX += 1.5;
 					break;
 		case 40	:	// Down cursor key
+					rotY += 1.5;
 					break;
 		}
 	drawScene();	
