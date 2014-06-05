@@ -259,12 +259,12 @@ var projMat 	= new Matrix4();
 	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
 	
 	draw(gl, axis, shader, gl.LINES);
-
+	modelMat.translate(transX, transY, transZ);
 	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
 	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
 	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
 
-	modelMat.translate(transX, transY, transZ);
+	
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
@@ -352,27 +352,27 @@ function handleKeyDown(event) {
 
 	switch (String.fromCharCode(keyunicode)) {
 		case "X"	:
-					cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
-					cameraLook.elements[1] 	= 0.0
-					cameraLook.elements[2] 	= 0.0;
+					cameraPos.elements[0] 	= 1.2+g_drawingInfo.BBox.Center.x;
+					cameraPos.elements[1] 	= 0.0
+					cameraPos.elements[2] 	= 0.0;
 					cameraUp.elements[0] 	= 0.0;
 					cameraUp.elements[1] 	= 1.0;
 					cameraUp.elements[2] 	= 0.0;
 			break;
 						
 		case "Y"	:
-					cameraLook.elements[0] 	= 0.0;
-					cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
-					cameraLook.elements[2] 	= 0.0;
+					cameraPos.elements[0] 	= 0.0;
+					cameraPos.elements[1] 	= 1.2+g_drawingInfo.BBox.Center.y;
+					cameraPos.elements[2] 	= 0.0;
 					cameraUp.elements[0] 	= 0.0;
 					cameraUp.elements[1] 	= 1.0;
 					cameraUp.elements[2] 	= 0.0;
 			break;
 						
 		case "Z"	:
-					cameraLook.elements[0] 	= 0.0;
-					cameraLook.elements[1] 	= 0.0;
-					cameraLook.elements[2] 	= -g_drawingInfo.BBox.Center.z;
+					cameraPos.elements[0] 	= 0.0;
+					cameraPos.elements[1] 	= 0.0;
+					cameraPos.elements[2] 	= 1.2+g_drawingInfo.BBox.Center.z;
 					cameraUp.elements[0] 	= 0.0;
 					cameraUp.elements[1] 	= 1.0;
 					cameraUp.elements[2] 	= 0.0;
@@ -394,17 +394,17 @@ function handleKeyDown(event) {
 					cameraUp.elements[2] 	= 0.0;
 					break;
 						
-		case 33	:   transY++;	// Page Up
+		case 33	:   // Page Up
 					break;
-		case 34	:	transY--; // Page Down
+		case 34	:	 // Page Down
 					break;
-		case 37	:	// Left cursor key
+		case 37	:	transX--; // Left cursor key
 					break;
-		case 38	:	// Up cursor key
+		case 38	:	transY++;// Up cursor key
 					break;
-		case 39	:	// Right cursor key
+		case 39	:	transX++;// Right cursor key
 					break;
-		case 40	:	// Down cursor key
+		case 40	:	transY--;// Down cursor key
 					break;
 		}
 	drawScene();	

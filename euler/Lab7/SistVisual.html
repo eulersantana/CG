@@ -1,9 +1,25 @@
-
-<html>
-
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-<title>MATA65 - Computacao Grafica</title>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=9"><![endif]-->
+	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>CG</title>
+
+	
+	
+	<!-- css -->
+	<link href="../../css/bootstrap.css" rel="stylesheet">
+	<link href="../../css/bootstrap-lightbox.css" rel="stylesheet">
+	<link href="../../css/portfolio.css" rel="stylesheet">
+	<link href="../../css/icomoon-free.css" rel="stylesheet">
+	<link href="../../css/vertical-timeline.css" rel="stylesheet">
+	<link href="../../css/style.min.css" rel="stylesheet">
+	<link href="../../css/custom.css" rel="stylesheet">
 
 <script id="SistVis-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
@@ -42,11 +58,36 @@
 <script type="text/javascript" src="../../lib/materialParser.js"></script>
 <script type="text/javascript" src="SistVisual.js"></script>
 
+<!--[if IE]><link href="css/ie.css" rel="stylesheet"><![endif]-->
+  <style type="text/css">
+  body{
+  	background: url("../../img/background-patterns/circles.png") !important;
+  }
+  </style>
 </head>
-
 <body onload="webGLStart();">
-    <h1>Laboratorio 7</h1><br />
-    <p>Sistema de Visualizacao.</p>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">CG</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Laboratorio 3 - Exercico 1</a>
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+					<ul class="nav navbar-nav subMenu">
+						<li><a href="../../index.html" id="nav-letter-head">Inicio</a></li>
+						
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</nav>
+		<div class="container" id="content" style="margin-top: 80px;">
      <div id="outRotX">ZOOM = </div>
     <input type="range" id="pSize" min="75" max="200.0" step="1.0" value="75.0" onchange="changePSize(this.value)"><br/>
      <div id="outRotX">Rotacao X = </div>
@@ -56,7 +97,7 @@
      <div id="outRotX">Rotacao Z = </div>
     <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateZPSize(this.value)"><br/>
     <canvas id="SistVis" style="border: none;" width="400" height="400"></canvas>
-
+</div>
 </body>
 
 </html>
