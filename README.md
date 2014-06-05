@@ -1,15 +1,20 @@
-CG
-==
-Repositorio para os codigos presentes no link: https://eulersantana.github.io/CG/
+MATA65 - Computação Gráfica
+================
 
-Links Uteis:
+Neste repositório estão as atividades desenvolvidas na disciplina de computação gráfica do professor Apolinário na Universidade Federal da Bahia.
 
-http://learningwebgl.com/blog/?p=28
+###Tecnologias Utilizadas:
 
-http://www.realtimerendering.com/blog/webgl-debugging-and-profiling-tools/
+- WebGL
+- Javascript
+- Html5 & CSS
 
-http://www.khronos.org/webgl/wiki/Debugging
+Para visualizar online acesse [Aqui](https://eulersantana.github.io/CG/ "Visualização das atividade online.")
 
-https://www.khronos.org/registry/webgl/specs/1.0/#SUPPORTED_GLSL_CONSTRUCTS
+###Links Úteis:
 
-https://greggman.github.io/webgl-fundamentals/
+    http://learningwebgl.com/blog/?p=28
+    http://www.realtimerendering.com/blog/webgl-debugging-and-profiling-tools/
+    http://www.khronos.org/webgl/wiki/Debugging
+    https://www.khronos.org/registry/webgl/specs/1.0/#SUPPORTED_GLSL_CONSTRUCTS
+    https://greggman.github.io/webgl-fundamentals/
