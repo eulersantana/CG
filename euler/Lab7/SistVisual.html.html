@@ -1,0 +1,62 @@
+
+<html>
+
+<head>
+<title>MATA65 - Computacao Grafica</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script id="SistVis-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec4 aVertexColor;
+	
+	uniform mat4 uViewMat;
+	uniform mat4 uModelMat;
+	uniform mat4 uProjMat;
+		
+	varying vec4 vColor;
+		
+	void main(void) {
+		
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVertexPosition.xyz, 1.0);
+ 		
+		vColor = aVertexColor;
+	}
+
+</script>
+
+<script id="SistVis-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	varying vec4 vColor;
+		
+	void main(void) {
+		gl_FragColor = vColor;
+	}
+</script>
+
+<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
+<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="../../lib/myOBJParser.js"></script>
+<script type="text/javascript" src="../../lib/materialParser.js"></script>
+<script type="text/javascript" src="SistVisual.js"></script>
+
+</head>
+
+<body onload="webGLStart();">
+    <h1>Laboratorio 7</h1><br />
+    <p>Sistema de Visualizacao.</p>
+     <div id="outRotX">ZOOM = </div>
+    <input type="range" id="pSize" min="75" max="200.0" step="1.0" value="75.0" onchange="changePSize(this.value)"><br/>
+     <div id="outRotX">Rotacao X = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateXPSize(this.value)">
+     <div id="outRotX">Rotacao Y = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateYPSize(this.value)">
+     <div id="outRotX">Rotacao Z = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateZPSize(this.value)"><br/>
+    <canvas id="SistVis" style="border: none;" width="400" height="400"></canvas>
+
+</body>
+
+</html>
