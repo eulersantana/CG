@@ -3,18 +3,18 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var globalScale = 1.0;
-var ScaleX 		= 1.0;
-var ScaleY 		= 1.0;
-var ScaleZ 		= 1.0;
-var RotX		= 0.0;
-var RotY		= 0.0;
-var RotZ		= 0.0;
-var TransX		= 0.0;
-var TransY		= 0.0;
-var TransZ		= 0.0;
 var Upper		= false;
-var distanceMoonEarth = 0;
+
+var cameraPos 	= new Vector3();
+var cameraLook 	= new Vector3();
+var cameraUp 	= new Vector3();
+var transX		= 0.0;
+var transY		= 0.0; 
+var transZ		= 0.0;
+var rotX		= 0.0;
+var rotY		= 0.0; 
+var rotZ		= 0.0;
+var FOVy		= 75.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -41,12 +41,11 @@ function initGL(canvas) {
 // Read a file
 function readOBJFile(fileName, gl, scale, reverse) {
 	var request = new XMLHttpRequest();
-
+	
 	request.onreadystatechange = function() {
 		if (request.readyState === 4 && request.status !== 404) 
 			onReadOBJFile(request.responseText, fileName, gl, scale, reverse);
 		}
-
 	request.open('GET', fileName, true); // Create a request to acquire the file
 	request.send();                      // Send the request
 }
@@ -73,7 +72,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-	var groupModel = null;
+var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -107,20 +106,17 @@ function onReadComplete(gl) {
 		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
 		model.push(groupModel);
-		model.push(groupModel);
-		model.push(groupModel);
 		}
 }
 
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer() {
+function initAxisVertexBuffer(max) {
 
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
 	var vColor 	= new Array;
-	var vNormal	= new Array;
 	var lInd 	= new Array;
 
 	// X Axis
@@ -132,46 +128,34 @@ function initAxisVertexBuffer() {
 	vColor.push(1.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	// V1
-	vPos.push(1.0);
+	vPos.push(1.5 * max.x);
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Y Axis
 	// V2
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.y);
 	vPos.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Z Axis
 	// V3
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.z);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	
 	lInd.push(0);	
 	lInd.push(1);	
@@ -211,7 +195,7 @@ function initAxisVertexBuffer() {
 
 // ********************************************************
 // ********************************************************
-function draw(o, shaderProgram, primitive) {
+function draw(gl, o, shaderProgram, primitive) {
 
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
@@ -238,11 +222,11 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	console.log(model);
+var modelMat 	= new Matrix4();
+var viewMat 	= new Matrix4();
+var projMat 	= new Matrix4();
 
-	var modelMat = new Matrix4();
-
-	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
@@ -253,62 +237,38 @@ function drawScene() {
         alert(err);
         console.error(err.description);
     	}
+    	
+	modelMat.setIdentity();
+	viewMat.setIdentity();
+	projMat.setIdentity();
 
-    draw(axis, shader, gl.LINES);
-	
-	// Sun	
-	var radiusSun = 1;
-	
-	modelMat.scale(radiusSun,radiusSun,radiusSun);
+	viewMat.lookAt(cameraPos.elements[0],
+				   cameraPos.elements[1],
+				   cameraPos.elements[2],
+				   cameraLook.elements[0],
+				   cameraLook.elements[1],
+				   cameraLook.elements[2],
+				   cameraUp.elements[0],
+				   cameraUp.elements[1],
+				   cameraUp.elements[2]);
+
+	projMat.perspective(FOVy, 1.0, 0.01, 25);
 
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,0);
+	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
+	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
+	
+	draw(gl, axis, shader, gl.LINES);
 
-	draw(model[0], shader, gl.TRIANGLES);
-
-	console.log(modelMat);
-
-	// Earth
-	var distanceEarthSun = 1;
-	var radiusEarth = 0.5;
-
-	// modelMat.setIdentity();
-	modelMat.scale(radiusEarth, radiusEarth, radiusEarth);
-	modelMat.translate(distanceEarthSun, 0.0, 0.0);
-		
-	var t = radiusEarth+2*radiusSun;
-
-	modelMat.translate(t,0.0,0.0);
-	modelMat.rotate(RotY, 0,1,0);
-	modelMat.translate(-t,0.0,0.0);
+	modelMat.translate(transX, transY, transZ);
+	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
+	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
+	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,1);
 
-	draw(model[0], shader, gl.TRIANGLES);
-	
-	// Moon
-	distanceMoonEarth = 0.6;
-	var radiusMoon = 0.3;
-	var rotMoonZ = 0.0;
-	var posEarth = distanceMoonEarth-radiusEarth;
-
-	// modelMat.setIdentity();
-	modelMat.translate(distanceMoonEarth,0.0,0.0);
-	modelMat.scale(radiusMoon, radiusMoon, radiusMoon);
-	
-	//rotacionar a lua em relaÃ§Ã£o a terra
-	
-	t = posEarth+2*radiusEarth+radiusMoon;
-
-	modelMat.translate(t,0.0,0.0);
-	modelMat.rotate(rotMoonZ, 0,0,1);
-	modelMat.translate(-t,0.0,0.0);
-	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,2);
-	
-	draw(model[0], shader, gl.TRIANGLES);
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
 }
     
 // ********************************************************
@@ -317,63 +277,66 @@ function webGLStart() {
 
 	document.onkeydown 	= handleKeyDown;
 	document.onkeyup 	= handleKeyUp;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + RotX;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + RotY;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + RotZ;
 	
-	canvas 				= document.getElementById("TransfGeom");
-	gl 					= initGL(canvas);
+	canvas 	= document.getElementById("SistVis");
+	gl 		= initGL(canvas);
+	shader 	= initShaders("SistVis", gl);	
 	
-	shader 					= initShaders("TransfGeom", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
+	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
+	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
 	
-	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.uModelMat) {
+	if (shader.vPositionAttr < 0 	|| 
+		shader.vColorAttr < 0 		|| 
+		!shader.uModelMat 			|| 
+		!shader.uViewMat 			|| 
+		!shader.uProjMat) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 		
-	axis = initAxisVertexBuffer(gl);
-	if (!axis) {
-		console.log('Failed to set the AXIS vertex information');
-		return;
-		}
-		
-	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
-		console.log("test4")
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
 			
 			onReadComplete(gl);
-			console.log("test3")
+			
 			g_objDoc = null;
 			
+			cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
+			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
+
+			
+			axis = initAxisVertexBuffer(g_drawingInfo.BBox.Max);
+			if (!axis) {
+				console.log('Failed to set the AXIS vertex information');
+				return;
+				}
 			}
 		if (model.length > 0) 
-		{
-			console.log("test")
-			distanceMoonEarth+= 0.1
 			drawScene();
-		}
-		else
-		{
-			console.log("test2")
+		else  
 			requestAnimationFrame(tick, canvas);
-		}
 		};	
 	tick();
 }
+
 
 // ********************************************************
 // ********************************************************
 function handleKeyUp(event) {
 	
-	var e = window.event || event;
-	var keyunicode = e.charCode || e.keyCode;
+	var keyunicode = event.charCode || event.keyCode;
 	if (keyunicode == 16)
 		Upper = false;
 }	
@@ -382,90 +345,106 @@ function handleKeyUp(event) {
 // ********************************************************
 function handleKeyDown(event) {
 	
-	var e = window.event || event;
 	var keyunicode = event.charCode || event.keyCode;
 	
 	if (keyunicode == 16) 
 		Upper = true;
 
 	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:	if (Upper) {
-							ScaleX += 0.1;
-							}
-						else {
-							ScaleX -= 0.1;
-							}
+		case "X"	:	cameraPos.elements[0] 	= 1.5 * g_drawingInfo.BBox.Max.x;
+						cameraPos.elements[1] 	= 0;
+						cameraPos.elements[2] 	= 0;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
+						break;
+						
+		case "Y"	:	cameraPos.elements[0] 	= 0;
+						cameraPos.elements[1] 	= g_drawingInfo.BBox.Max.y;
+						cameraPos.elements[2] 	= 0;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
+						break;
+						
+		case "Z"	:	cameraPos.elements[0] 	= 0;
+						cameraPos.elements[1] 	= 0;
+						cameraPos.elements[2] 	= 1.5 * g_drawingInfo.BBox.Max.z;
+						transX		= 0.0;
+						transY		= 0.0; 
+						transZ		= 0.0;
+						rotX		= 0.0;
+						rotY		= 0.0; 
+						rotZ		= 0.0;
+						FOVy 		= 75;
 						break;
 
-		case "Y"	:	if (Upper) {
-							ScaleY += 0.1;
-							}
-						else {
-							ScaleY -= 0.1;
-							}
+		case "A"	: 	transX-= 0.1;
 						break;
 
-		case "Z"	:	if (Upper) {
-							ScaleZ += 0.1;
-							}
-						else {
-							ScaleZ -= 0.1;
-							}
-						break;	
+		case "D"	: 	transX+= 0.1;
+						break;
 
-		case "D"	: 	TransX += 0.1;
+		case "W"	: 	transY+= 0.1;
 						break;
-		case "A"	: 	TransX -= 0.1;
+
+		case "S"	: 	transY-= 0.1;
 						break;
-		case "W"	: 	TransY += 0.1;
+
+		case "Q"	: 	transZ-= 0.1;
 						break;
-		case "S"	: 	TransY -= 0.1;
-						break;
-		case "Q"	: 	TransZ += 0.1;
-						break;
-		case "E"	: 	TransZ -= 0.1;
+
+		case "E"	: 	transZ+= 0.1;
 						break;
 		}
-	drawScene();					
+		
+	switch (keyunicode) {
+		case 27	:	// ESC			
+					cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
+					cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
+					cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
+					cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+					cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+					cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+					cameraUp.elements[0] 	= 0.0;
+					cameraUp.elements[1] 	= 1.0;
+					cameraUp.elements[2] 	= 0.0;
+					transX		= 0.0;
+					transY		= 0.0; 
+					transZ		= 0.0;
+					rotX		= 0.0;
+					rotY		= 0.0; 
+					rotZ		= 0.0;
+					FOVy 		= 75;
+					break;
+						
+		case 33	:	// Page Up
+					FOVy -= 10;
+					break;
+		case 34	:	// Page Down
+					FOVy += 10;
+					break;
+		case 37	:	// Left cursor key
+					rotX -= 1.5;
+					break;
+		case 38	:	// Up cursor key
+					rotY -= 1.5;
+					break;
+		case 39	:	// Right cursor key
+					rotX += 1.5;
+					break;
+		case 40	:	// Down cursor key
+					rotY += 1.5;
+					break;
+		}
+	drawScene();	
 }
-
-// ********************************************************
-// ********************************************************
-function changeRotX(v) {
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
-	RotX = v;
-	drawScene();
-}
-    
-// ********************************************************
-// ********************************************************
-function changeRotY(v) {
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
-	RotY = v;
-	drawScene();
-}    
-
-// ********************************************************
-// ********************************************************
-function changeRotZ(v) {
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
-	RotZ = v;
-	drawScene();
-}
-   
-
-// ********************************************************
-// ********************************************************
-function resetTransfGeom() {
-	document.getElementById("RotX").value = 0.0;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + 0.0;
-	document.getElementById("RotY").value = 0.0;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + 0.0;
-	document.getElementById("RotZ").value = 0.0;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
-}
-    
-  
-
-
 

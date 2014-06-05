@@ -375,25 +375,31 @@ function handleKeyDown(event) {
 		
 		case "A"	:	if (Upper) {
 							TransX += 0.1;
+							
 							}
 						else {
 							TransX -= 0.1;							
+							
 							}
 						break;
 		
 		case "S"	:	if (Upper) {
 							TransY += 0.1;
+							
 							}
 						else {
-							TransY -= 0.1;							
+							TransY -= 0.1;		
+											
 							}
 						break;
 		
 		case "D"	:	if (Upper) {
 							TransZ += 0.1;
+							
 							}
 						else {
-							TransZ -= 0.1;							
+							TransZ -= 0.1;					
+								
 							}
 						break;
 
