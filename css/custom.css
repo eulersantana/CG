@@ -36,9 +36,10 @@ table.lab tr:nth-child(2n){background: #0F8542;}
 table.lab tr:nth-child(2n+1){   background: #84E6AE;}
 table.lab tr td.title{width: 12%; padding-left: 10px;background: #2ECC71;}
 table.lab tr td.activity{padding-left: 10px;width: 13%;}
-.none,.ok{height: 32px;width: 32px;margin: 0 auto;}
-.none{background: url(../images/icon/no.png);background-size: 32px;background-repeat: no-repeat;}
-.ok{background: url(../images/icon/check.png);background-size: 32px;background-repeat: no-repeat;}
+.none,.ok, .working{height: 22px;width: 22px;margin: -1% auto;}
+.none{background: url(../images/icon/no.png);background-size: 22px;background-repeat: no-repeat;}
+.ok{background: url(../images/icon/check.png);background-size: 22px;background-repeat: no-repeat;}
+.working{background: url(../images/icon/engine.png);background-size: 22px;background-repeat: no-repeat;}
 ._25, .profile{width: 25%; float:left;}
 .profile{height: auto;}
 .profile #avatar img{width: 180px;}
