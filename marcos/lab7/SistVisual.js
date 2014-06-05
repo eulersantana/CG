@@ -27,6 +27,10 @@ var shift		= false;
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
 
+//Relacionado ao evento do mouse
+var clickedPoint; 
+var fMouseDown 		= false;
+
 // ********************************************************
 // ********************************************************
 function initGL(canvas) {
@@ -285,6 +289,10 @@ function webGLStart() {
 	document.onkeyup 	= handleKeyUp;
 	
 	canvas 	= document.getElementById("SistVis");
+	canvas.onmousedown 	= onmousedown;
+	canvas.onmousemove 	= onmousemove;
+	canvas.onmouseup 	= onmouseup;
+
 	gl 		= initGL(canvas);
 	shader 	= initShaders("SistVis", gl);	
 	
@@ -484,3 +492,31 @@ function handleKeyDown(event) {
 	drawScene();	
 }
 
+var Ponto = function(x,y){
+	this.x 		= x;
+	this.y 		= y;
+};
+
+function onmousedown(event){
+	var rect = canvas.getBoundingClientRect();
+	clickedPoint = new Ponto(event.clientX - rect.left, event.clientY - rect.right);
+	fMouseDown = true;
+}
+
+function onmousemove(event){
+	if(fMouseDown){
+		var rect = canvas.getBoundingClientRect();
+		newPoint 		= new Ponto(event.clientX - rect.left, event.clientY - rect.right);
+		clickedPoint 	= new Ponto(newPoint.x - clickedPoint.x, newPoint.y - clickedPoint.y);
+		if(clickedPoint.x < 0){
+			rotY -= 0.1;
+		}else{
+			rotY += 0.1;
+		}
+		drawScene();
+	}
+}
+
+function onmouseup(event){
+	fMouseDown = false;
+}
