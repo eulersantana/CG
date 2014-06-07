@@ -107,8 +107,6 @@ function onReadComplete(gl) {
 		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
 		model.push(groupModel);
-		model.push(groupModel);
-		model.push(groupModel);
 		}
 }
 
@@ -238,8 +236,6 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	console.log(model);
-
 	var modelMat = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
@@ -258,15 +254,15 @@ function drawScene() {
 	
 	// Sun	
 	var radiusSun = 1;
-	
+	RotX += 1;
+
 	modelMat.scale(radiusSun,radiusSun,radiusSun);
+	modelMat.rotate(RotX, 0, 1, 0);
 
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,0);
 
 	draw(model[0], shader, gl.TRIANGLES);
-
-	console.log(modelMat);
 
 	// Earth
 	var distanceEarthSun = 1;
@@ -278,9 +274,9 @@ function drawScene() {
 		
 	var t = radiusEarth+2*radiusSun;
 
-	modelMat.translate(t,0.0,0.0);
+	// modelMat.translate(t,0.0,0.0);
 	modelMat.rotate(RotY, 0,1,0);
-	modelMat.translate(-t,0.0,0.0);
+	// modelMat.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,1);
@@ -290,7 +286,7 @@ function drawScene() {
 	// Moon
 	distanceMoonEarth = 0.6;
 	var radiusMoon = 0.3;
-	var rotMoonZ = 0.0;
+	var rotZ = 0.0;
 	var posEarth = distanceMoonEarth-radiusEarth;
 
 	// modelMat.setIdentity();
@@ -301,9 +297,9 @@ function drawScene() {
 	
 	t = posEarth+2*radiusEarth+radiusMoon;
 
-	modelMat.translate(t,0.0,0.0);
-	modelMat.rotate(rotMoonZ, 0,0,1);
-	modelMat.translate(-t,0.0,0.0);
+	// modelMat.translate(t,0.0,0.0);
+	modelMat.rotate(rotZ, 0,0,1);
+	// modelMat.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,2);
@@ -345,26 +341,21 @@ function webGLStart() {
 	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
-		console.log("test4")
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
-			
 			onReadComplete(gl);
-			console.log("test3")
 			g_objDoc = null;
-			
-			}
+		}
 		if (model.length > 0) 
 		{
-			console.log("test")
-			distanceMoonEarth+= 0.1
+			RotY += 0.5;
+			RotZ += 0.5; 
 			drawScene();
-		}
-		else
-		{
-			console.log("test2")
 			requestAnimationFrame(tick, canvas);
 		}
-		};	
+		else
+			requestAnimationFrame(tick, canvas);
+		};
+
 	tick();
 }
 
