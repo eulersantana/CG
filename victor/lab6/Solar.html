@@ -9,12 +9,14 @@
 	attribute vec4 aVertexColor;
 	
 	uniform mat4 uModelMat;
+	uniform mat4 uViewMat;
+	uniform mat4 uProjMat;
 		
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = uModelMat * vec4(aVertexPosition.xyz, 1.0);
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVertexPosition.xyz, 1.0);
  		
 		vColor = aVertexColor;
 	}
@@ -49,20 +51,9 @@
 
 <body onload="webGLStart();">
     <h1>Laboratorio 6</h1>
-    <p>Transformacoes Geometricas.</p>
+    <p>Sistema Solar.</p>
 
     <canvas id="TransfGeom" style="border: none;" width="400" height="400"></canvas>
-    <br/><br/>
-    <div id="outRotX">Rotacao X = </div>
-    <input type="range" id="RotX" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotX(this.value)">
-    <br/><br/>
-    <div id="outRotY">Rotacao Y = </div>
-    <input type="range" id="RotY" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotY(this.value)">
-    <br/><br/>
-    <div id="outRotZ">Rotacao Z = </div>
-    <input type="range" id="RotZ" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotZ(this.value)">
-    <br/><br/>
-	<input type="button" name="Reset" value="Reset" onclick="resetTransfGeom()">
 </body>
 
 </html>
