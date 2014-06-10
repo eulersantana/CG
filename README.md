@@ -9,7 +9,7 @@ Neste repositório estão as atividades desenvolvidas na disciplina de computaç
 - Javascript
 - Html5 & CSS
 
-Para visualizar online acesse [Aqui](https://eulersantana.github.io/CG/ "Visualização das atividade online.")
+Para visualizar online acesse [Aqui](https://eulersantana.github.io/CG/ "Visualização das atividade online.").
 
 ###Links Úteis:
 

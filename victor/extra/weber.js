@@ -3,12 +3,18 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var zTrans 		= 0.0;
-var xRot		= 0.0;
-var yRot		= 0.0;
-var xSpeed		= 0.0;
-var ySpeed		= 0.0;
-var scale 		= 1.0;
+var Upper		= false;
+
+var cameraPos 	= new Vector3();
+var cameraLook 	= new Vector3();
+var cameraUp 	= new Vector3();
+var transX		= 0.0;
+var transY		= 0.0; 
+var transZ		= 0.0;
+var rotX		= 0.0;
+var rotY		= 0.0; 
+var rotZ		= 0.0;
+var FOVy		= 75.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -25,6 +31,7 @@ function initGL(canvas) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
 }
@@ -105,11 +112,11 @@ var groupModel = null;
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer(gl) {
+function initAxisVertexBuffer(max) {
+
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
 	var vColor 	= new Array;
-	var vNormal	= new Array;
 	var lInd 	= new Array;
 
 	// X Axis
@@ -118,78 +125,44 @@ function initAxisVertexBuffer(gl) {
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
+	vColor.push(1.0);
+	vColor.push(1.0);
 	// V1
-	vPos.push(1.0);
+	vPos.push(1.5 * max.x);
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Y Axis
 	// V2
 	vPos.push(0.0);
-	vPos.push(0.0);
-	vPos.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
-	// V3
-	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.y);
 	vPos.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Z Axis
-	// V4
+	// V3
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(0.0);
+	vPos.push(1.5 * max.z);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
-	// V5
-	vPos.push(0.0);
-	vPos.push(0.0);
-	vPos.push(1.0);
-	vColor.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	
 	lInd.push(0);	
 	lInd.push(1);	
+	lInd.push(0);	
 	lInd.push(2);	
+	lInd.push(0);	
 	lInd.push(3);	
-	lInd.push(4);	
-	lInd.push(5);	
 	
 	axis.vertexBuffer = gl.createBuffer();
 	if (axis.vertexBuffer) {		
@@ -216,7 +189,6 @@ function initAxisVertexBuffer(gl) {
 		alert("ERROR: can not create indexBuffer");
 	
 	axis.numObjects = lInd.length;
-	console.log("#axis = " + axis.numObjects);
 	
 	return axis;
 }
@@ -250,11 +222,11 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var TG = new Matrix4();
+var modelMat 	= new Matrix4();
+var viewMat 	= new Matrix4();
+var projMat 	= new Matrix4();
 
-	TG.setIdentity();
-
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
@@ -265,82 +237,42 @@ var TG = new Matrix4();
         alert(err);
         console.error(err.description);
     	}
-    		
-	gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);
+    	
+	modelMat.setIdentity();
+	modelMat.scale(5,5,5);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
-	draw(gl, axis, shader, gl.LINES);	
-	
-	TG.translate(0.0, 0.0, zTrans);
-	TG.rotate(xRot, 1.0, 0.0, 0.0);	
-	TG.rotate(yRot, 0.0, 1.0, 0.0);
-	TG.scale(scale, scale, scale);
-		
-	gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);
-	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
-}
 
-var currentlyPressedKeys = {};
-var filter = 0;
+	modelMat.setIdentity();
+	modelMat.scale(3,3,3);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
-// ********************************************************
-// ********************************************************
-function handleKeyDown(event) {
-	
-	currentlyPressedKeys[event.keyCode] = true;
-
-	if (String.fromCharCode(event.keyCode) == "F") {
-		filter += 1;
-		if (filter == 3) 
-			filter = 0;
-		}
-}
-    
-// ********************************************************
-// ********************************************************
-function handleKeyUp(event) {
-	
-	currentlyPressedKeys[event.keyCode] = false;	
-}
-
-// ********************************************************
-// ********************************************************
-function animate() {
-	xRot += 1.0;
-	yRot += 1.0;
-	drawScene();
-	requestAnimationFrame(animate, canvas);
-
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
 }
     
 // ********************************************************
 // ********************************************************
 function webGLStart() {
 
-	canvas 				= document.getElementById("viewOBJ");
-	
-	gl = initGL(canvas);
-	
-	shader = initShaders("viewOBJ", gl);	
+	canvas 	= document.getElementById("SistVis");
+	gl 		= initGL(canvas);
+	shader 	= initShaders("SistVis", gl);	
 	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.TGMatUniform 	= gl.getUniformLocation(shader, "uTGMat");
+	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
 	
-	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.TGMatUniform) {
+	if (shader.vPositionAttr < 0 	|| 
+		shader.vColorAttr < 0 		|| 
+		!shader.uModelMat) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 		
-	axis = initAxisVertexBuffer(gl);
-	if (!axis) {
-		console.log('Failed to set the AXIS vertex information');
-		return;
-		}
-		
-	readOBJFile("../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -349,28 +281,26 @@ function webGLStart() {
 			
 			g_objDoc = null;
 			
-			console.log("BBox = (" 	+ g_drawingInfo.BBox.Min.x + " , " 
-									+ g_drawingInfo.BBox.Min.y + " , " 
-									+ g_drawingInfo.BBox.Min.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Max.x + " , " 
-									+ g_drawingInfo.BBox.Max.y + " , " 
-									+ g_drawingInfo.BBox.Max.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
-									+ g_drawingInfo.BBox.Center.y + " , " 
-									+ g_drawingInfo.BBox.Center.z + ")");
-			scale = 1 / Math.max(	Math.abs(g_drawingInfo.BBox.Max.x - g_drawingInfo.BBox.Min.x),
-									Math.abs(g_drawingInfo.BBox.Max.y - g_drawingInfo.BBox.Min.y),
-									Math.abs(g_drawingInfo.BBox.Max.z - g_drawingInfo.BBox.Min.z));
+			cameraPos.elements[0] 	= 2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 2 * g_drawingInfo.BBox.Max.z;
+			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
+			
+			axis = initAxisVertexBuffer(g_drawingInfo.BBox.Max);
+			if (!axis) {
+				console.log('Failed to set the AXIS vertex information');
+				return;
+				}
 			}
-		if (model.length > 0) { 
+		if (model.length > 0) 
 			drawScene();
-			animate();
-			}
-		else {
+		else  
 			requestAnimationFrame(tick, canvas);
-			}
 		};	
 	tick();
 }
-
-

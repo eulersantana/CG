@@ -3,20 +3,24 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var globalScale = 1.0;
-var ScaleX 		= 1.0;
-var ScaleY 		= 1.0;
-var ScaleZ 		= 1.0;
+var Upper		= false;
+
+var cameraPos 	= new Vector3();
+var cameraLook 	= new Vector3();
+var cameraUp 	= new Vector3();
+var transX		= 0.0;
+var transY		= 0.0; 
+var transZ		= 0.0;
+var rotX		= 0.0;
+var rotY		= 0.0; 
+var rotZ		= 0.0;
+var FOVy		= 75.0;
+var zoom        = 1.2;
 var RotX		= 0.0;
 var RotYL		= 0.0;
 var RotY		= 0.0;
-var RotZ		= 0.0;
-var TransX		= 0.0;
-var TransY		= 0.0;
-var TransZ		= 0.0;
-var Upper		= false;
 
-var raioT = 0.3, raioL = 0.5, raioS = 1; 
+var raioT = 0.3, raioL = 0.5, raioS = 0.5; 
 var distanciaTS = 0.7, distanciaLT = 0.7;
 
 var g_objDoc 		= null;	// The information of OBJ file
@@ -34,7 +38,6 @@ function initGL(canvas) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.enable(gl.CULL_FACE);
 	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
@@ -96,7 +99,6 @@ var groupModel = null;
 		if (groupModel.colorBuffer) {		
 			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
 			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
-
 			}
 		else
 			alert("ERROR: can not create colorBuffer");
@@ -105,10 +107,10 @@ var groupModel = null;
 		if (groupModel.indexBuffer) {		
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel.indexBuffer);
 			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo.indices[o], gl.STATIC_DRAW);
-		}
+			}
 		else
 			alert("ERROR: can not create indexBuffer");
-	
+		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
 		model.push(groupModel);
 		}
@@ -117,12 +119,11 @@ var groupModel = null;
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer() {
+function initAxisVertexBuffer(max) {
 
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
 	var vColor 	= new Array;
-	var vNormal	= new Array;
 	var lInd 	= new Array;
 
 	// X Axis
@@ -134,47 +135,34 @@ function initAxisVertexBuffer() {
 	vColor.push(1.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
-	
 	// V1
-	vPos.push(1.0);
+	vPos.push(1.5 * max.x);
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Y Axis
 	// V2
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.y);
 	vPos.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Z Axis
 	// V3
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.z);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	
 	lInd.push(0);	
 	lInd.push(1);	
@@ -187,7 +175,7 @@ function initAxisVertexBuffer() {
 	if (axis.vertexBuffer) {		
 		gl.bindBuffer(gl.ARRAY_BUFFER, axis.vertexBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vPos), gl.STATIC_DRAW);
-	}
+		}
 	else
 		alert("ERROR: can not create vertexBuffer");
 	
@@ -214,19 +202,12 @@ function initAxisVertexBuffer() {
 
 // ********************************************************
 // ********************************************************
-function draw(o, shaderProgram, primitive) {
+function draw(gl, o, shaderProgram, primitive) {
 
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);
-
-		
-		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
-		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);
-
-		  
+		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);  
 		}
 	else
 		alert("o.vertexBuffer == null");
@@ -235,7 +216,6 @@ function draw(o, shaderProgram, primitive) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.colorBuffer);
 		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
-
 		}
 	else
 		alert("o.colorBuffer == null");
@@ -247,86 +227,97 @@ function draw(o, shaderProgram, primitive) {
 
 // ********************************************************
 // ********************************************************
-
 function drawScene() {
 
-	var modelMat = new Matrix4();
-	var modelMatT = new Matrix4();
+var modelMat 	= new Matrix4();
+var viewMat 	= new Matrix4();
+var projMat 	= new Matrix4();
+
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
-	/*Sempre chamar essa matriz*/
-	modelMat.setIdentity();
-
-	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
-
-	gl.viewport(0.0, 0.0, gl.viewportWidth, gl.viewportHeight);
     try {
     	gl.useProgram(shader);
-	}
+		}
 	catch(err){
         alert(err);
         console.error(err.description);
-	}
+    	}
+    	
+	modelMat.setIdentity();
+	viewMat.setIdentity();
+	projMat.setIdentity();
+
+	viewMat.lookAt(cameraPos.elements[0],
+				   cameraPos.elements[1],
+				   cameraPos.elements[2],
+				   cameraLook.elements[0],
+				   cameraLook.elements[1],
+				   cameraLook.elements[2],
+				   cameraUp.elements[0],
+				   cameraUp.elements[1],
+				   cameraUp.elements[2]);
+
+	projMat.perspective(FOVy,1.0,0.01,25);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
+	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
 	
-	// SOL
-	// draw(axis, shader, gl.LINES);
-	// modelMat.translate(TransX,TransY,TransZ);
-	// modelMat.rotate(RotX, 1,0,0);
-	modelMat.rotate(RotY, 0,1,0);
-	// modelMat.rotate(RotZ, 0,0,1);
+	draw(gl, axis, shader, gl.LINES);
+	// 	modelMat.translate(transX, transY, transZ);
+	// modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
+	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
+	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
 	modelMat.scale(raioS,raioS,raioS);
+	
+	// Sol
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.SampleruCorTerra,3);
 
-	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-
-	var t = distanciaTS+2*raioS;
-	
-	// TERRA    
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	// Terra
 	modelMat.translate(-0.7,0.0,0.0);
-	modelMat.scale(raioT, raioT, raioT);	
-	
+	modelMat.scale(0.3,0.3,0.3);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.SampleruCorTerra,1);
-	
+
 	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
-
-	// LUA
-
-	modelMat.rotate(RotYL, 1,0,0);
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	// Lua
+	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
 	modelMat.translate(0.0,0.4,0.0);
 	modelMat.scale(0.4, 0.4, 0.4);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.SampleruCorTerra,2);
-		
-	// draw(axis, shader, gl.LINES);
 	for(var o = 0; o < model.length; o++) 
-		draw(model[o], shader, gl.TRIANGLES);
+		draw(gl, model[o], shader, gl.TRIANGLES);
 	
+
+
 }
 
 var re = 0;
 function rotateEarth(){
 	re = setInterval(function(){
-		RotYL += 10;
-		if(RotYL > 360){
-			RotYL = 0;
+		rotY += 0.1;
+		if(rotY > 360){
+			rotY = 0;
 		}
 		drawScene();
-	}, 100);
+	}, 10);
 }
 
 var rl = 0;
 function rotateLunar(){
 	rl = setInterval(function(){
-		RotY += 1;
-		if(RotY > 360){
-			RotY = 0;
+		rotX += 10;
+		if(rotX > 360){
+			rotX = 0;
 		}
 		drawScene();
-	}, 40);
+	}, 150);
 }
     
 // ********************************************************
@@ -335,28 +326,24 @@ function webGLStart() {
 
 	document.onkeydown 	= handleKeyDown;
 	document.onkeyup 	= handleKeyUp;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + RotX;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + RotY;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + RotZ;
 	
-	canvas 				= document.getElementById("TransfGeom");
-	gl 					= initGL(canvas);
+	canvas 	= document.getElementById("SistVis");
+	gl 		= initGL(canvas);
+	shader 	= initShaders("SistVis", gl);	
 	
-	shader 					= initShaders("TransfGeom", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.uScale 			= gl.getUniformLocation(shader, "uScale");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
+	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
+	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
 	shader.SampleruCorTerra		= gl.getUniformLocation(shader, "uCorTerra");
-	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.uModelMat ) {
+	
+	if (shader.vPositionAttr < 0 	|| 
+		shader.vColorAttr < 0 		|| 
+		!shader.uModelMat 			|| 
+		!shader.uViewMat 			|| 
+		!shader.uProjMat) {
 		console.log("Error getAttribLocation"); 
-		return;
-		}
-		
-	axis = initAxisVertexBuffer(gl);
-	if (!axis) {
-		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
 		
@@ -369,20 +356,25 @@ function webGLStart() {
 			
 			g_objDoc = null;
 			
-			console.log("BBox = (" 	+ g_drawingInfo.BBox.Min.x + " , " 
-									+ g_drawingInfo.BBox.Min.y + " , " 
-									+ g_drawingInfo.BBox.Min.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Max.x + " , " 
-									+ g_drawingInfo.BBox.Max.y + " , " 
-									+ g_drawingInfo.BBox.Max.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
-									+ g_drawingInfo.BBox.Center.y + " , " 
-									+ g_drawingInfo.BBox.Center.z + ")");
-		}
-		
+			cameraPos.elements[0] 	= zoom * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= zoom * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= zoom * g_drawingInfo.BBox.Max.z;
+			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
+			
+			axis = initAxisVertexBuffer(g_drawingInfo.BBox.Max);
+			if (!axis) {
+				console.log('Failed to set the AXIS vertex information');
+				return;
+				}
+			}
 		if (model.length > 0) 
 			drawScene();
-		else
+		else  
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
@@ -390,12 +382,12 @@ function webGLStart() {
 	rotateLunar();
 }
 
+
 // ********************************************************
 // ********************************************************
 function handleKeyUp(event) {
 	
-	var e = window.event || event;
-	var keyunicode = e.charCode || e.keyCode;
+	var keyunicode = event.charCode || event.keyCode;
 	if (keyunicode == 16)
 		Upper = false;
 }	
@@ -404,112 +396,93 @@ function handleKeyUp(event) {
 // ********************************************************
 function handleKeyDown(event) {
 	
-	var e = window.event || event;
 	var keyunicode = event.charCode || event.keyCode;
 	
 	if (keyunicode == 16) 
 		Upper = true;
 
 	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:	if (Upper) {
-							ScaleX += 0.1;
-							
-							}
-						else {
-							ScaleX -= 0.1;
-							
-							}
-						break;
-		case "Y"	:	if (Upper) {
-							
-							ScaleY += 0.1;
-							
-							}
-						else {
-							
-							ScaleY -= 0.1;
-							
-							}
-						break;
-		case "Z"	:	if (Upper) {
-							
-							ScaleZ += 0.1;
-							}
-						else {
-							
-							ScaleZ -= 0.1;
-							}
-						break;
-		case "1"	:	if (Upper) {
-							TransX += 0.1;
-							
-							}
-						else {
-							TransX -= 0.1;
-							
-							}
-						break;
-		case "2"	:	if (Upper) {
-							
-							TransY += 0.1;
-							
-							}
-						else {
-							
-							TransY -= 0.1;
-							
-							}
-						break;
-		case "3"	:	if (Upper) {
-							
-							TransZ += 0.1;
-							}
-						else {
-							
-							TransZ -= 0.1;
-							}
-						break;
-
-
+		case "X"	:
+					cameraPos.elements[0] 	= 1.2+g_drawingInfo.BBox.Center.x;
+					cameraPos.elements[1] 	= 0.0
+					cameraPos.elements[2] 	= 0.0;
+					cameraUp.elements[0] 	= 0.0;
+					cameraUp.elements[1] 	= 1.0;
+					cameraUp.elements[2] 	= 0.0;
+			break;
 						
+		case "Y"	:
+					cameraPos.elements[0] 	= 0.0;
+					cameraPos.elements[1] 	= 1.2+g_drawingInfo.BBox.Center.y;
+					cameraPos.elements[2] 	= 0.0;
+					cameraUp.elements[0] 	= 0.0;
+					cameraUp.elements[1] 	= 1.0;
+					cameraUp.elements[2] 	= 0.0;
+			break;
+						
+		case "Z"	:
+					cameraPos.elements[0] 	= 0.0;
+					cameraPos.elements[1] 	= 0.0;
+					cameraPos.elements[2] 	= 1.2+g_drawingInfo.BBox.Center.z;
+					cameraUp.elements[0] 	= 0.0;
+					cameraUp.elements[1] 	= 1.0;
+					cameraUp.elements[2] 	= 0.0;
+			break;
+
+		drawScene();
 		}
-	drawScene();					
+		
+	switch (keyunicode) {
+		case 27	:	// ESC			
+					cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
+					cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
+					cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
+					cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+					cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+					cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+					cameraUp.elements[0] 	= 0.0;
+					cameraUp.elements[1] 	= 1.0;
+					cameraUp.elements[2] 	= 0.0;
+					break;
+						
+		case 33	:   // Page Up
+					break;
+		case 34	:	 // Page Down
+					break;
+		case 37	:	transX--; // Left cursor key
+					break;
+		case 38	:	transY++;// Up cursor key
+					break;
+		case 39	:	transX++;// Right cursor key
+					break;
+		case 40	:	transY--;// Down cursor key
+					break;
+		}
+	drawScene();	
 }
 
-// ********************************************************
-// ********************************************************
-/*function changeRotX(v) {
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
-	RotX = v;
+function changePSize(v){
+	FOVy = v;
+	drawScene();	
+}
+
+function rotateXPSize (v) {
+	rotX = v;
 	drawScene();
 }
-    
-// ********************************************************
-// ********************************************************
-function changeRotY(v) {
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
-	RotY = v;
-	drawScene();
-}    
-
-// ********************************************************
-// ********************************************************
-function changeRotZ(v) {
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
-	RotZ = v;
+function rotateYPSize (v) {
+	cameraPos.elements[0] 	= 0.0 * g_drawingInfo.BBox.Max.x;
+	cameraPos.elements[1] 	= 0.0 * g_drawingInfo.BBox.Max.y;
+	cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
+	cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+	cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+	cameraLook.elements[2] 	= (Math.PI/180 *v) + g_drawingInfo.BBox.Center.z;
+	cameraUp.elements[0] 	= 0.0;
+	cameraUp.elements[1] 	= 1.0;
+	cameraUp.elements[2] 	= 0.0;
 	drawScene();
 }
-   */
-
-// ********************************************************
-// ********************************************************
-function resetTransfGeom() {
-	document.getElementById("RotX").value = 0.0;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + 0.0;
-	document.getElementById("RotY").value = 0.0;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + 0.0;
-	document.getElementById("RotZ").value = 0.0;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
+function rotateZPSize (v) {
+	rotZ = v;
+	drawScene();
 }
-
-

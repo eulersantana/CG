@@ -9,16 +9,12 @@
 	attribute vec4 aVertexColor;
 	
 	uniform mat4 uModelMat;
-	uniform mat4 uViewMat;
-	uniform mat4 uProjMat;
-		
 	varying vec4 vColor;
 		
 	void main(void) {
-		//uModelMat posiciona o objeto pela coordenadas do mundo
-		//uViewMat em relação a sistema de coordenada da camera
-		//uProjMat sistema de coordenada da camera para volume canonico
- 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVertexPosition.xyz, 1.0);
+		
+ 		gl_Position = uModelMat * vec4(aVertexPosition.xyz, 1.0);
+ 		
 		vColor = aVertexColor;
 	}
 
@@ -40,14 +36,16 @@
 <script type="text/javascript" src="../../lib/shaders.js"></script>
 <script type="text/javascript" src="../../lib/myOBJParser.js"></script>
 <script type="text/javascript" src="../../lib/materialParser.js"></script>
-<script type="text/javascript" src="SistVisual.js"></script>
+<script type="text/javascript" src="weber.js"></script>
 
 </head>
 
 <body onload="webGLStart();">
-    <h1>Laboratorio 7</h1><br />
+    <h1>Laboratorio 6</h1><br />
     <p>Sistema de Visualizacao.</p>
+
     <canvas id="SistVis" style="border: none;" width="400" height="400"></canvas>
+
 </body>
 
 </html>

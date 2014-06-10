@@ -1,30 +1,28 @@
+
 <html>
 
 <head>
 <title>MATA65 - Computacao Grafica</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-<script id="SistVis-vs" type="x-shader/x-vertex">
+<script id="viewOBJ-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
 	attribute vec4 aVertexColor;
 	
-	uniform mat4 uModelMat;
-	uniform mat4 uViewMat;
-	uniform mat4 uProjMat;
+	uniform mat4 uTGMat;
 		
 	varying vec4 vColor;
 		
 	void main(void) {
-		//uModelMat posiciona o objeto pela coordenadas do mundo
-		//uViewMat em relação a sistema de coordenada da camera
-		//uProjMat sistema de coordenada da camera para volume canonico
- 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVertexPosition.xyz, 1.0);
+		
+ 		gl_Position = uTGMat * vec4(aVertexPosition.xyz, 1.0);
+ 		
 		vColor = aVertexColor;
 	}
 
 </script>
 
-<script id="SistVis-fs" type="x-shader/x-fragment">
+<script id="viewOBJ-fs" type="x-shader/x-fragment">
 	precision mediump float;
 		
 	varying vec4 vColor;
@@ -40,14 +38,16 @@
 <script type="text/javascript" src="../../lib/shaders.js"></script>
 <script type="text/javascript" src="../../lib/myOBJParser.js"></script>
 <script type="text/javascript" src="../../lib/materialParser.js"></script>
-<script type="text/javascript" src="SistVisual.js"></script>
+<script type="text/javascript" src="visibilidade.js"></script>
 
 </head>
 
 <body onload="webGLStart();">
     <h1>Laboratorio 7</h1><br />
-    <p>Sistema de Visualizacao.</p>
-    <canvas id="SistVis" style="border: none;" width="400" height="400"></canvas>
+    <p>Visibilidade e controle de camera.</p>
+
+    <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
+
 </body>
 
 </html>

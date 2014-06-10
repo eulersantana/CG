@@ -25,6 +25,7 @@ function initGL(canvas) {
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
 }
@@ -254,7 +255,7 @@ var TG = new Matrix4();
 
 	TG.setIdentity();
 
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
@@ -340,7 +341,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -372,5 +373,3 @@ function webGLStart() {
 		};	
 	tick();
 }
-
-

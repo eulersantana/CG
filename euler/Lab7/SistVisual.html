@@ -21,47 +21,50 @@
 	<link href="../../css/style.min.css" rel="stylesheet">
 	<link href="../../css/custom.css" rel="stylesheet">
 
-<script id="TransfGeom-vs" type="x-shader/x-vertex">
+<script id="SistVis-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
 	attribute vec4 aVertexColor;
 	
+	uniform mat4 uViewMat;
 	uniform mat4 uModelMat;
+	uniform mat4 uProjMat;
+		
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = uModelMat * vec4(aVertexPosition.xyz, 1.0);
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVertexPosition.xyz, 1.0);
  		
 		vColor = aVertexColor;
 	}
 
 </script>
 
-<script id="TransfGeom-fs" type="x-shader/x-fragment">
+<script id="SistVis-fs" type="x-shader/x-fragment">
 	precision mediump float;
-	uniform int uCorTerra;
+		
 	varying vec4 vColor;
 		
 	void main(void) {
-		if(uCorTerra == 1){
-			gl_FragColor = vec4(0.0,0.0,1.0,1.0);
-		}else if(uCorTerra == 2){
-			gl_FragColor = vec4(0.4,0.4,0.4,1.0);
-		}else{
-			gl_FragColor = vColor;
-		}
+		gl_FragColor = vColor;
 	}
 </script>
 
 <script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-utils.js"></script>
 <script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
 <script type="text/javascript" src="../../lib/myOBJParser.js"></script>
 <script type="text/javascript" src="../../lib/materialParser.js"></script>
-<script type="text/javascript" src="sistemaSola.js"></script>
+<script type="text/javascript" src="SistVisual.js"></script>
 
+<!--[if IE]><link href="css/ie.css" rel="stylesheet"><![endif]-->
+  <style type="text/css">
+  body{
+  	background: url("../../img/background-patterns/circles.png") !important;
+  }
+  </style>
 </head>
-
 <body onload="webGLStart();">
 	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
 		<div class="container">
@@ -72,7 +75,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="#">Laboratorio 6 - Exercico 1</a>
+				<a class="navbar-brand" href="#">Laboratorio 3 - Exercico 1</a>
 			</div>
 			<div class="collapse navbar-collapse navbar-ex1-collapse">
 					<ul class="nav navbar-nav subMenu">
@@ -84,26 +87,17 @@
 
 		</div>
 	</nav>
-	<div class="container" id="content" style="margin-top: 80px;">
-		<div id="letter-head" class="nav-letter-head exe" style="background-color: rgb(46, 204, 113); border-color: rgb(41, 183, 101);">
-			<p>Sitema solar</p>
-		</div>
-			<h1></h1>
-
-    <canvas id="TransfGeom" style="border: none;" width="400" height="400"></canvas>
-    <br/><br/>
-    <div id="outRotX">Rotacao X = </div>
-    <input type="range" id="RotX" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotX(this.value)">
-    <br/><br/>
-    <div id="outRotY">Rotacao Y = </div>
-    <input type="range" id="RotY" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotY(this.value)">
-    <br/><br/>
-    <div id="outRotZ">Rotacao Z = </div>
-    <input type="range" id="RotZ" min="-180.0" max="180.0" step="2.0" value="0.0" oninput="changeRotZ(this.value)">
-    <br/><br/>
-	<input type="button" name="Reset" value="Reset" onclick="resetTransfGeom()">
-	</div>
-	<!-- Fim do bloco pessoal das atividades -->
+		<div class="container" id="content" style="margin-top: 80px;">
+     <div id="outRotX">ZOOM = </div>
+    <input type="range" id="pSize" min="75" max="200.0" step="1.0" value="75.0" onchange="changePSize(this.value)"><br/>
+     <div id="outRotX">Rotacao X = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateXPSize(this.value)">
+     <div id="outRotX">Rotacao Y = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateYPSize(this.value)">
+     <div id="outRotX">Rotacao Z = </div>
+    <input type="range" id="pSize" min="10" max="360.0" step="10.0" value="10.0" onchange="rotateZPSize(this.value)"><br/>
+    <canvas id="SistVis" style="border: none;" width="400" height="400"></canvas>
+</div>
 </body>
 
 </html>
