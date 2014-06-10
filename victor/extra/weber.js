@@ -3,20 +3,18 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var globalScale = 1.0;
-var ScaleX 		= 1.0;
-var ScaleY 		= 1.0;
-var ScaleZ 		= 1.0;
-var RotX		= 0.0;
-var RotY		= 0.0;
-var RotZ		= 0.0;
-var TransX		= 0.0;
-var TransY		= 0.0;
-var TransZ		= 0.0;
 var Upper		= false;
+
 var cameraPos 	= new Vector3();
 var cameraLook 	= new Vector3();
 var cameraUp 	= new Vector3();
+var transX		= 0.0;
+var transY		= 0.0; 
+var transZ		= 0.0;
+var rotX		= 0.0;
+var rotY		= 0.0; 
+var rotZ		= 0.0;
+var FOVy		= 75.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -43,12 +41,11 @@ function initGL(canvas) {
 // Read a file
 function readOBJFile(fileName, gl, scale, reverse) {
 	var request = new XMLHttpRequest();
-
+	
 	request.onreadystatechange = function() {
 		if (request.readyState === 4 && request.status !== 404) 
 			onReadOBJFile(request.responseText, fileName, gl, scale, reverse);
 		}
-
 	request.open('GET', fileName, true); // Create a request to acquire the file
 	request.send();                      // Send the request
 }
@@ -75,7 +72,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-	var groupModel = null;
+var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -115,12 +112,11 @@ function onReadComplete(gl) {
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer() {
+function initAxisVertexBuffer(max) {
 
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
 	var vColor 	= new Array;
-	var vNormal	= new Array;
 	var lInd 	= new Array;
 
 	// X Axis
@@ -132,46 +128,34 @@ function initAxisVertexBuffer() {
 	vColor.push(1.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	// V1
-	vPos.push(1.0);
+	vPos.push(1.5 * max.x);
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Y Axis
 	// V2
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.y);
 	vPos.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 
 	// Z Axis
 	// V3
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(1.5 * max.z);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
 	vColor.push(1.0);
-	vNormal.push(1.0);
-	vNormal.push(0.0);
-	vNormal.push(0.0);
 	
 	lInd.push(0);	
 	lInd.push(1);	
@@ -211,7 +195,7 @@ function initAxisVertexBuffer() {
 
 // ********************************************************
 // ********************************************************
-function draw(o, shaderProgram, primitive) {
+function draw(gl, o, shaderProgram, primitive) {
 
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
@@ -238,11 +222,11 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	var modelMat = new Matrix4();
-	var viewMat  = new Matrix4();
-	var projMat  = new Matrix4();
+var modelMat 	= new Matrix4();
+var viewMat 	= new Matrix4();
+var projMat 	= new Matrix4();
 
-	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 	
@@ -253,105 +237,38 @@ function drawScene() {
         alert(err);
         console.error(err.description);
     	}
-
-    modelMat.setIdentity();
-	viewMat.setIdentity();
-	projMat.setIdentity();
-
-	viewMat.lookAt(cameraPos.elements[0],
-				   cameraPos.elements[1],
-				   cameraPos.elements[2],
-				   cameraLook.elements[0],
-				   cameraLook.elements[1],
-				   cameraLook.elements[2],
-				   cameraUp.elements[0],
-				   cameraUp.elements[1],
-				   cameraUp.elements[2]);
-
-	projMat.perspective(75, 1.0, 0.01, 25);
-
-	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
-	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
-
-    // Sun	
-	var radiusSun = 1;
-	RotY += 0.5;
-
-	modelMat.scale(radiusSun,radiusSun,radiusSun);
-	modelMat.rotate(RotY, 0, 1, 0);
-
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,0);
-
-	draw(model[0], shader, gl.TRIANGLES);
-
-	// Earth
-	var distanceEarthSun = 1.25;
-	var radiusEarth = 0.5;
-
-	//modelMat.setIdentity();	
-
-	modelMat.scale(radiusEarth, radiusEarth, radiusEarth);
-	modelMat.translate(distanceEarthSun, 0.0, 0.0);
-	
-	modelMat.rotate(RotX, 1,0,0);
-
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,1);
-
-	draw(model[0], shader, gl.TRIANGLES);
-
-	//modelMat.rotate(RotX, 1,0,0);
-	//modelMat.rotate(RotY, 0, 1, 0);
-
-	// Moon
-	var distanceMoonEarth = 0.4;
-	var radiusMoon = 0.3;
-	var posEarth = distanceMoonEarth-radiusEarth;
-
-	modelMat.translate(0,distanceMoonEarth,0);
-	modelMat.scale(radiusMoon, radiusMoon, radiusMoon);
-	
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,2);
-	
-	draw(model[0], shader, gl.TRIANGLES);
-
-	// Axis
+    	
 	modelMat.setIdentity();
+	modelMat.scale(5,5,5);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.uColor,0);
 
-	draw(axis, shader, gl.LINES);
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
+
+	modelMat.setIdentity();
+	modelMat.scale(3,3,3);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
 }
     
 // ********************************************************
 // ********************************************************
 function webGLStart() {
 
-	document.onkeydown 	= handleKeyDown;
-	document.onkeyup 	= handleKeyUp;
+	canvas 	= document.getElementById("SistVis");
+	gl 		= initGL(canvas);
+	shader 	= initShaders("SistVis", gl);	
 	
-	canvas 				= document.getElementById("TransfGeom");
-	gl 					= initGL(canvas);
-	
-	shader 					= initShaders("TransfGeom", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
-	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
-
-	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
+	
+	if (shader.vPositionAttr < 0 	|| 
+		shader.vColorAttr < 0 		|| 
 		!shader.uModelMat) {
 		console.log("Error getAttribLocation"); 
-		return;
-		}
-		
-	axis = initAxisVertexBuffer(gl);
-	if (!axis) {
-		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
 		
@@ -359,76 +276,31 @@ function webGLStart() {
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
+			
 			onReadComplete(gl);
+			
 			g_objDoc = null;
-
-			cameraPos.elements[0] 	= 3 * g_drawingInfo.BBox.Max.x;
-			cameraPos.elements[1] 	= 4 * g_drawingInfo.BBox.Max.y ;
-			cameraPos.elements[2] 	= g_drawingInfo.BBox.Max.z;
+			
+			cameraPos.elements[0] 	= 2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 2 * g_drawingInfo.BBox.Max.z;
 			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
 			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
 			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
 			cameraUp.elements[0] 	= 0.0;
 			cameraUp.elements[1] 	= 1.0;
 			cameraUp.elements[2] 	= 0.0;
-
-		}
+			
+			axis = initAxisVertexBuffer(g_drawingInfo.BBox.Max);
+			if (!axis) {
+				console.log('Failed to set the AXIS vertex information');
+				return;
+				}
+			}
 		if (model.length > 0) 
-		{
-			RotX += 2; 
 			drawScene();
+		else  
 			requestAnimationFrame(tick, canvas);
-		}
-		else
-			requestAnimationFrame(tick, canvas);
-		};
-
-	tick();	
-}
-
-// ********************************************************
-// ********************************************************
-function handleKeyUp(event) {
-	
-	var e = window.event || event;
-	var keyunicode = e.charCode || e.keyCode;
-	if (keyunicode == 16)
-		Upper = false;
-}	
-
-// ********************************************************
-// ********************************************************
-function handleKeyDown(event) {
-	
-	var e = window.event || event;
-	var keyunicode = event.charCode || event.keyCode;
-	
-	if (keyunicode == 16) 
-		Upper = true;
-
-	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:	cameraPos.elements[0] = 3 * g_drawingInfo.BBox.Max.x;
-						cameraPos.elements[1] = 0;
-						cameraPos.elements[2] = 0;
-						break;
-
-		case "Y"	:	cameraPos.elements[0] = 0;
-						cameraPos.elements[1] = 3 * g_drawingInfo.BBox.Max.y;
-						cameraPos.elements[2] = 0;
-						break;
-
-		case "Z"	:	cameraPos.elements[0] = 0;
-						cameraPos.elements[1] = 0;
-						cameraPos.elements[2] = 5 * g_drawingInfo.BBox.Max.z;
-						break;
-		}
-	
-	switch (keyunicode) {
-		case 27		:	// ESC			
-						cameraPos.elements[0] = 3 * g_drawingInfo.BBox.Max.x;
-						cameraPos.elements[1] = 4 * g_drawingInfo.BBox.Max.y;
-						cameraPos.elements[2] = g_drawingInfo.BBox.Max.z;
-						break;
-					}
-	drawScene();					
+		};	
+	tick();
 }
