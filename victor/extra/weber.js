@@ -15,13 +15,6 @@ var rotX		= 0.0;
 var rotY		= 0.0; 
 var rotZ		= 0.0;
 var FOVy		= 75.0;
-var zoom        = 1.2;
-var RotX		= 0.0;
-var RotYL		= 0.0;
-var RotY		= 0.0;
-
-var raioT = 0.3, raioL = 0.5, raioS = 0.5; 
-var distanciaTS = 0.7, distanciaLT = 0.7;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -246,87 +239,24 @@ var projMat 	= new Matrix4();
     	}
     	
 	modelMat.setIdentity();
-	viewMat.setIdentity();
-	projMat.setIdentity();
-
-	viewMat.lookAt(cameraPos.elements[0],
-				   cameraPos.elements[1],
-				   cameraPos.elements[2],
-				   cameraLook.elements[0],
-				   cameraLook.elements[1],
-				   cameraLook.elements[2],
-				   cameraUp.elements[0],
-				   cameraUp.elements[1],
-				   cameraUp.elements[2]);
-
-	projMat.perspective(FOVy,1.0,0.01,25);
+	modelMat.scale(5,5,5);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
-	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
-	
-	draw(gl, axis, shader, gl.LINES);
-	// 	modelMat.translate(transX, transY, transZ);
-	// modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
-	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
-	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
-	modelMat.scale(raioS,raioS,raioS);
-	
-	// Sol
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.SampleruCorTerra,3);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
-	// Terra
-	modelMat.translate(-0.7,0.0,0.0);
-	modelMat.scale(0.3,0.3,0.3);
+
+	modelMat.setIdentity();
+	modelMat.scale(3,3,3);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.SampleruCorTerra,1);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
-	// Lua
-	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
-	modelMat.translate(0.0,0.4,0.0);
-	modelMat.scale(0.4, 0.4, 0.4);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-	gl.uniform1i(shader.SampleruCorTerra,2);
-	for(var o = 0; o < model.length; o++) 
-		draw(gl, model[o], shader, gl.TRIANGLES);
-	
-
-
-}
-
-var re = 0;
-function rotateEarth(){
-	re = setInterval(function(){
-		rotY += 0.1;
-		if(rotY > 360){
-			rotY = 0;
-		}
-		drawScene();
-	}, 10);
-}
-
-var rl = 0;
-function rotateLunar(){
-	rl = setInterval(function(){
-		rotX += 10;
-		if(rotX > 360){
-			rotX = 0;
-		}
-		drawScene();
-	}, 150);
 }
     
 // ********************************************************
 // ********************************************************
 function webGLStart() {
 
-	document.onkeydown 	= handleKeyDown;
-	document.onkeyup 	= handleKeyUp;
-	
 	canvas 	= document.getElementById("SistVis");
 	gl 		= initGL(canvas);
 	shader 	= initShaders("SistVis", gl);	
@@ -334,15 +264,10 @@ function webGLStart() {
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
-	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
-	shader.SampleruCorTerra		= gl.getUniformLocation(shader, "uCorTerra");
 	
 	if (shader.vPositionAttr < 0 	|| 
 		shader.vColorAttr < 0 		|| 
-		!shader.uModelMat 			|| 
-		!shader.uViewMat 			|| 
-		!shader.uProjMat) {
+		!shader.uModelMat) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
@@ -356,9 +281,9 @@ function webGLStart() {
 			
 			g_objDoc = null;
 			
-			cameraPos.elements[0] 	= zoom * g_drawingInfo.BBox.Max.x;
-			cameraPos.elements[1] 	= zoom * g_drawingInfo.BBox.Max.y;
-			cameraPos.elements[2] 	= zoom * g_drawingInfo.BBox.Max.z;
+			cameraPos.elements[0] 	= 2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 2 * g_drawingInfo.BBox.Max.z;
 			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
 			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
 			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
@@ -378,111 +303,4 @@ function webGLStart() {
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
-	rotateEarth();
-	rotateLunar();
-}
-
-
-// ********************************************************
-// ********************************************************
-function handleKeyUp(event) {
-	
-	var keyunicode = event.charCode || event.keyCode;
-	if (keyunicode == 16)
-		Upper = false;
-}	
-
-// ********************************************************
-// ********************************************************
-function handleKeyDown(event) {
-	
-	var keyunicode = event.charCode || event.keyCode;
-	
-	if (keyunicode == 16) 
-		Upper = true;
-
-	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:
-					cameraPos.elements[0] 	= 1.2+g_drawingInfo.BBox.Center.x;
-					cameraPos.elements[1] 	= 0.0
-					cameraPos.elements[2] 	= 0.0;
-					cameraUp.elements[0] 	= 0.0;
-					cameraUp.elements[1] 	= 1.0;
-					cameraUp.elements[2] 	= 0.0;
-			break;
-						
-		case "Y"	:
-					cameraPos.elements[0] 	= 0.0;
-					cameraPos.elements[1] 	= 1.2+g_drawingInfo.BBox.Center.y;
-					cameraPos.elements[2] 	= 0.0;
-					cameraUp.elements[0] 	= 0.0;
-					cameraUp.elements[1] 	= 1.0;
-					cameraUp.elements[2] 	= 0.0;
-			break;
-						
-		case "Z"	:
-					cameraPos.elements[0] 	= 0.0;
-					cameraPos.elements[1] 	= 0.0;
-					cameraPos.elements[2] 	= 1.2+g_drawingInfo.BBox.Center.z;
-					cameraUp.elements[0] 	= 0.0;
-					cameraUp.elements[1] 	= 1.0;
-					cameraUp.elements[2] 	= 0.0;
-			break;
-
-		drawScene();
-		}
-		
-	switch (keyunicode) {
-		case 27	:	// ESC			
-					cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
-					cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
-					cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
-					cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
-					cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
-					cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
-					cameraUp.elements[0] 	= 0.0;
-					cameraUp.elements[1] 	= 1.0;
-					cameraUp.elements[2] 	= 0.0;
-					break;
-						
-		case 33	:   // Page Up
-					break;
-		case 34	:	 // Page Down
-					break;
-		case 37	:	transX--; // Left cursor key
-					break;
-		case 38	:	transY++;// Up cursor key
-					break;
-		case 39	:	transX++;// Right cursor key
-					break;
-		case 40	:	transY--;// Down cursor key
-					break;
-		}
-	drawScene();	
-}
-
-function changePSize(v){
-	FOVy = v;
-	drawScene();	
-}
-
-function rotateXPSize (v) {
-	rotX = v;
-	drawScene();
-}
-function rotateYPSize (v) {
-	cameraPos.elements[0] 	= 0.0 * g_drawingInfo.BBox.Max.x;
-	cameraPos.elements[1] 	= 0.0 * g_drawingInfo.BBox.Max.y;
-	cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
-	cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
-	cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
-	cameraLook.elements[2] 	= (Math.PI/180 *v) + g_drawingInfo.BBox.Center.z;
-	cameraUp.elements[0] 	= 0.0;
-	cameraUp.elements[1] 	= 1.0;
-	cameraUp.elements[2] 	= 0.0;
-	drawScene();
-}
-function rotateZPSize (v) {
-	rotZ = v;
-	drawScene();
 }

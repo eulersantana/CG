@@ -14,7 +14,9 @@ var TransX		= 0.0;
 var TransY		= 0.0;
 var TransZ		= 0.0;
 var Upper		= false;
-var distanceMoonEarth = 0;
+var cameraPos 	= new Vector3();
+var cameraLook 	= new Vector3();
+var cameraUp 	= new Vector3();
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -106,8 +108,6 @@ function onReadComplete(gl) {
 			alert("ERROR: can not create indexBuffer");
 		
 		groupModel.numObjects = g_drawingInfo.indices[o].length;
-		model.push(groupModel);
-		model.push(groupModel);
 		model.push(groupModel);
 		}
 }
@@ -238,9 +238,9 @@ function draw(o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	console.log(model);
-
 	var modelMat = new Matrix4();
+	var viewMat  = new Matrix4();
+	var projMat  = new Matrix4();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
@@ -254,61 +254,75 @@ function drawScene() {
         console.error(err.description);
     	}
 
-    draw(axis, shader, gl.LINES);
-	
-	// Sun	
+    modelMat.setIdentity();
+	viewMat.setIdentity();
+	projMat.setIdentity();
+
+	viewMat.lookAt(cameraPos.elements[0],
+				   cameraPos.elements[1],
+				   cameraPos.elements[2],
+				   cameraLook.elements[0],
+				   cameraLook.elements[1],
+				   cameraLook.elements[2],
+				   cameraUp.elements[0],
+				   cameraUp.elements[1],
+				   cameraUp.elements[2]);
+
+	projMat.perspective(75, 1.0, 0.01, 25);
+
+	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
+	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
+
+    // Sun	
 	var radiusSun = 1;
-	
+	RotY += 0.5;
+
 	modelMat.scale(radiusSun,radiusSun,radiusSun);
+	modelMat.rotate(RotY, 0, 1, 0);
 
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,0);
 
 	draw(model[0], shader, gl.TRIANGLES);
 
-	console.log(modelMat);
-
 	// Earth
-	var distanceEarthSun = 1;
+	var distanceEarthSun = 1.25;
 	var radiusEarth = 0.5;
 
-	// modelMat.setIdentity();
+	//modelMat.setIdentity();	
+
 	modelMat.scale(radiusEarth, radiusEarth, radiusEarth);
 	modelMat.translate(distanceEarthSun, 0.0, 0.0);
-		
-	var t = radiusEarth+2*radiusSun;
-
-	modelMat.translate(t,0.0,0.0);
-	modelMat.rotate(RotY, 0,1,0);
-	modelMat.translate(-t,0.0,0.0);
 	
+	modelMat.rotate(RotX, 1,0,0);
+
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,1);
 
 	draw(model[0], shader, gl.TRIANGLES);
-	
+
+	//modelMat.rotate(RotX, 1,0,0);
+	//modelMat.rotate(RotY, 0, 1, 0);
+
 	// Moon
-	distanceMoonEarth = 0.6;
+	var distanceMoonEarth = 0.4;
 	var radiusMoon = 0.3;
-	var rotMoonZ = 0.0;
 	var posEarth = distanceMoonEarth-radiusEarth;
 
-	// modelMat.setIdentity();
-	modelMat.translate(distanceMoonEarth,0.0,0.0);
+	modelMat.translate(0,distanceMoonEarth,0);
 	modelMat.scale(radiusMoon, radiusMoon, radiusMoon);
-	
-	//rotacionar a lua em relaÃ§Ã£o a terra
-	
-	t = posEarth+2*radiusEarth+radiusMoon;
-
-	modelMat.translate(t,0.0,0.0);
-	modelMat.rotate(rotMoonZ, 0,0,1);
-	modelMat.translate(-t,0.0,0.0);
 	
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.uColor,2);
 	
 	draw(model[0], shader, gl.TRIANGLES);
+
+	// Axis
+	modelMat.setIdentity();
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniform1i(shader.uColor,0);
+
+	draw(axis, shader, gl.LINES);
 }
     
 // ********************************************************
@@ -317,9 +331,6 @@ function webGLStart() {
 
 	document.onkeydown 	= handleKeyDown;
 	document.onkeyup 	= handleKeyUp;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + RotX;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + RotY;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + RotZ;
 	
 	canvas 				= document.getElementById("TransfGeom");
 	gl 					= initGL(canvas);
@@ -329,7 +340,9 @@ function webGLStart() {
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
-	
+	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
+	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
+
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.uModelMat) {
 		console.log("Error getAttribLocation"); 
@@ -345,27 +358,32 @@ function webGLStart() {
 	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
-		console.log("test4")
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
-			
 			onReadComplete(gl);
-			console.log("test3")
 			g_objDoc = null;
-			
-			}
+
+			cameraPos.elements[0] 	= 3 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 4 * g_drawingInfo.BBox.Max.y ;
+			cameraPos.elements[2] 	= g_drawingInfo.BBox.Max.z;
+			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
+
+		}
 		if (model.length > 0) 
 		{
-			console.log("test")
-			distanceMoonEarth+= 0.1
+			RotX += 2; 
 			drawScene();
-		}
-		else
-		{
-			console.log("test2")
 			requestAnimationFrame(tick, canvas);
 		}
-		};	
-	tick();
+		else
+			requestAnimationFrame(tick, canvas);
+		};
+
+	tick();	
 }
 
 // ********************************************************
@@ -389,83 +407,28 @@ function handleKeyDown(event) {
 		Upper = true;
 
 	switch (String.fromCharCode(keyunicode)) {
-		case "X"	:	if (Upper) {
-							ScaleX += 0.1;
-							}
-						else {
-							ScaleX -= 0.1;
-							}
+		case "X"	:	cameraPos.elements[0] = 3 * g_drawingInfo.BBox.Max.x;
+						cameraPos.elements[1] = 0;
+						cameraPos.elements[2] = 0;
 						break;
 
-		case "Y"	:	if (Upper) {
-							ScaleY += 0.1;
-							}
-						else {
-							ScaleY -= 0.1;
-							}
+		case "Y"	:	cameraPos.elements[0] = 0;
+						cameraPos.elements[1] = 3 * g_drawingInfo.BBox.Max.y;
+						cameraPos.elements[2] = 0;
 						break;
 
-		case "Z"	:	if (Upper) {
-							ScaleZ += 0.1;
-							}
-						else {
-							ScaleZ -= 0.1;
-							}
-						break;	
-
-		case "D"	: 	TransX += 0.1;
-						break;
-		case "A"	: 	TransX -= 0.1;
-						break;
-		case "W"	: 	TransY += 0.1;
-						break;
-		case "S"	: 	TransY -= 0.1;
-						break;
-		case "Q"	: 	TransZ += 0.1;
-						break;
-		case "E"	: 	TransZ -= 0.1;
+		case "Z"	:	cameraPos.elements[0] = 0;
+						cameraPos.elements[1] = 0;
+						cameraPos.elements[2] = 5 * g_drawingInfo.BBox.Max.z;
 						break;
 		}
+	
+	switch (keyunicode) {
+		case 27		:	// ESC			
+						cameraPos.elements[0] = 3 * g_drawingInfo.BBox.Max.x;
+						cameraPos.elements[1] = 4 * g_drawingInfo.BBox.Max.y;
+						cameraPos.elements[2] = g_drawingInfo.BBox.Max.z;
+						break;
+					}
 	drawScene();					
 }
-
-// ********************************************************
-// ********************************************************
-function changeRotX(v) {
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + v;
-	RotX = v;
-	drawScene();
-}
-    
-// ********************************************************
-// ********************************************************
-function changeRotY(v) {
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + v;
-	RotY = v;
-	drawScene();
-}    
-
-// ********************************************************
-// ********************************************************
-function changeRotZ(v) {
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + v;
-	RotZ = v;
-	drawScene();
-}
-   
-
-// ********************************************************
-// ********************************************************
-function resetTransfGeom() {
-	document.getElementById("RotX").value = 0.0;
-	document.getElementById("outRotX").innerHTML = "Rotacao X = " + 0.0;
-	document.getElementById("RotY").value = 0.0;
-	document.getElementById("outRotY").innerHTML = "Rotacao Y = " + 0.0;
-	document.getElementById("RotZ").value = 0.0;
-	document.getElementById("outRotZ").innerHTML = "Rotacao Z = " + 0.0;
-}
-    
-  
-
-
-
