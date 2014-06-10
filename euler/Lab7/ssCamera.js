@@ -271,13 +271,13 @@ var projMat 	= new Matrix4();
 	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
 	modelMat.scale(raioS,raioS,raioS);
 	
-	
+	// Sol
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 	gl.uniform1i(shader.SampleruCorTerra,3);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
-	
+	// Terra
 	modelMat.translate(-0.7,0.0,0.0);
 	modelMat.scale(0.3,0.3,0.3);
 	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
@@ -285,7 +285,7 @@ var projMat 	= new Matrix4();
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
-
+	// Lua
 	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
 	modelMat.translate(0.0,0.4,0.0);
 	modelMat.scale(0.4, 0.4, 0.4);
