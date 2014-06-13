@@ -15,9 +15,18 @@ var rotX		= 0.0;
 var rotY		= 0.0; 
 var rotZ		= 0.0;
 var FOVy		= 75.0;
+var gray 		= 1;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
+
+function changeGray(value)
+{
+	gray = value;
+	var text = document.getElementById("output");
+	text.innerHTML = "Gray = " + gray;
+	drawScene();
+}
 
 // ********************************************************
 // ********************************************************
@@ -30,7 +39,7 @@ function initGL(canvas) {
 		}
 	gl.viewportWidth = canvas.width;
 	gl.viewportHeight = canvas.height;
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	gl.clearColor(1.0, 1.0, 1.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
@@ -213,6 +222,7 @@ function draw(gl, o, shaderProgram, primitive) {
 	else
 		alert("o.colorBuffer == null");
 
+	gl.uniform1f(shader.uGray, gray);
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.indexBuffer);
 
 	gl.drawElements(primitive, o.numObjects, gl.UNSIGNED_SHORT, 0);
@@ -236,14 +246,7 @@ var projMat 	= new Matrix4();
 	catch(err){
         alert(err);
         console.error(err.description);
-    	}
-    	
-	modelMat.setIdentity();
-	modelMat.scale(5,5,5);
-	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
-
-	for(var o = 0; o < model.length; o++) 
-		draw(gl, model[o], shader, gl.TRIANGLES);
+    	}    	
 
 	modelMat.setIdentity();
 	modelMat.scale(3,3,3);
@@ -264,6 +267,7 @@ function webGLStart() {
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
+	shader.uGray 			= gl.getUniformLocation(shader, "uGray");
 	
 	if (shader.vPositionAttr < 0 	|| 
 		shader.vColorAttr < 0 		|| 
