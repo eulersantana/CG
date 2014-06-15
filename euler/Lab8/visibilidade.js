@@ -341,7 +341,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
+	readOBJFile("../../modelos/f-16.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -372,4 +372,6 @@ function webGLStart() {
 			}
 		};	
 	tick();
+
+	
 }
