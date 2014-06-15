@@ -4,24 +4,26 @@
 <title>MATA65 - Computacao Grafica</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-<script id="viewOBJ-vs" type="x-shader/x-vertex">
+<script id="t2-vs" type="x-shader/x-vertex">
 	attribute vec3 aVertexPosition;
 	attribute vec4 aVertexColor;
 	
-	uniform mat4 uTGMat;
+	uniform mat4 uModelMat;
+	uniform mat4 uViewMat;
+	uniform mat4 uProjMat;
 		
 	varying vec4 vColor;
 		
 	void main(void) {
 		
- 		gl_Position = uTGMat * vec4(aVertexPosition.xyz, 1.0);
+ 		gl_Position = uProjMat * uViewMat * vec4(aVertexPosition.xy,0.0, 1.0);
  		
 		vColor = aVertexColor;
 	}
 
 </script>
 
-<script id="viewOBJ-fs" type="x-shader/x-fragment">
+<script id="t2-fs" type="x-shader/x-fragment">
 	precision mediump float;
 		
 	varying vec4 vColor;
@@ -35,17 +37,15 @@
 <script type="text/javascript" src="../../lib/cuon-utils.js"></script>
 <script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
-<script type="text/javascript" src="../../lib/myOBJParser.js"></script>
-<script type="text/javascript" src="../../lib/materialParser.js"></script>
-<script type="text/javascript" src="visibilidade.js"></script>
+<script type="text/javascript" src="t2.js"></script>
 
 </head>
 
 <body onload="webGLStart();">
-    <h1>Laboratorio 7</h1><br />
-    <p>Visibilidade e controle de camera.</p>
+    <h1>Laboratorio 6</h1><br />
+    <p>Sistema de Visualizacao.</p>
 
-    <canvas id="viewOBJ" style="border: none;" width="400" height="400"></canvas>
+    <canvas id="t2" style="border: none;" width="400" height="400"></canvas>
 
 </body>
 
