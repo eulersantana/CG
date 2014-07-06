@@ -53,6 +53,7 @@ function initGL(canvas) {
 
 // ********************************************************
 // ********************************************************
+
 function initTexture(){
 	texture = gl.createTexture();
 	texture.image = new Image();
@@ -477,11 +478,11 @@ function changePrimitive(v){
 // Mudanca de imagem fonte
 function changeIMG(v){
 	if(v == '2')
-		nomeImagem = "../../images/terra.png";
+		nomeImagem = "../../terra.png";
 	if(v == '1')	
-		nomeImagem = "../../images/terrain.png";
+		nomeImagem = "../../terrain.png";
 	if(v == '3')
-		nomeImagem = "../../images/perlin_heightmap.png";
+		nomeImagem = "../../perlin_heightmap.png";
 	initTexture();
 }
 
