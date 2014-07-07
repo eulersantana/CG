@@ -478,12 +478,11 @@ function changePrimitive(v){
 // Mudanca de imagem fonte
 function changeIMG(v){
 	if(v == '2')
-		nomeImagem = "../../terra.png";
+		nomeImagem = "../../images/terra.png";
 	if(v == '1')	
-		nomeImagem = "../../terrain.png";
+		nomeImagem = "../../images/terrain.png";
 	if(v == '3')
 		nomeImagem = "../../perlin_heightmap.png";
-	initTexture();
 }
 
 // ********************************************************
