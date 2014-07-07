@@ -53,10 +53,6 @@ function initGL(canvas) {
 
 // ********************************************************
 // ********************************************************
-<<<<<<< HEAD
-
-=======
->>>>>>> 95ffb42e3e8c747e3167c25bb75269e06deec25b
 function initTexture(){
 	texture = gl.createTexture();
 	texture.image = new Image();
@@ -485,12 +481,9 @@ function changeIMG(v){
 	if(v == '1')	
 		nomeImagem = "../../images/terrain.png";
 	if(v == '3')
-<<<<<<< HEAD
-		nomeImagem = "../../perlin_heightmap.png";
-=======
 		nomeImagem = "../../images/perlin_heightmap.png";
 	initTexture();
->>>>>>> 95ffb42e3e8c747e3167c25bb75269e06deec25b
+
 }
 
 // ********************************************************
