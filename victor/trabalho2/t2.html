@@ -1,35 +1,60 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-<title>MATA65 - Computacao Grafica</title>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-
-<script id="t2-vs" type="x-shader/x-vertex">
-	attribute vec3 aVertexPosition;
-	attribute vec4 aVertexColor;
+	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=9"><![endif]-->
 	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>CG</title>
+
+	<!-- css -->
+	<link href="../../css/bootstrap.css" rel="stylesheet">
+	<link href="../../css/bootstrap-lightbox.css" rel="stylesheet">
+	<link href="../../css/portfolio.css" rel="stylesheet">
+	<link href="../../css/icomoon-free.css" rel="stylesheet">
+	<link href="../../css/vertical-timeline.css" rel="stylesheet">
+	<link href="../../css/style.min.css" rel="stylesheet">
+	<link href="../../css/custom.css" rel="stylesheet">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+
 	uniform mat4 uModelMat;
 	uniform mat4 uViewMat;
 	uniform mat4 uProjMat;
-		
-	varying vec4 vColor;
-		
-	void main(void) {
-		
- 		gl_Position = uProjMat * uViewMat * vec4(aVertexPosition.xy,0.0, 1.0);
- 		
-		vColor = aVertexColor;
-	}
+	uniform sampler2D uSampler;
 
+	varying vec2 vTextureCoord;
+	float height;
+
+	void main(void) {
+		height = texture2D(uSampler, vec2(aVertexTexture)).r / 255. * 200.;
+		vTextureCoord = aVertexTexture;
+		gl_Position = uProjMat * uModelMat * uViewMat * vec4(aVertexPosition.x,
+		//gl_Position = uModelMat * vec4(aVertexPosition.x,
+									   //aVertexPosition.y,
+									   height,
+									   aVertexPosition.z, 1.0);
+	}
 </script>
 
-<script id="t2-fs" type="x-shader/x-fragment">
+<script id="shader-fs" type="x-shader/x-fragment">
 	precision mediump float;
-		
-	varying vec4 vColor;
-		
+
+	uniform sampler2D uSampler;
+
+	varying vec4 color;
+	highp float height;
+	varying vec2 vTextureCoord;
+
 	void main(void) {
-		gl_FragColor = vColor;
+		//gl_FragColor = vec4(height, height, height, 1.0);
+		vec4 color = texture2D(uSampler, vTextureCoord);
+		gl_FragColor = color;
 	}
 </script>
 
@@ -39,14 +64,109 @@
 <script type="text/javascript" src="../../lib/shaders.js"></script>
 <script type="text/javascript" src="t2.js"></script>
 
+<!--[if IE]><link href="css/ie.css" rel="stylesheet"><![endif]-->
+  <style type="text/css">
+  body{
+  	background: url("../../img/background-patterns/double_lined.png") !important;
+  }
+  </style>
 </head>
-
 <body onload="webGLStart();">
-    <h1>Laboratorio 6</h1><br />
-    <p>Sistema de Visualizacao.</p>
-
-    <canvas id="t2" style="border: none;" width="400" height="400"></canvas>
-
 </body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">CG</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Segundo Trabalho Pratico</a>
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+					<ul class="nav navbar-nav subMenu">
+						<li><a href="../../index.html" id="nav-letter-head"></a></li>
+						
+					</ul>
+				</div>
+			</div>
 
+		</div>
+	</nav>
+	<div class="container" id="content" style="margin-top: 80px;">
+		<div id="letter-head" class="nav-letter-head exe" style="background-color: rgb(46, 204, 113); border-color: rgb(41, 183, 101);">
+			<p>Aplicação em WebGL que permita visualizar qualquer um dos modelos digitais de terreno</p>
+		</div>
+			<h1></h1>
+    		<canvas id="imagem" style="border: none;" width="800" height="600"></canvas>
+			<div class="trabalho">
+			    <div class="popover ">
+			      <div class="popover-content">
+			        <ul>
+			            <li>
+			            <span><b>Escolha um Terreno:</b></span>
+			            	<select class="form-control" onchange="changeIMG(this.value)">
+							  <option value="1">Terrain (512x512)</option>
+							  <option value="2">Terra (512x512)</option>
+							  <option value="3">Perlin (512x512)</option>
+							</select>
+					    </li>
+			            <li><div class=" btn "></div></li>
+			            <li>
+			            	<span><b>Escolha uma camera:</b></span>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios1" value="1" onchange="changeCamera(this.value)">
+							    Visualização Plana
+							  	</label>
+							</div>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios2" value="2" onchange="changeCamera(this.value)">
+							    Visualização 3D
+							  	</label>
+							</div>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios3" value="3" onchange="changeCamera(this.value)">
+							    Visualização 3D (Voando)
+							  	</label>
+							</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<input id="wireframe" checked type="checkbox" onchange="changePrimitive(this.value)" /> Wireframe
+			            	</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="detail">Nivel de Detalhe = 7</div>
+			            		<input type="range" min="0" max="7" step="1" value="7" onchange="changeDetail(this.value)" />
+			            	</div>
+			            </li>		
+			            <li><div class=" btn "></div></li>
+			            <li>
+			            	<span><b>Andar com a câmera:</b></span></br>
+			            	<span><b>W: </b>Frente </span></br>
+			            	<span><b>S: </b>Trás</span></br>
+			            	<span><b>A:	</b>Esquerda</span></br>
+			            	<span><b>D:	</b>Direita</span>
+			            </li>
+			            <li>
+			            	<span><b>Rotação da câmera:</b></span></br>
+			            	<span class="glyphicon glyphicon-arrow-up">: Cima </span></br>
+			            	<span class="glyphicon glyphicon-arrow-down">: Baixo</span></br>
+			            	<span class="glyphicon glyphicon-arrow-left">: Esquerda</span></br>
+			            	<span class="glyphicon glyphicon-arrow-right">: Direta</span></br>
+			            </li>
+			        </ul>
+			      </div>
+			    </div>
+			</div>
+    	</div>
+	</div>
+	<!-- Fim do bloco pessoal das atividades -->
+	
+  </body>
 </html>
