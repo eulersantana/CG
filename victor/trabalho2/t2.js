@@ -18,9 +18,13 @@ var transX		= 0.0;
 var transY		= 0.0; 
 var transZ		= 0.0;
 var rotX		= 0.0;
+var RotX        = 0.0;
 var rotY		= 0.0; 
 var rotZ		= 0.0;
 var FOVy		= 75.0;
+
+var g_objDoc 		= null;	// The information of OBJ file
+var g_drawingInfo 	= null;	// The information for drawing 3D model
 
 // ********************************************************
 // ********************************************************
@@ -35,6 +39,80 @@ function initGL(canvas) {
 	gl.enable(gl.DEPTH_TEST);
 	
 	return gl;
+}
+
+// ********************************************************
+// ********************************************************
+// Read a file
+function readOBJFile(fileName, gl, scale, reverse) {
+	var request = new XMLHttpRequest();
+
+	request.onreadystatechange = function() {
+		if (request.readyState === 4 && request.status !== 404) 
+			onReadOBJFile(request.responseText, fileName, gl, scale, reverse);
+		}
+
+	request.open('GET', fileName, true); // Create a request to acquire the file
+	request.send();                      // Send the request
+}
+
+// ********************************************************
+// ********************************************************
+// OBJ File has been read
+function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
+	var objDoc = new OBJDoc(fileName);	// Create a OBJDoc object
+	var result = objDoc.parse(fileString, scale, reverse);	// Parse the file
+	
+	if (!result) {
+		g_objDoc 		= null; 
+		g_drawingInfo 	= null;
+		console.log("OBJ file parsing error.");
+		return;
+		}
+		
+	g_objDoc = objDoc;
+}
+
+// ********************************************************
+// ********************************************************
+// OBJ File has been read compleatly
+function onReadComplete(gl) {
+	
+	var groupModel = null;
+
+	g_drawingInfo 	= g_objDoc.getDrawingInfo();
+	
+	for(var o = 0; o < g_drawingInfo.numObjects; o++) {
+		
+		groupModel = new Object();
+
+		groupModel.vertexBuffer = gl.createBuffer();
+		if (groupModel.vertexBuffer) {		
+			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.vertexBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.vertices[o], gl.STATIC_DRAW);
+			}
+		else
+			alert("ERROR: can not create vertexBuffer");
+	
+		groupModel.colorBuffer = gl.createBuffer();
+		if (groupModel.colorBuffer) {		
+			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
+			}
+		else
+			alert("ERROR: can not create colorBuffer");
+
+		groupModel.indexBuffer = gl.createBuffer();
+		if (groupModel.indexBuffer) {		
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, groupModel.indexBuffer);
+			gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, g_drawingInfo.indices[o], gl.STATIC_DRAW);
+			}
+		else
+			alert("ERROR: can not create indexBuffer");
+		
+		groupModel.numObjects = g_drawingInfo.indices[o].length;
+		model.push(groupModel);
+		}
 }
 
 // ********************************************************
@@ -56,10 +134,19 @@ function initTexture() {
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		drawScene(gl, shader);
+		var fb = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+		if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE) {
+		  var pixels = new Uint8Array(canvas.width * canvas.height * 4);
+		  gl.readPixels(x, y, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		}
+		drawScene();
 	}
-	image.src = "../../images/lena.png";
+	image.src = "cg/terrain.png";
+
 }
+
 
 // ********************************************************
 // ********************************************************
@@ -108,7 +195,9 @@ var vTex = new Array;
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vTex), gl.STATIC_DRAW);
 	triangleTextureBuffer.itemSize = 2;
 	triangleTextureBuffer.numItems = vTex.length/triangleTextureBuffer.itemSize;
+
 }
+
 
 // ********************************************************
 // ********************************************************
@@ -239,20 +328,6 @@ function drawScene() {
         console.error(err.description);
     	}
 
-    gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shader.SamplerCor, 0);
-
-	gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-	gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-	gl.vertexAttribPointer(shader.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	
-	gl.enableVertexAttribArray(shader.vertexTextAttribute);
-	gl.bindBuffer(gl.ARRAY_BUFFER, triangleTextureBuffer);
-	gl.vertexAttribPointer(shader.vertexTextAttribute, triangleTextureBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-	gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-    	
 	modelMat.setIdentity();
 	viewMat.setIdentity();
 	projMat.setIdentity();
@@ -270,16 +345,11 @@ function drawScene() {
 	projMat.perspective(FOVy, 1.0, 0.01, 25);
 
 	gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
-	//gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
+	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
 	
-	draw(gl, axis, shader, gl.LINES);
-
-	modelMat.translate(transX, transY, transZ);
-	modelMat.rotate(rotX, 1.0, 0.0, 0.0);	
-	modelMat.rotate(rotY, 0.0, 1.0, 0.0);
-	modelMat.rotate(rotZ, 0.0, 0.0, 1.0);
+	// draw(gl, axis, shader, gl.LINES);
 	
-	//gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.uModelMat, false, modelMat.elements);
 
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -295,35 +365,54 @@ function webGLStart() {
 	canvas 	= document.getElementById("t2");
 	gl 		= initGL(canvas);
 	shader 	= initShaders("t2", gl);	
-	initBuffers();
-	initTexture();
+
 	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.uModelMat 		= gl.getUniformLocation(shader, "uModelMat");
 	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
 	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
+
 	
 	if (shader.vPositionAttr < 0 	|| 
-		shader.vColorAttr < 0 		|| 
-		!shader.uModelMat 			|| 
-		!shader.uViewMat 			|| 
-		!shader.uProjMat) {
+		shader.vColorAttr < 0 ) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 
-	cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
-	cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
-	cameraPos.elements[2] 	= 0;
-	cameraLook.elements[0] 	= 0;
-	cameraLook.elements[1] 	= 0;
-	cameraLook.elements[2] 	= 0;
-	cameraUp.elements[0] 	= 0.0;
-	cameraUp.elements[1] 	= 1.0;
-	cameraUp.elements[2] 	= 0.0;
+	readOBJFile("../../modelos/plano.obj", gl, 1, true);
+	
+	var tick = function() {   // Start drawing
+		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
+			onReadComplete(gl);
+			g_objDoc = null;		
+			cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 0;
+			cameraLook.elements[0] 	= 0;
+			cameraLook.elements[1] 	= 0;
+			cameraLook.elements[2] 	= 0;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
 
-	drawScene();	
+
+		}
+		if (model.length > 0) 
+		{
+			RotX += 2; 
+			
+			drawScene();
+			initTexture();	
+	
+			requestAnimationFrame(tick, canvas);
+		}
+		else
+			requestAnimationFrame(tick, canvas);
+		};
+
+	tick();	
+
 }
 
 

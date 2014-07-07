@@ -54,6 +54,34 @@ table.lab tr td.activity{padding-left: 10px;width: 13%;}
 .lab .popover ul{
     list-style: none;
 }
+#imagem{float:right;}
+table.trabalho{margin: 0 auto;width: 98.666667%;}
+table.trabalho tr{border: solid #fff 1px;}
+table.trabalho tr:nth-child(2n){background: #0F8542;}
+table.trabalho tr:nth-child(2n+1){   background: #84E6AE;}
+table.trabalho tr td.title{width: 12%; padding-left: 10px;background: #2ECC71;}
+table.trabalho tr td.activity{padding-left: 10px;width: 13%;}
+.none,.ok, .working{height: 22px;width: 22px;margin: -1% auto;}
+.none{background: url(../images/icon/no.png);background-size: 22px;background-repeat: no-repeat;}
+.ok{background: url(../images/icon/check.png);background-size: 22px;background-repeat: no-repeat;}
+.working{background: url(../images/icon/engine.png);background-size: 22px;background-repeat: no-repeat;}
+._25, .profile{width: 25%; float:left;}
+.profile{height: auto;}
+.profile #avatar img{width: 180px;}
+.title{color:#FFF;}
+.h_32{height: 32px;}
+
+.trabalho .popover {
+  position: relative;
+  position: relative;
+    left: 1%;
+    top: 61px;
+  display: block;
+}
+
+.trabalho .popover ul{
+    list-style: none;
+}
 .popover-content ul li .btn{
     width: 100%;
 }

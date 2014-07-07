@@ -16,7 +16,7 @@
 		
 	void main(void) {
 		
- 		gl_Position = uProjMat * uViewMat * vec4(aVertexPosition.xy,0.0, 1.0);
+ 		gl_Position = uModelMat*uProjMat * uViewMat * vec4(aVertexPosition.xy,0.0, 1.0);
  		
 		vColor = aVertexColor;
 	}
@@ -37,6 +37,8 @@
 <script type="text/javascript" src="../../lib/cuon-utils.js"></script>
 <script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="../../lib/myOBJParser.js"></script>
+<script type="text/javascript" src="../../lib/materialParser.js"></script>
 <script type="text/javascript" src="t2.js"></script>
 
 </head>
