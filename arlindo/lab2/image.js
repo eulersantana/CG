@@ -23,24 +23,29 @@ function initGL(canvas) {
 // ********************************************************
 // ********************************************************
 function initBuffers(gl) {
-var vPos = new Array;
-var vTex = new Array;
+	var vPos = new Array;
+	var vTex = new Array;
 
 	vPos.push(-1.0); 	// V0
 	vPos.push(-1.0);
 	vPos.push( 0.0);
+
 	vPos.push( 1.0);	// V1
 	vPos.push(-1.0);
 	vPos.push( 0.0);
+	
 	vPos.push( 1.0);	// V2
 	vPos.push( 1.0);
 	vPos.push( 0.0);
+	
 	vPos.push(-1.0); 	// V0
 	vPos.push(-1.0);
 	vPos.push( 0.0);
+
 	vPos.push( 1.0);	// V2
 	vPos.push( 1.0);
 	vPos.push( 0.0);
+	
 	vPos.push(-1.0);	// V3
 	vPos.push( 1.0);
 	vPos.push( 0.0);
@@ -52,14 +57,19 @@ var vTex = new Array;
 		
 	vTex.push( 0.0); 	// V0
 	vTex.push( 0.0);
+	
 	vTex.push( 1.0);	// V1
 	vTex.push( 0.0);
+	
 	vTex.push( 1.0);	// V2
 	vTex.push( 1.0);
+	
 	vTex.push( 0.0); 	// V0
 	vTex.push( 0.0);
+	
 	vTex.push( 1.0);	// V2
 	vTex.push( 1.0);
+	
 	vTex.push( 0.0);	// V3
 	vTex.push( 1.0);
 	triangleTextureBuffer = gl.createBuffer();
@@ -117,7 +127,7 @@ function initTexture(gl, shader) {
 		gl.bindTexture(gl.TEXTURE_2D, null);
 		drawScene(gl, shader);
 		}
-	image.src = "../images/lena.png";
+	image.src = "images/lena.png";
 }
 
 // ********************************************************

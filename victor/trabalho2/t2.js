@@ -65,7 +65,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-var groupModel = null;
+	var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -319,7 +319,10 @@ function animate() {
 function webGLStart() {
 
 	canvas 				= document.getElementById("viewOBJ");
-	
+	var img				= document.getElementById("obj");
+
+	console.log(img);
+
 	gl = initGL(canvas);
 	
 	shader = initShaders("viewOBJ", gl);	
