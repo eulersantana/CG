@@ -53,7 +53,6 @@ function initGL(canvas) {
 
 // ********************************************************
 // ********************************************************
-
 function initTexture(){
 	texture = gl.createTexture();
 	texture.image = new Image();
@@ -483,7 +482,9 @@ function changeIMG(v){
 	if(v == '1')	
 		nomeImagem = "../../images/terrain.png";
 	if(v == '3')
-		nomeImagem = "../../perlin_heightmap.png";
+		nomeImagem = "../../images/perlin_heightmap.png";
+	initTexture();
+
 }
 
 // ********************************************************
