@@ -7,8 +7,15 @@ var zTrans 		= 0.0;
 var xRot		= 0.0;
 var yRot		= 0.0;
 var xSpeed		= 0.0;
-var ySpeed		= 0.0;
+var ySpeed		= 0.02;
 var scale 		= 1.0;
+var scale2 		= 0.5;
+
+// camera
+var cameraPos 	= new Vector3();
+var cameraLook 	= new Vector3();
+var cameraUp 	= new Vector3();
+var FOVy		= 75.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -251,9 +258,10 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var TG = new Matrix4();
+var TG 			= new Matrix4();
+var viewMat 	= new Matrix4();
+var projMat 	= new Matrix4();
 
-	TG.setIdentity();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
@@ -266,17 +274,49 @@ var TG = new Matrix4();
         alert(err);
         console.error(err.description);
     	}
-    		
-	gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);
 
+    TG.setIdentity(); 
+    viewMat.setIdentity();
+    projMat.setIdentity();
+	
+	gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);   		
+	
 	draw(gl, axis, shader, gl.LINES);	
 	
-	TG.translate(0.0, 0.0, zTrans);
-	TG.rotate(xRot, 1.0, 0.0, 0.0);	
-	TG.rotate(yRot, 0.0, 1.0, 0.0);
+	TG.translate(0.0, 0.0, 0.0);
+	TG.rotate(180, 0.0, 1.0, 0.0);
 	TG.scale(scale, scale, scale);
-		
+
+	// viewMat.translate(0.0, 0.0, -1.5);
+	// viewMat.rotate(360,0.0,1.0,0.0);
+		viewMat.lookAt(1.0,
+				   1.0,
+				   1.0,
+				   0.0,
+				   0.0,
+				   0.0,
+				   cameraUp.elements[0],
+				   cameraUp.elements[1],
+				   cameraUp.elements[2]);
+	viewMat.translate(0.0,0.0,0.0);
+	viewMat.invert();
+	projMat.perspective(FOVy,1.0,0.1,25);
+	
+
 	gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);
+    gl.uniformMatrix4fv(shader.uViewMat, false, viewMat.elements);
+	gl.uniformMatrix4fv(shader.uProjMat, false, projMat.elements);
+
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	
+	TG.rotate(yRot, 0.0, 1.0, 0.0);
+	TG.translate(5.0, 0.0, 0.0);		
+	TG.rotate(180, 0.0, 1.0, 0.0);
+
+	TG.scale(scale2, scale2, scale2);
+	
+   gl.uniformMatrix4fv(shader.TGMatUniform, false, TG.elements);  
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -308,7 +348,7 @@ function handleKeyUp(event) {
 // ********************************************************
 // ********************************************************
 function animate() {
-	xRot += 1.0;
+	// xRot += 1.0;
 	yRot += 1.0;
 	drawScene();
 	requestAnimationFrame(animate, canvas);
@@ -328,9 +368,13 @@ function webGLStart() {
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
 	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
 	shader.TGMatUniform 	= gl.getUniformLocation(shader, "uTGMat");
+	shader.uViewMat 		= gl.getUniformLocation(shader, "uViewMat");
+	shader.uProjMat 		= gl.getUniformLocation(shader, "uProjMat");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.TGMatUniform) {
+		!shader.TGMatUniform     ||
+		!shader.uViewMat 		 || 
+		!shader.uProjMat) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
@@ -341,7 +385,8 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
+
+	readOBJFile("../../modelos/al.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -349,19 +394,28 @@ function webGLStart() {
 			onReadComplete(gl);
 			
 			g_objDoc = null;
+			cameraPos.elements[0] 	= 1.2 * g_drawingInfo.BBox.Max.x;
+			cameraPos.elements[1] 	= 1.2 * g_drawingInfo.BBox.Max.y;
+			cameraPos.elements[2] 	= 1.2 * g_drawingInfo.BBox.Max.z;
+			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraUp.elements[0] 	= 0.0;
+			cameraUp.elements[1] 	= 1.0;
+			cameraUp.elements[2] 	= 0.0;
 			
-			console.log("BBox = (" 	+ g_drawingInfo.BBox.Min.x + " , " 
-									+ g_drawingInfo.BBox.Min.y + " , " 
-									+ g_drawingInfo.BBox.Min.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Max.x + " , " 
-									+ g_drawingInfo.BBox.Max.y + " , " 
-									+ g_drawingInfo.BBox.Max.z + ")");
-			console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
-									+ g_drawingInfo.BBox.Center.y + " , " 
-									+ g_drawingInfo.BBox.Center.z + ")");
-			scale = 1 / Math.max(	Math.abs(g_drawingInfo.BBox.Max.x - g_drawingInfo.BBox.Min.x),
-									Math.abs(g_drawingInfo.BBox.Max.y - g_drawingInfo.BBox.Min.y),
-									Math.abs(g_drawingInfo.BBox.Max.z - g_drawingInfo.BBox.Min.z));
+			// console.log("BBox = (" 	+ g_drawingInfo.BBox.Min.x + " , " 
+			// 						+ g_drawingInfo.BBox.Min.y + " , " 
+			// 						+ g_drawingInfo.BBox.Min.z + ")");
+			// console.log("		(" 	+ g_drawingInfo.BBox.Max.x + " , " 
+			// 						+ g_drawingInfo.BBox.Max.y + " , " 
+			// 						+ g_drawingInfo.BBox.Max.z + ")");
+			// console.log("		(" 	+ g_drawingInfo.BBox.Center.x + " , " 
+			// 						+ g_drawingInfo.BBox.Center.y + " , " 
+			// 						+ g_drawingInfo.BBox.Center.z + ")");
+			// scale = 1 / Math.max(	Math.abs(g_drawingInfo.BBox.Max.x - g_drawingInfo.BBox.Min.x),
+			// 						Math.abs(g_drawingInfo.BBox.Max.y - g_drawingInfo.BBox.Min.y),
+			// 						Math.abs(g_drawingInfo.BBox.Max.z - g_drawingInfo.BBox.Min.z));
 			}
 		if (model.length > 0) { 
 			drawScene();
@@ -372,4 +426,6 @@ function webGLStart() {
 			}
 		};	
 	tick();
+
+	
 }

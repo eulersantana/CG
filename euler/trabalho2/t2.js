@@ -108,7 +108,6 @@ function medPoint(pointA, pointB)
 }
 
 // ********************************************************
-
 // Ordenação de pontos no sentido anti-horario
 // min = valor minimo de x entre os pontos do array
 function sortPoints(array, min)
@@ -479,11 +478,12 @@ function changePrimitive(v){
 // Mudanca de imagem fonte
 function changeIMG(v){
 	if(v == '2')
-		nomeImagem = "../../images/terra.png";
+		nomeImagem = "../../terra.png";
 	if(v == '1')	
-		nomeImagem = "../../images/terrain.png";
+		nomeImagem = "../../terrain.png";
 	if(v == '3')
 		nomeImagem = "../../perlin_heightmap.png";
+	initTexture();
 }
 
 // ********************************************************
@@ -494,6 +494,44 @@ function changeCamera(v)
 	yPos 		= 0;
 	zPos 		= 0;
 	cameraType 	= v;
+	
+	// Camera de Visualização Plana
+	if(v == '1'){
+		// Por padrao, setamos o wireframe como desligado
+		wireframe = false;
+		var checkbox = document.getElementById("wireframe");
+		checkbox.checked = false;
+
+		// Iniciamos a textura novamente para o novo desenho do modelo...
+		initTexture()
+
+		// ...ja utilizando novas coordenadas de camera, FOVy e pitch
+		FOVy		= 45.0; 
+		cameraPos.elements[0] 	= 0.25;
+		cameraPos.elements[1] 	= 4.0;
+		cameraPos.elements[2] 	= 0.0;
+		pitch 		= 0;
+	}
+	// Camera de Visualização 3D
+	if(v == '2'){	
+		// Modificação de alguns atributos da camera
+		pitch 		= 65;
+		FOVy		= 3.0; 
+		xPos 		= -0.5;
+		yPos 		= 0.4;
+		zPos 		= -0.5;
+		yaw = 90;
+		
+	}
+	// Camera de Visualização Aérea
+	if(v == '3'){	
+		// Modificação de alguns atributos da camera
+		FOVy		= 80.0;
+		cameraPos.elements[0] 	= 1.5;
+		cameraPos.elements[1] 	= 1;
+		cameraPos.elements[2] 	= 0;
+		pitch 		= 0;
+	}
 }
 
 function handleKeyDown(event) {
