@@ -202,10 +202,10 @@ function initAxisVertexBuffer(gl) {
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
 
-var matAmb		= new Vector4();
-var matDif		= new Vector4();
-var matSpec		= new Vector4();
-var Ns;
+	var matAmb		= new Vector4();
+	var matDif		= new Vector4();
+	var matSpec		= new Vector4();
+	var Ns;
 
 	if (o.Material != null) {
 		matAmb.elements[0] = o.Material.Ka.r;
@@ -274,11 +274,11 @@ var Ns;
 // ********************************************************
 function drawScene() {
 
-var modelMat 	= new Matrix4();
-var ViewMat 	= new Matrix4();
-var ProjMat 	= new Matrix4();
-var NormMat 	= new Matrix4();
-var lightColor	= new Vector4();
+	var modelMat 	= new Matrix4();
+	var ViewMat 	= new Matrix4();
+	var ProjMat 	= new Matrix4();
+	var NormMat 	= new Matrix4();
+	var lightColor	= new Vector4();
 
 	lightColor.elements[0] = 1.0;
 	lightColor.elements[1] = 1.0;
