@@ -66,7 +66,11 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
+<<<<<<< HEAD
+	var groupModel = null;
+=======
 var groupModel = null;
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -99,9 +103,16 @@ var groupModel = null;
 			alert("ERROR: can not create indexBuffer");
 		
 		groupModel.numObjects 	= g_drawingInfo.indices[o].length;
+<<<<<<< HEAD
+		console.log(g_drawingInfo);
+		// groupModel.Material 	= g_drawingInfo.materials[o];
+		model.push(groupModel);
+	}
+=======
 		groupModel.Material 	= g_drawingInfo.materials[o];
 		model.push(groupModel);
 		}
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 }
 
 // ********************************************************
@@ -202,10 +213,17 @@ function initAxisVertexBuffer(gl) {
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
 
+<<<<<<< HEAD
+	var matAmb		= new Vector4();
+	var matDif		= new Vector4();
+	var matSpec		= new Vector4();
+	var Ns;
+=======
 var matAmb		= new Vector4();
 var matDif		= new Vector4();
 var matSpec		= new Vector4();
 var Ns;
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 
 	if (o.Material != null) {
 		matAmb.elements[0] = o.Material.Ka.r;
@@ -242,7 +260,11 @@ var Ns;
 		matSpec.elements[3] = 1.0;
 		
 		Ns 					= 100.0;
+<<<<<<< HEAD
+	}
+=======
 		}
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 
 	gl.uniform4fv(shader.uMatAmb, matAmb.elements);
 	gl.uniform4fv(shader.uMatDif, matDif.elements);
@@ -274,11 +296,19 @@ var Ns;
 // ********************************************************
 function drawScene() {
 
+<<<<<<< HEAD
+	var modelMat 	= new Matrix4();
+	var ViewMat 	= new Matrix4();
+	var ProjMat 	= new Matrix4();
+	var NormMat 	= new Matrix4();
+	var lightColor	= new Vector4();
+=======
 var modelMat 	= new Matrix4();
 var ViewMat 	= new Matrix4();
 var ProjMat 	= new Matrix4();
 var NormMat 	= new Matrix4();
 var lightColor	= new Vector4();
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 
 	lightColor.elements[0] = 1.0;
 	lightColor.elements[1] = 1.0;
@@ -438,9 +468,15 @@ function webGLStart() {
 	if (!axis) {
 		console.log('Failed to set the AXIS vertex information');
 		return;
+<<<<<<< HEAD
+	}
+	readOBJFile("../../modelos/Liberty_Prime.obj", gl, 1, true);
+
+=======
 		}
 	readOBJFile("../modelos/al.obj", gl, 1, true);
 	
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
 			

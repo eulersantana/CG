@@ -441,7 +441,11 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
+<<<<<<< HEAD
+	readOBJFile("../../modelos/al.obj", gl, 1, true);
+=======
 	readOBJFile("../modelos/al.obj", gl, 1, true);
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
