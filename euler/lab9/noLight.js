@@ -3,16 +3,12 @@ var shader		= null;
 var model		= new Array;
 var axis		= null;
 var gl			= null;
-var xSpeed		= 0.0;
-var ySpeed		= 0.0;
 var cameraPos 	= new Vector3();
 var cameraLook 	= new Vector3();
 var cameraUp 	= new Vector3();
 var lightPos 	= new Vector3();
 var modelRotMat	= new Matrix4();
 var mouseDown 	= false;
-var lastMouseX;
-var	lastMouseY;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -86,13 +82,13 @@ var groupModel = null;
 		else
 			alert("ERROR: can not create vertexBuffer");
 	
-		groupModel.normalBuffer = gl.createBuffer();
-		if (groupModel.normalBuffer) {		
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.normalBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.normals[o], gl.STATIC_DRAW);
+		groupModel.colorBuffer = gl.createBuffer();
+		if (groupModel.colorBuffer) {		
+			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
 			}
 		else
-			alert("ERROR: can not create normalBuffer");
+			alert("ERROR: can not create colorBuffer");
 
 		groupModel.indexBuffer = gl.createBuffer();
 		if (groupModel.indexBuffer) {		
@@ -110,7 +106,7 @@ var groupModel = null;
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer(gl) {
+function initAxisVertexBuffer(gl, p) {
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
 	var vColor 	= new Array;
@@ -130,7 +126,7 @@ function initAxisVertexBuffer(gl) {
 	vNormal.push(0.0);
 	vNormal.push(0.0);
 	// V1
-	vPos.push(1.0);
+	vPos.push(p);
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vColor.push(1.0);
@@ -155,7 +151,7 @@ function initAxisVertexBuffer(gl) {
 	vNormal.push(0.0);
 	// V3
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(p);
 	vPos.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
@@ -180,7 +176,7 @@ function initAxisVertexBuffer(gl) {
 	// V5
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(1.0);
+	vPos.push(p);
 	vColor.push(0.0);
 	vColor.push(0.0);
 	vColor.push(1.0);
@@ -204,10 +200,10 @@ function initAxisVertexBuffer(gl) {
 	else
 		alert("ERROR: can not create vertexBuffer");
 	
-	axis.normalBuffer = gl.createBuffer();
-	if (axis.normalBuffer) {		
-		gl.bindBuffer(gl.ARRAY_BUFFER, axis.normalBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vNormal), gl.STATIC_DRAW);
+	axis.colorBuffer = gl.createBuffer();
+	if (axis.colorBuffer) {		
+		gl.bindBuffer(gl.ARRAY_BUFFER, axis.colorBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vColor), gl.STATIC_DRAW);
 		}
 	else
 		alert("ERROR: can not create colorBuffer");
@@ -221,6 +217,7 @@ function initAxisVertexBuffer(gl) {
 		alert("ERROR: can not create indexBuffer");
 	
 	axis.numObjects = lInd.length;
+	console.log("#axis = " + axis.numObjects);
 	
 	return axis;
 }
@@ -237,13 +234,13 @@ function draw(gl, o, shaderProgram, primitive) {
 	else
 		alert("o.vertexBuffer == null");
 
-	if (o.normalBuffer != null) {
-		gl.bindBuffer(gl.ARRAY_BUFFER, o.normalBuffer);
-		gl.vertexAttribPointer(shaderProgram.vNormalAttr, 3, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vNormalAttr);
+	if (o.colorBuffer != null) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, o.colorBuffer);
+		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
 		}
 	else
-		alert("o.normalBuffer == null");
+		alert("o.colorBuffer == null");
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.indexBuffer);
 
@@ -254,39 +251,15 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var modelMat 	= new Matrix4();
+var modelMat	= new Matrix4();
 var ViewMat 	= new Matrix4();
 var ProjMat 	= new Matrix4();
-var NormMat 	= new Matrix4();
-var lightColor	= new Vector4();
-var matAmb		= new Vector4();
-var matDif		= new Vector4();
-var matSpec		= new Vector4();
-
-	lightColor.elements[0] = 1.0;
-	lightColor.elements[1] = 1.0;
-	lightColor.elements[2] = 1.0;
-	lightColor.elements[3] = 1.0;
-
-	matAmb.elements[0] = 0.2;
-	matAmb.elements[1] = 0.2;
-	matAmb.elements[2] = 0.2;
-	matAmb.elements[3] = 1.0;
-
-	matDif.elements[0] = 0.5;
-	matDif.elements[1] = 0.0;
-	matDif.elements[2] = 0.0;
-	matDif.elements[3] = 1.0;
-
-	matSpec.elements[0] = 1.0;
-	matSpec.elements[1] = 1.0;
-	matSpec.elements[2] = 1.0;
-	matSpec.elements[3] = 1.0;
+var MVPMat		= new Matrix4();
 
 	modelMat.setIdentity();
 	ViewMat.setIdentity();
 	ProjMat.setIdentity();
-	NormMat.setIdentity();
+	MVPMat.setIdentity();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
@@ -300,6 +273,7 @@ var matSpec		= new Vector4();
         console.error(err.description);
     	}
     		
+    		
     ViewMat.setLookAt(	cameraPos.elements[0], 
     					cameraPos.elements[1], 
     					cameraPos.elements[2], 
@@ -312,32 +286,27 @@ var matSpec		= new Vector4();
     				);
     
     ProjMat.setPerspective( 75.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1200.0);
-    		
-	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
-	gl.uniformMatrix4fv(shader.VMatUniform, false, ViewMat.elements);
-	gl.uniformMatrix4fv(shader.PMatUniform, false, ProjMat.elements);
-	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
-	gl.uniform4fv(shader.uLightColor, lightColor.elements);
-	gl.uniform3fv(shader.uLightPos, lightPos.elements);
-	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
+    
+    MVPMat.multiply(ProjMat);
+    MVPMat.multiply(ViewMat);
+    MVPMat.multiply(modelMat);
+
+	gl.uniformMatrix4fv(shader.TGMatUniform, false, MVPMat.elements);
 
 	draw(gl, axis, shader, gl.LINES);	
 	
-	modelMat.multiply(modelRotMat);
-	NormMat.setInverseOf(modelMat);
-	NormMat.transpose();
-			
-	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
-	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform4fv(shader.uMatAmb, matAmb.elements);
-	gl.uniform4fv(shader.uMatDif, matDif.elements);
-	gl.uniform4fv(shader.uMatSpec, matSpec.elements);
+	MVPMat.setIdentity();
+    MVPMat.multiply(ProjMat);
+    MVPMat.multiply(ViewMat);
+    MVPMat.multiply(modelMat);
+	MVPMat.multiply(modelRotMat);
+		
+	gl.uniformMatrix4fv(shader.TGMatUniform, false, MVPMat.elements);
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
 }
-        
+
 // ********************************************************
 // ********************************************************
 function webGLStart() {
@@ -345,48 +314,23 @@ function webGLStart() {
 	document.onmouseup 		= handleMouseUp;
 	document.onmousemove 	= handleMouseMove;
 	
-	canvas					= document.getElementById("Gouraud");
+	canvas					= document.getElementById("noLight");
 	canvas.onmousedown 		= handleMouseDown;
 	gl 						= initGL(canvas);
 	
-	shader 					= initShaders("Gouraud", gl);	
-	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVPosition");		
-	shader.vNormalAttr 		= gl.getAttribLocation(shader, "aVNorm");
-	shader.MMatUniform 		= gl.getUniformLocation(shader, "uModelMat");
-	shader.VMatUniform 		= gl.getUniformLocation(shader, "uViewMat");
-	shader.PMatUniform 		= gl.getUniformLocation(shader, "uProjMat");
-	shader.NMatUniform 		= gl.getUniformLocation(shader, "uNormMat");
+	shader = initShaders("noLight", gl);	
+	
+	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
+	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
+	shader.TGMatUniform 	= gl.getUniformLocation(shader, "uTGMat");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.MMatUniform || !shader.VMatUniform || !shader.PMatUniform || !shader.NMatUniform ) {
+		!shader.TGMatUniform) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 		
-	shader.uCamPos 			= gl.getUniformLocation(shader, "uCamPos");
-	shader.uLightPos 		= gl.getUniformLocation(shader, "uLPos");
-	shader.uLightColor 		= gl.getUniformLocation(shader, "uLColor");
-	shader.uMatAmb 			= gl.getUniformLocation(shader, "uMatAmb");
-	shader.uMatDif 			= gl.getUniformLocation(shader, "uMatDif");
-	shader.uMatSpec			= gl.getUniformLocation(shader, "uMatSpec");
-	
-	if (shader.uCamPos < 0	 		|| shader.uLightPos < 0 	|| 
-		shader.uLightColor < 0		|| shader.uMatAmb < 0 		|| 
-		shader.uMatDif < 0			|| shader.uMatSpec < 0 ) {
-		console.log("Error getAttribLocation"); 
-		return;
-		}
-	
-	axis = initAxisVertexBuffer(gl);
-	if (!axis) {
-		console.log('Failed to set the AXIS vertex information');
-		return;
-		}
-<<<<<<< HEAD
-	readOBJFile("../../modelos/al.obj", gl, 1, true);
-=======
 	readOBJFile("../modelos/al.obj", gl, 1, true);
->>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -404,10 +348,13 @@ function webGLStart() {
 			cameraUp.elements[0] 	= 0.0;
 			cameraUp.elements[1] 	= 1.0;
 			cameraUp.elements[2] 	= 0.0;
-			
-			lightPos.elements[0]	= 0.0;
-			lightPos.elements[1]	= cameraPos.elements[1];
-			lightPos.elements[2]	= cameraPos.elements[2];
+		
+			axis = initAxisVertexBuffer(gl, Math.max(g_drawingInfo.BBox.Max.x, Math.max(g_drawingInfo.BBox.Max.y,g_drawingInfo.BBox.Max.z)));
+			if (!axis) {
+				console.log('Failed to set the AXIS vertex information');
+				return;
+				}
+						
 			}
 		if (model.length > 0) 
 			drawScene();
@@ -417,7 +364,7 @@ function webGLStart() {
 	tick();
 }
 
-    
+   
 // ********************************************************
 // ********************************************************
 function degToRad(degrees) {
@@ -463,4 +410,5 @@ function handleMouseMove(event) {
 	
 	drawScene();
 }
+
 

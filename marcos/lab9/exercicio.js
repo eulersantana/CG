@@ -9,10 +9,9 @@ var cameraPos 	= new Vector3();
 var cameraLook 	= new Vector3();
 var cameraUp 	= new Vector3();
 var lightPos 	= new Vector3();
-var modelRotMat	= new Matrix4();
-var mouseDown 	= false;
-var lastMouseX;
-var	lastMouseY;
+var RotMoon		= 0.0;
+var RotEarth	= 0.0;
+var RotMercury	= 0.0;
 
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
@@ -258,30 +257,11 @@ var modelMat 	= new Matrix4();
 var ViewMat 	= new Matrix4();
 var ProjMat 	= new Matrix4();
 var NormMat 	= new Matrix4();
-var lightColor	= new Vector4();
-var matAmb		= new Vector4();
-var matDif		= new Vector4();
-var matSpec		= new Vector4();
+var Color		= new Vector3();
 
-	lightColor.elements[0] = 1.0;
-	lightColor.elements[1] = 1.0;
-	lightColor.elements[2] = 1.0;
-	lightColor.elements[3] = 1.0;
-
-	matAmb.elements[0] = 0.2;
-	matAmb.elements[1] = 0.2;
-	matAmb.elements[2] = 0.2;
-	matAmb.elements[3] = 1.0;
-
-	matDif.elements[0] = 0.5;
-	matDif.elements[1] = 0.0;
-	matDif.elements[2] = 0.0;
-	matDif.elements[3] = 1.0;
-
-	matSpec.elements[0] = 1.0;
-	matSpec.elements[1] = 1.0;
-	matSpec.elements[2] = 1.0;
-	matSpec.elements[3] = 1.0;
+	Color.elements[0] = 1.0;
+	Color.elements[1] = 1.0;
+	Color.elements[2] = 1.0;
 
 	modelMat.setIdentity();
 	ViewMat.setIdentity();
@@ -311,28 +291,91 @@ var matSpec		= new Vector4();
     					cameraUp.elements[2] 
     				);
     
-    ProjMat.setPerspective( 75.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1200.0);
+    ProjMat.setPerspective( 60.0, gl.viewportWidth / gl.viewportHeight, 0.1, 25.0);
     		
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.VMatUniform, false, ViewMat.elements);
 	gl.uniformMatrix4fv(shader.PMatUniform, false, ProjMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
-	gl.uniform4fv(shader.uLightColor, lightColor.elements);
-	gl.uniform3fv(shader.uLightPos, lightPos.elements);
-	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
+	gl.uniform3fv(shader.uColor, Color.elements);
 
 	draw(gl, axis, shader, gl.LINES);	
 	
-	modelMat.multiply(modelRotMat);
+	
+	// Desenha Sol
+			
+	Color.elements[0] = 1.0;
+	Color.elements[1] = 1.0;
+	Color.elements[2] = 0.0;
+	
+	modelMat.scale(2.5, 2.5, 2.5);
 	NormMat.setInverseOf(modelMat);
 	NormMat.transpose();
-			
+	
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform4fv(shader.uMatAmb, matAmb.elements);
-	gl.uniform4fv(shader.uMatDif, matDif.elements);
-	gl.uniform4fv(shader.uMatSpec, matSpec.elements);
+	gl.uniform3fv(shader.uColor, Color.elements);
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	
+	// Desenha Mercurio
+				
+	Color.elements[0] = 1.0;
+	Color.elements[1] = 0.3;
+	Color.elements[2] = 0.3;
+			
+	modelMat.setIdentity();
+	modelMat.rotate(RotMercury, 0.0, 1.0, 0.0);
+	modelMat.translate(2.2, 0.0, 0.0);
+	modelMat.scale(0.8, 0.8, 0.8);
+	NormMat.setInverseOf(modelMat);
+	NormMat.transpose();
+	
+	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
+	gl.uniform3fv(shader.uColor, Color.elements);	
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	
+	// Desenha Lua
+				
+	Color.elements[0] = 0.2;
+	Color.elements[1] = 0.2;
+	Color.elements[2] = 1.0;
+			
+	modelMat.setIdentity();
+	modelMat.rotate(RotEarth, 0.0, 1.0, 0.0);
+	modelMat.translate(4.5, 0.0, 0.0);
+	modelMat.scale(2.0, 2.0, 2.0);
+	NormMat.setInverseOf(modelMat);
+	NormMat.transpose();
+	
+	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
+	gl.uniform3fv(shader.uColor, Color.elements);		
+	
+	for(var o = 0; o < model.length; o++) 
+		draw(gl, model[o], shader, gl.TRIANGLES);
+	
+	// Desenha Lua
+	Color.elements[0] = 0.6;
+	Color.elements[1] = 0.6;
+	Color.elements[2] = 0.6;
+	
+	modelMat.setIdentity();
+	modelMat.rotate(RotEarth, 0.0, 1.0, 0.0);
+	modelMat.translate(4.5, 0.0, 0.0);
+	modelMat.rotate(RotMoon, 0.0, 1.0, 0.0);
+	modelMat.translate(1.0, 0.0, 0.0);
+	modelMat.scale(0.8, 0.8, 0.8);
+	NormMat.setInverseOf(modelMat);
+	NormMat.transpose();
+	
+	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
+	gl.uniform3fv(shader.uColor, Color.elements);		
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -342,14 +385,10 @@ var matSpec		= new Vector4();
 // ********************************************************
 function webGLStart() {
 
-	document.onmouseup 		= handleMouseUp;
-	document.onmousemove 	= handleMouseMove;
-	
-	canvas					= document.getElementById("Gouraud");
-	canvas.onmousedown 		= handleMouseDown;
+	canvas					= document.getElementById("LuzDoSol");
 	gl 						= initGL(canvas);
 	
-	shader 					= initShaders("Gouraud", gl);	
+	shader 					= initShaders("LuzDoSol", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVPosition");		
 	shader.vNormalAttr 		= gl.getAttribLocation(shader, "aVNorm");
 	shader.MMatUniform 		= gl.getUniformLocation(shader, "uModelMat");
@@ -357,22 +396,15 @@ function webGLStart() {
 	shader.PMatUniform 		= gl.getUniformLocation(shader, "uProjMat");
 	shader.NMatUniform 		= gl.getUniformLocation(shader, "uNormMat");
 	
-	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
+	if (shader.vPositionAttr < 0 || shader.vNormalAttr < 0 || 
 		!shader.MMatUniform || !shader.VMatUniform || !shader.PMatUniform || !shader.NMatUniform ) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 		
-	shader.uCamPos 			= gl.getUniformLocation(shader, "uCamPos");
-	shader.uLightPos 		= gl.getUniformLocation(shader, "uLPos");
-	shader.uLightColor 		= gl.getUniformLocation(shader, "uLColor");
-	shader.uMatAmb 			= gl.getUniformLocation(shader, "uMatAmb");
-	shader.uMatDif 			= gl.getUniformLocation(shader, "uMatDif");
-	shader.uMatSpec			= gl.getUniformLocation(shader, "uMatSpec");
+	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
 	
-	if (shader.uCamPos < 0	 		|| shader.uLightPos < 0 	|| 
-		shader.uLightColor < 0		|| shader.uMatAmb < 0 		|| 
-		shader.uMatDif < 0			|| shader.uMatSpec < 0 ) {
+	if (shader.uCcolor < 0 ) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
@@ -382,11 +414,7 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
-<<<<<<< HEAD
-	readOBJFile("../../modelos/al.obj", gl, 1, true);
-=======
-	readOBJFile("../modelos/al.obj", gl, 1, true);
->>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
+	readOBJFile("../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -395,72 +423,42 @@ function webGLStart() {
 			
 			g_objDoc = null;
 			
-			cameraPos.elements[0] 	= 1.30 * g_drawingInfo.BBox.Max.x;
-			cameraPos.elements[1] 	= 1.30 * g_drawingInfo.BBox.Max.y;
-			cameraPos.elements[2] 	= 1.30 * g_drawingInfo.BBox.Max.z;
-			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
-			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
-			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			cameraPos.elements[0] 	= 0.0;
+			cameraPos.elements[1] 	= 10.0;
+			cameraPos.elements[2] 	= 0.0;
+			cameraLook.elements[0] 	= 0.0;
+			cameraLook.elements[1] 	= 0.0;
+			cameraLook.elements[2] 	= 0.0;
 			cameraUp.elements[0] 	= 0.0;
-			cameraUp.elements[1] 	= 1.0;
-			cameraUp.elements[2] 	= 0.0;
+			cameraUp.elements[1] 	= 0.0;
+			cameraUp.elements[2] 	= 1.0;
 			
 			lightPos.elements[0]	= 0.0;
-			lightPos.elements[1]	= cameraPos.elements[1];
-			lightPos.elements[2]	= cameraPos.elements[2];
+			lightPos.elements[1]	= 0.0;
+			lightPos.elements[2]	= 0.0;
 			}
-		if (model.length > 0) 
+		if (model.length > 0) {
 			drawScene();
+			animate();
+			}
 		else
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
 }
-
+    
+// ********************************************************
+// ********************************************************
+function animate() {
+	requestAnimationFrame(animate, canvas);
+	RotMercury += 1.0;
+	RotEarth += 0.08;
+	RotMoon += 8.0;
+	drawScene();
+}
     
 // ********************************************************
 // ********************************************************
 function degToRad(degrees) {
 	return degrees * Math.PI / 180;
 }
-    
-// ********************************************************
-// ********************************************************
-function handleMouseDown(event) {
-	mouseDown 	= true;
-	lastMouseX 	= event.clientX;
-	lastMouseY 	= event.clientY;
-}
-    
-// ********************************************************
-// ********************************************************
-function handleMouseUp(event) {
-	mouseDown = false;
-}
-    
-// ********************************************************
-// ********************************************************
-function handleMouseMove(event) {
-	if (!mouseDown)
-		return;
-	
-	var newX 		= event.clientX;
-	var newY 		= event.clientY;
-
-	var deltaX 		= newX - lastMouseX
-	var newModelRot = new Matrix4();
-	
-	newModelRot.setIdentity();
-	newModelRot.rotate(deltaX / 5, 0.0, 1.0, 0.0);
-
-	var deltaY = newY - lastMouseY;
-	newModelRot.rotate(deltaY / 5, 1.0, 0.0, 0.0);
-
-	modelRotMat.multiply(newModelRot);
-
-	lastMouseX = newX
-	lastMouseY = newY;
-	
-	drawScene();
-}
-

@@ -345,11 +345,11 @@ function webGLStart() {
 	document.onmouseup 		= handleMouseUp;
 	document.onmousemove 	= handleMouseMove;
 	
-	canvas					= document.getElementById("Gouraud");
+	canvas					= document.getElementById("noMaterial");
 	canvas.onmousedown 		= handleMouseDown;
 	gl 						= initGL(canvas);
 	
-	shader 					= initShaders("Gouraud", gl);	
+	shader 					= initShaders("noMaterial", gl);	
 	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVPosition");		
 	shader.vNormalAttr 		= gl.getAttribLocation(shader, "aVNorm");
 	shader.MMatUniform 		= gl.getUniformLocation(shader, "uModelMat");
@@ -382,11 +382,7 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
-<<<<<<< HEAD
-	readOBJFile("../../modelos/al.obj", gl, 1, true);
-=======
 	readOBJFile("../modelos/al.obj", gl, 1, true);
->>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available

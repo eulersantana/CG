@@ -388,9 +388,14 @@ function webGLStart() {
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
 		!shader.MMatUniform || !shader.VMatUniform || !shader.PMatUniform || !shader.NMatUniform ) {
 		console.log("Error getAttribLocation"); 
+<<<<<<< HEAD
 		console.log(shader); 
 		return;
 	}
+=======
+		return;
+		}
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 		
 	shader.uCamPos 			= gl.getUniformLocation(shader, "uCamPos");
 	shader.uLightPos 		= gl.getUniformLocation(shader, "uLPos");
@@ -401,16 +406,25 @@ function webGLStart() {
 	if (shader.uCamPos < 0	 		|| shader.uLightPos < 0 	|| 
 		shader.uLightColor < 0		|| shader.uMatAmb < 0 ) {
 		console.log("Error getAttribLocation"); 
+<<<<<<< HEAD
 		console.log(shader); 
 		return;
 	}
+=======
+		return;
+		}
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	axis = initAxisVertexBuffer(gl);
 	if (!axis) {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
+<<<<<<< HEAD
 	readOBJFile("../../modelos/al.obj", gl, 1, true);
+=======
+	readOBJFile("../modelos/al.obj", gl, 1, true);
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available

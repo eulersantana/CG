@@ -5,6 +5,7 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
 <script id="ambLight-vs" type="x-shader/x-vertex">
+<<<<<<< HEAD
 	attribute vec3 aVPosition; //Objeto
 	attribute vec3 aVNorm;
 
@@ -21,33 +22,76 @@
  		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
  		vPosW 	= (uModelMat * vec4(aVPosition, 1.0)).xyz; //Coordenadas do mundo.
  		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+=======
+	attribute vec3 aVPosition;
+	attribute vec3 aVNorm;
+	
+	uniform mat4 uModelMat;
+	uniform mat4 uViewMat;
+	uniform mat4 uProjMat;
+	uniform mat4 uNormMat;
+		
+	varying vec3 vNormal;
+	varying vec3 vPosW;	
+		
+	void main(void) {
+		
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
+ 		
+ 		vPosW = (uModelMat * vec4(aVPosition, 1.0)).xyz;
+		
+		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	}
 
 </script>
 
 <script id="ambLight-fs" type="x-shader/x-fragment">
 	precision mediump float;
+<<<<<<< HEAD
 
 	varying vec3 	vNormal;
 	varying vec3 	vPosW;
 
+=======
+		
+	varying vec3 	vNormal;
+	varying vec3 	vPosW;	
+		
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	uniform vec3 	uCamPos;
 	uniform vec3 	uLPos;
 	uniform vec4 	uLColor;
 	uniform vec4 	uMatAmb;
+<<<<<<< HEAD
 
 	void main(void) {
 		vec4 ambient = vec4(uLColor.rgb * uMatAmb.rgb, uMatAmb.a);
+=======
+	
+	void main(void) {
+		vec4 ambient = vec4(uLColor.rgb * uMatAmb.rgb, uMatAmb.a);
+	
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 		gl_FragColor = ambient;
 	}
 </script>
 
+<<<<<<< HEAD
 <script type="text/javascript" src="../../lib/webgl-utils.js"></script>
 <script type="text/javascript" src="../../lib/cuon-utils.js"></script>
 <script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
 <script type="text/javascript" src="../../lib/shaders.js"></script>
 <script type="text/javascript" src="../../lib/myOBJParser.js"></script>
 <script type="text/javascript" src="../../lib/MaterialParser.js"></script>
+=======
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/cuon-utils.js"></script>
+<script type="text/javascript" src="../lib/cuon-matrix.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../lib/myOBJParser.js"></script>
+<script type="text/javascript" src="../lib/MaterialParser.js"></script>
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 <script type="text/javascript" src="ambientLight.js"></script>
 
 </head>
@@ -55,7 +99,13 @@
 <body onload="webGLStart();">
     <h1>Laboratorio 9</h1><br />
     <p>Modelo de Reflexao de Phong - Componente Ambiente.</p>
+<<<<<<< HEAD
     <canvas id="ambLight" style="border: none;" width="400" height="400"></canvas>
+=======
+
+    <canvas id="ambLight" style="border: none;" width="400" height="400"></canvas>
+
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 </body>
 
 </html>

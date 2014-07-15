@@ -250,6 +250,7 @@ var Ns;
 // ********************************************************
 function drawScene() {
 
+<<<<<<< HEAD
 	var modelMat 	= new Matrix4();
 	var ViewMat 	= new Matrix4();
 	var ProjMat 	= new Matrix4();
@@ -259,6 +260,17 @@ function drawScene() {
 	lightColor.elements[0] = 1.0;
 	lightColor.elements[1] = 1.0;
 	lightColor.elements[2] = 0.0;
+=======
+var modelMat 	= new Matrix4();
+var ViewMat 	= new Matrix4();
+var ProjMat 	= new Matrix4();
+var NormMat 	= new Matrix4();
+var lightColor	= new Vector4();
+
+	lightColor.elements[0] = 1.0;
+	lightColor.elements[1] = 1.0;
+	lightColor.elements[2] = 1.0;
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	lightColor.elements[3] = 1.0;
 
 	modelMat.setIdentity();
@@ -415,7 +427,11 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
+<<<<<<< HEAD
 	readOBJFile("../../modelos/al.obj", gl, 1, true);
+=======
+	readOBJFile("../modelos/al.obj", gl, 1, true);
+>>>>>>> 820fc4a336accff3201be1372bfd3581fdd2f9f8
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
