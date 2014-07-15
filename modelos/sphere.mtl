@@ -1,6 +1,6 @@
+# Simple Material
 
-newmtl Default
-Ka 0.2 0.2 0.2
-Kd 1.0 1.0 0.0
-Ks 1.0 1.0 1.0
-Ns 100.0
+newmtl SphereMat
+Kd 0.3 1.0 0.8
+
+

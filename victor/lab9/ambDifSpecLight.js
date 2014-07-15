@@ -202,10 +202,10 @@ function initAxisVertexBuffer(gl) {
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
 
-var matAmb		= new Vector4();
-var matDif		= new Vector4();
-var matSpec		= new Vector4();
-var Ns;
+	var matAmb		= new Vector4();
+	var matDif		= new Vector4();
+	var matSpec		= new Vector4();
+	var Ns;
 
 	if (o.Material != null) {
 		matAmb.elements[0] = o.Material.Ka.r;
@@ -224,8 +224,7 @@ var Ns;
 		matSpec.elements[3] = 1.0;//o.Material.Ks.a;
 		
 		Ns 					= 20.0;//o.Material.Ns;		
-		}
-	else {
+	}else {
 		matAmb.elements[0] = 
 		matAmb.elements[1] = 
 		matAmb.elements[2] = 0.2
@@ -242,7 +241,7 @@ var Ns;
 		matSpec.elements[3] = 1.0;
 		
 		Ns 					= 100.0;
-		}
+	}
 
 	gl.uniform4fv(shader.uMatAmb, matAmb.elements);
 	gl.uniform4fv(shader.uMatDif, matDif.elements);
@@ -278,7 +277,7 @@ var modelMat 	= new Matrix4();
 var ViewMat 	= new Matrix4();
 var ProjMat 	= new Matrix4();
 var NormMat 	= new Matrix4();
-var lightColor	= new Vector4();
+	var lightColor	= new Vector4();
 
 	lightColor.elements[0] = 1.0;
 	lightColor.elements[1] = 1.0;
@@ -441,7 +440,7 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
-	readOBJFile("../modelos/al.obj", gl, 1, true);
+	readOBJFile("../../modelos/al.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
