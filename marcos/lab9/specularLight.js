@@ -82,13 +82,13 @@ var groupModel = null;
 		else
 			alert("ERROR: can not create vertexBuffer");
 	
-		groupModel.colorBuffer = gl.createBuffer();
-		if (groupModel.colorBuffer) {		
-			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.colorBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.colors[o], gl.STATIC_DRAW);
+		groupModel.normalBuffer = gl.createBuffer();
+		if (groupModel.normalBuffer) {		
+			gl.bindBuffer(gl.ARRAY_BUFFER, groupModel.normalBuffer);
+			gl.bufferData(gl.ARRAY_BUFFER, g_drawingInfo.normals[o], gl.STATIC_DRAW);
 			}
 		else
-			alert("ERROR: can not create colorBuffer");
+			alert("ERROR: can not create normalBuffer");
 
 		groupModel.indexBuffer = gl.createBuffer();
 		if (groupModel.indexBuffer) {		
@@ -98,7 +98,8 @@ var groupModel = null;
 		else
 			alert("ERROR: can not create indexBuffer");
 		
-		groupModel.numObjects = g_drawingInfo.indices[o].length;
+		groupModel.numObjects 	= g_drawingInfo.indices[o].length;
+		groupModel.Material 	= g_drawingInfo.materials[o];
 		model.push(groupModel);
 		}
 }
@@ -106,10 +107,9 @@ var groupModel = null;
 // ********************************************************
 // ********************************************************
 
-function initAxisVertexBuffer(gl, p) {
+function initAxisVertexBuffer(gl) {
 	var axis	= new Object(); // Utilize Object object to return multiple buffer objects
 	var vPos 	= new Array;
-	var vColor 	= new Array;
 	var vNormal	= new Array;
 	var lInd 	= new Array;
 
@@ -118,21 +118,13 @@ function initAxisVertexBuffer(gl, p) {
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
 	// V1
-	vPos.push(p);
+	vPos.push(1.0);
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
@@ -142,21 +134,13 @@ function initAxisVertexBuffer(gl, p) {
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
 	// V3
 	vPos.push(0.0);
-	vPos.push(p);
+	vPos.push(1.0);
 	vPos.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
@@ -166,21 +150,13 @@ function initAxisVertexBuffer(gl, p) {
 	vPos.push(0.0);
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vColor.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
 	// V5
 	vPos.push(0.0);
 	vPos.push(0.0);
-	vPos.push(p);
-	vColor.push(0.0);
-	vColor.push(0.0);
-	vColor.push(1.0);
-	vColor.push(1.0);
+	vPos.push(1.0);
 	vNormal.push(1.0);
 	vNormal.push(0.0);
 	vNormal.push(0.0);
@@ -200,10 +176,10 @@ function initAxisVertexBuffer(gl, p) {
 	else
 		alert("ERROR: can not create vertexBuffer");
 	
-	axis.colorBuffer = gl.createBuffer();
-	if (axis.colorBuffer) {		
-		gl.bindBuffer(gl.ARRAY_BUFFER, axis.colorBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vColor), gl.STATIC_DRAW);
+	axis.normalBuffer = gl.createBuffer();
+	if (axis.normalBuffer) {		
+		gl.bindBuffer(gl.ARRAY_BUFFER, axis.normalBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vNormal), gl.STATIC_DRAW);
 		}
 	else
 		alert("ERROR: can not create colorBuffer");
@@ -217,7 +193,7 @@ function initAxisVertexBuffer(gl, p) {
 		alert("ERROR: can not create indexBuffer");
 	
 	axis.numObjects = lInd.length;
-	console.log("#axis = " + axis.numObjects);
+	axis.Material	= null;
 	
 	return axis;
 }
@@ -226,6 +202,29 @@ function initAxisVertexBuffer(gl, p) {
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
 
+var matSpec		= new Vector4();
+var Ns;
+
+	if (o.Material != null) {
+		matSpec.elements[0] = o.Material.Ks.r;
+		matSpec.elements[1] = o.Material.Ks.g;
+		matSpec.elements[2] = o.Material.Ks.b;
+		matSpec.elements[3] = o.Material.Ks.a;
+		
+		Ns 					= o.Material.Ns;
+		}
+	else {
+		matSpec.elements[0] = 1.0; 
+		matSpec.elements[1] = 1.0;
+		matSpec.elements[2] = 1.0;
+		matSpec.elements[3] = 1.0;
+		
+		Ns 					= 100.0;
+		}
+		
+	gl.uniform4fv(shader.uMatSpec, matSpec.elements);
+	gl.uniform1f(shader.uExpSpec, Ns);
+	
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
@@ -234,13 +233,13 @@ function draw(gl, o, shaderProgram, primitive) {
 	else
 		alert("o.vertexBuffer == null");
 
-	if (o.colorBuffer != null) {
-		gl.bindBuffer(gl.ARRAY_BUFFER, o.colorBuffer);
-		gl.vertexAttribPointer(shaderProgram.vColorAttr, 4, gl.FLOAT, false, 0, 0);
-		gl.enableVertexAttribArray(shaderProgram.vColorAttr);
+	if (o.normalBuffer != null) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, o.normalBuffer);
+		gl.vertexAttribPointer(shaderProgram.vNormalAttr, 3, gl.FLOAT, false, 0, 0);
+		gl.enableVertexAttribArray(shaderProgram.vNormalAttr);
 		}
 	else
-		alert("o.colorBuffer == null");
+		alert("o.normalBuffer == null");
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.indexBuffer);
 
@@ -251,15 +250,21 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	var modelMat	= new Matrix4();
+	var modelMat 	= new Matrix4();
 	var ViewMat 	= new Matrix4();
 	var ProjMat 	= new Matrix4();
-	var MVPMat		= new Matrix4();
+	var NormMat 	= new Matrix4();
+	var lightColor	= new Vector4();
+
+	lightColor.elements[0] = 1.0;
+	lightColor.elements[1] = 1.0;
+	lightColor.elements[2] = 0.0;
+	lightColor.elements[3] = 1.0;
 
 	modelMat.setIdentity();
 	ViewMat.setIdentity();
 	ProjMat.setIdentity();
-	MVPMat.setIdentity();
+	NormMat.setIdentity();
 
 	gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
 
@@ -267,12 +272,11 @@ function drawScene() {
 	
     try {
     	gl.useProgram(shader);
-	}
+		}
 	catch(err){
         alert(err);
         console.error(err.description);
-	}
-    		
+    	}
     		
     ViewMat.setLookAt(	cameraPos.elements[0], 
     					cameraPos.elements[1], 
@@ -286,22 +290,24 @@ function drawScene() {
     				);
     
     ProjMat.setPerspective( 75.0, gl.viewportWidth / gl.viewportHeight, 0.1, 1200.0);
-    
-    MVPMat.multiply(ProjMat);
-    MVPMat.multiply(ViewMat);
-    MVPMat.multiply(modelMat);
-
-	gl.uniformMatrix4fv(shader.TGMatUniform, false, MVPMat.elements);
+    		
+	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.VMatUniform, false, ViewMat.elements);
+	gl.uniformMatrix4fv(shader.PMatUniform, false, ProjMat.elements);
+	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
+	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
+	gl.uniform4fv(shader.uLightColor, lightColor.elements);
+	gl.uniform3fv(shader.uLightPos, lightPos.elements);
+	gl.uniform3fv(shader.uCamPos, cameraPos.elements);
 
 	draw(gl, axis, shader, gl.LINES);	
 	
-	MVPMat.setIdentity();
-    MVPMat.multiply(ProjMat);
-    MVPMat.multiply(ViewMat);
-    MVPMat.multiply(modelMat);
-	MVPMat.multiply(modelRotMat);
-		
-	gl.uniformMatrix4fv(shader.TGMatUniform, false, MVPMat.elements);
+	modelMat.multiply(modelRotMat);
+	NormMat.setInverseOf(modelMat);
+	NormMat.transpose();
+			
+	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
+	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -309,28 +315,107 @@ function drawScene() {
 
 // ********************************************************
 // ********************************************************
+function handleKeyUp(event) {
+	
+	var e = window.event || event;
+	var keyunicode = e.charCode || e.keyCode;
+	if (keyunicode == 16)
+		Upper = false;
+}	
+
+// ********************************************************
+// ********************************************************
+function handleKeyDown(event) {
+	
+	var e = window.event || event;
+	var keyunicode = event.charCode || event.keyCode;
+	
+	if (keyunicode == 16) 
+		Upper = true;
+	
+	switch (keyunicode) {
+		case 16 	:	// SHIFT
+						Upper = true;
+						break;
+		case 27		:	// ESC
+						cameraPos.elements[0] 	= 1.30 * g_drawingInfo.BBox.Max.x;
+						cameraPos.elements[1] 	= 1.30 * g_drawingInfo.BBox.Max.y;
+						cameraPos.elements[2] 	= 1.30 * g_drawingInfo.BBox.Max.z;
+						cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
+						cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
+						cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+						cameraUp.elements[0] 	= 0.0;
+						cameraUp.elements[1] 	= 1.0;
+						cameraUp.elements[2] 	= 0.0;
+						modelRotMat.setIdentity();
+						break;
+		case 38		:	// Up cursor key
+						cameraPos.elements[0] += 0.2; 
+						cameraPos.elements[1] += 0.2;
+						cameraPos.elements[2] += 0.2;
+						break;
+		case 40		:	// Down cursor key 
+						cameraPos.elements[0] -= 0.2; 
+						cameraPos.elements[1] -= 0.2;
+						cameraPos.elements[2] -= 0.2;
+						break;
+
+		}
+
+	switch (String.fromCharCode(keyunicode)) {
+		case "7"	:	if (Upper)
+							ScaleZ -= 0.1;
+						break;
+		}
+	drawScene();					
+}
+               
+// ********************************************************
+// ********************************************************
 function webGLStart() {
 
+	document.onkeydown 		= handleKeyDown;
+	document.onkeyup 		= handleKeyUp;
 	document.onmouseup 		= handleMouseUp;
 	document.onmousemove 	= handleMouseMove;
 	
-	canvas					= document.getElementById("noLight");
+	canvas					= document.getElementById("specLight");
 	canvas.onmousedown 		= handleMouseDown;
 	gl 						= initGL(canvas);
 	
-	shader = initShaders("noLight", gl);	
-	
-	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVertexPosition");		
-	shader.vColorAttr 		= gl.getAttribLocation(shader, "aVertexColor");
-	shader.TGMatUniform 	= gl.getUniformLocation(shader, "uTGMat");
+	shader 					= initShaders("specLight", gl);	
+	shader.vPositionAttr 	= gl.getAttribLocation(shader, "aVPosition");		
+	shader.vNormalAttr 		= gl.getAttribLocation(shader, "aVNorm");
+	shader.MMatUniform 		= gl.getUniformLocation(shader, "uModelMat");
+	shader.VMatUniform 		= gl.getUniformLocation(shader, "uViewMat");
+	shader.PMatUniform 		= gl.getUniformLocation(shader, "uProjMat");
+	shader.NMatUniform 		= gl.getUniformLocation(shader, "uNormMat");
 	
 	if (shader.vPositionAttr < 0 || shader.vColorAttr < 0 || 
-		!shader.TGMatUniform) {
+		!shader.MMatUniform || !shader.VMatUniform || !shader.PMatUniform || !shader.NMatUniform ) {
 		console.log("Error getAttribLocation"); 
 		return;
 		}
 		
-	readOBJFile("../../modelos/Liberty_Prime.obj", gl, 1, true);
+	shader.uCamPos 			= gl.getUniformLocation(shader, "uCamPos");
+	shader.uLightPos 		= gl.getUniformLocation(shader, "uLPos");
+	shader.uLightColor 		= gl.getUniformLocation(shader, "uLColor");
+	shader.uMatSpec			= gl.getUniformLocation(shader, "uMatSpec");
+	shader.uExpSpec			= gl.getUniformLocation(shader, "uExpSpec");
+	
+	if (shader.uCamPos < 0	 		|| shader.uLightPos < 0 	|| 
+		shader.uLightColor < 0		|| shader.uMatSpec < 0 		|| 
+		shader.uExpSpec < 0 ) {
+		console.log("Error getAttribLocation"); 
+		return;
+		}
+	
+	axis = initAxisVertexBuffer(gl);
+	if (!axis) {
+		console.log('Failed to set the AXIS vertex information');
+		return;
+		}
+	readOBJFile("../../modelos/al.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
@@ -348,23 +433,19 @@ function webGLStart() {
 			cameraUp.elements[0] 	= 0.0;
 			cameraUp.elements[1] 	= 1.0;
 			cameraUp.elements[2] 	= 0.0;
-		
-			axis = initAxisVertexBuffer(gl, Math.max(g_drawingInfo.BBox.Max.x, Math.max(g_drawingInfo.BBox.Max.y,g_drawingInfo.BBox.Max.z)));
-			if (!axis) {
-				console.log('Failed to set the AXIS vertex information');
-				return;
-				}
-						
+			
+			lightPos.elements[0]	= 0.0;
+			lightPos.elements[1]	= cameraPos.elements[1];
+			lightPos.elements[2]	= cameraPos.elements[2];
 			}
 		if (model.length > 0) 
-			drawScene();
-		else
+			drawScene(gl);
+		else 
 			requestAnimationFrame(tick, canvas);
 		};	
 	tick();
 }
-
-   
+    
 // ********************************************************
 // ********************************************************
 function degToRad(degrees) {
@@ -377,6 +458,7 @@ function handleMouseDown(event) {
 	mouseDown 	= true;
 	lastMouseX 	= event.clientX;
 	lastMouseY 	= event.clientY;
+	drawScene();
 }
     
 // ********************************************************
@@ -398,17 +480,15 @@ function handleMouseMove(event) {
 	var newModelRot = new Matrix4();
 	
 	newModelRot.setIdentity();
-	newModelRot.rotate(deltaX / 5, 0.0, 1.0, 0.0);
+	newModelRot.rotate(deltaX / 5.0, 0.0, 1.0, 0.0);
 
 	var deltaY = newY - lastMouseY;
-	newModelRot.rotate(deltaY / 5, 1.0, 0.0, 0.0);
+	newModelRot.rotate(deltaY / 5.0, 1.0, 0.0, 0.0);
 
 	modelRotMat.multiply(newModelRot);
 
 	lastMouseX = newX
 	lastMouseY = newY;
-	
 	drawScene();
 }
-
 

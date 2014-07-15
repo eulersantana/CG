@@ -1,23 +1,4 @@
-# Wed Jul 22 14:08:17 1992
-#
-#	Al the gangster
-#
-# Courtesy of:
-#
-#	Viewpoint Animation Engineering
-#	870 West Center
-#	Orem, Utah 84057
-#	(801)224-2222
-#	1-800-DATASET
-#
-#	(c) Copyright 1992 Viewpoint Animation Engineering Inc.
-#	Sun Microsystems has been authorized to freely distribute
-#	these Datasets.  They are provided for unlimited use in
-#	existing or modified form.  The actual Dataset (ie, geometry)
-#	may not, however, be resold in existing or modified form.
-#
-
-mtllib al.mtl
+	mtllib ../modelos/al.mtl
 
 v 0.786019 -2.928538 0.601628
 v 0.787557 -2.907031 0.601650
@@ -7636,6 +7617,7 @@ group pupilR
 usemtl pupilR
 group irisL
 usemtl irisL
+group eyewhiteL
 usemtl eyewhiteL
 group pupilL
 usemtl pupilL
