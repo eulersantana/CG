@@ -1,4 +1,5 @@
-	mtllib ../modelos/al.mtl
+
+mtllib al.mtl
 
 v 0.786019 -2.928538 0.601628
 v 0.787557 -2.907031 0.601650
@@ -7549,7 +7550,6 @@ s 6
 f 1899 1912 1916
 f 1878 1877 1884 1850
 # 3440 elements
-
 
 group shoe1L
 usemtl shoe1L

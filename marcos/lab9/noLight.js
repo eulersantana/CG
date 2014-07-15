@@ -251,10 +251,10 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-	var modelMat	= new Matrix4();
-	var ViewMat 	= new Matrix4();
-	var ProjMat 	= new Matrix4();
-	var MVPMat		= new Matrix4();
+var modelMat	= new Matrix4();
+var ViewMat 	= new Matrix4();
+var ProjMat 	= new Matrix4();
+var MVPMat		= new Matrix4();
 
 	modelMat.setIdentity();
 	ViewMat.setIdentity();
@@ -267,11 +267,11 @@ function drawScene() {
 	
     try {
     	gl.useProgram(shader);
-	}
+		}
 	catch(err){
         alert(err);
         console.error(err.description);
-	}
+    	}
     		
     		
     ViewMat.setLookAt(	cameraPos.elements[0], 
@@ -330,7 +330,7 @@ function webGLStart() {
 		return;
 		}
 		
-	readOBJFile("../../modelos/Liberty_Prime.obj", gl, 1, true);
+	readOBJFile("../modelos/al.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available

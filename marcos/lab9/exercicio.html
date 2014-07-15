@@ -5,7 +5,7 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
 <script id="LuzDoSol-vs" type="x-shader/x-vertex">
-	attribute vec3 aVPosition;
+	/*attribute vec3 aVPosition;
 	attribute vec3 aVNorm;
 	
 	uniform mat4 uModelMat;
@@ -22,25 +22,76 @@
 		vec3 vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
  		vColor = uColor;
 	}
+*/
+	attribute vec3 aVPosition;
+	attribute vec3 aVNorm;
+	
+	uniform mat4 uModelMat;
+	uniform mat4 uViewMat;
+	uniform mat4 uProjMat;
+	uniform mat4 uNormMat;
+	uniform vec3 uColor;
+		
+	varying vec3 vNormal;
+	varying vec3 vPosW;	
+	varying vec3 vColor;
+
+	void main(void) {
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
+ 		vPosW = (uModelMat * vec4(aVPosition, 1.0)).xyz;	
+		vColor = uColor;
+		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+	}
 
 </script>
 
 <script id="LuzDoSol-fs" type="x-shader/x-fragment">
-	precision mediump float;
+	/*precision mediump float;
 		
 	varying vec3 vColor;
 	
 	void main(void) {
 		gl_FragColor = vec4(vColor.rgb, 1.0);
+	}*/
+	precision mediump float;
+		
+	varying vec3 	vNormal;
+	varying vec3 	vPosW;	
+	varying vec3 	vColor;
+
+	uniform vec3 	uCamPos;
+	uniform vec3 	uLPos;
+	uniform vec4 	uLColor;
+	uniform vec4 	uMatAmb;
+	uniform vec4 	uMatDif;
+	uniform vec4 	uMatSpec;
+	uniform float 	uExpSpec;
+	uniform float 	uFonteLuz;
+
+	void main(void) {
+		vec3 vL = normalize(uLPos - vPosW);
+		vec3 vV = normalize(uCamPos - vPosW);
+		vec3 vR = normalize(reflect(-vL, vNormal));
+		float teta = max(dot(vL, vNormal), 0.0);
+		float omega = max(dot(vV, vR), 0.0);
+		vec4 specular = vec4(uLColor.rgb * uMatSpec.rgb * pow(omega,0.5 * uExpSpec), uMatSpec.a);
+
+		if(uFonteLuz == 0.0){
+			vec4 ambient = vec4(vColor.rgb * uMatAmb.rgb, uMatAmb.a);
+			vec4 diffuse = vec4(vColor.rgb * uMatDif.rgb * teta, uMatDif.a);
+			gl_FragColor = clamp(ambient + diffuse + specular, 0.0,1.0);
+		}else{
+			gl_FragColor = clamp(vec4(vColor.rgb,1.0) + specular, 0.0,1.0);
+		}
 	}
 </script>
 
-<script type="text/javascript" src="../lib/webgl-utils.js"></script>
-<script type="text/javascript" src="../lib/cuon-utils.js"></script>
-<script type="text/javascript" src="../lib/cuon-matrix.js"></script>
-<script type="text/javascript" src="../lib/shaders.js"></script>
-<script type="text/javascript" src="../lib/myOBJParser.js"></script>
-<script type="text/javascript" src="../lib/materialParser.js"></script>
+<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
+<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="../../lib/myOBJParser.js"></script>
+<script type="text/javascript" src="../../lib/materialParser.js"></script>
 <script type="text/javascript" src="exercicio.js"></script>
 
 </head>
