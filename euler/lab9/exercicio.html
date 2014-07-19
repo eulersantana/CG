@@ -79,9 +79,9 @@
 		vec3 vV = normalize(uCamPos - vPosW);
 		vec3 vR = normalize(reflect(-vL, vNormal));
 		float omega = max(dot(vV, vR), 0.0);
-		vec4 specular = vec4(uLColor.rgb * uMatSpec.rgb * pow(omega, uExpSpec), uMatSpec.a);	
+		vec4 specular = vec4( uLColor.rgb * uMatSpec.rgb * pow(omega, uExpSpec), uMatSpec.a);	
 		
-		gl_FragColor = ambient + diffuse + specular;
+		gl_FragColor = clamp(ambient + diffuse + specular, 0.0, 1.0);
 	}
 </script>
 

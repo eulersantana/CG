@@ -343,6 +343,8 @@ var lightColor	= new Vector4();
     				);
     
     ProjMat.setPerspective( 60.0, gl.viewportWidth / gl.viewportHeight, 0.1, 25.0);
+    ViewMat.rotate(45,0.0,1.0,0.0);
+    ViewMat.rotate(-95,1.0,0.0,0.0);
     		
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.VMatUniform, false, ViewMat.elements);
