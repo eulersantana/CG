@@ -250,7 +250,7 @@ function draw(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function drawScene() {
 
-var TG = new Matrix4();
+	var TG = new Matrix4();
 
 	TG.setIdentity();
 

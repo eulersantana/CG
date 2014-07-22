@@ -20,9 +20,9 @@
 
 	void main(void) {
  		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
- 		vPosW = (uModelMat * vec4(aVPosition, 1.0)).xyz;	
-		vColor = uColor;
-		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+		vNormal 	= normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+ 		vPosW   	= (uModelMat * vec4(aVPosition, 1.0)).xyz;	
+		vColor  	= uColor;
 	}
 </script>
 
@@ -47,12 +47,12 @@
 		vec3 vV = normalize(uCamPos - vPosW);
 		vec3 vR = normalize(reflect(-vL, vNormal));
 
-		float teta = max(dot(vL, vNormal), 0.0);
+		float teta  = max(dot(vL, vNormal), 0.0);
 		float omega = max(dot(vV, vR), 0.0);
 
 		vec4 specular = vec4(uLColor.rgb * uMatSpec.rgb * pow(omega,0.5 * uExpSpec), uMatSpec.a);
-		vec4 ambient = vec4(vColor.rgb * uMatAmb.rgb, uMatAmb.a);
-		vec4 diffuse = vec4(vColor.rgb * uMatDif.rgb * teta, uMatDif.a);
+		vec4 diffuse  = vec4(vColor.rgb  * uMatDif.rgb * teta, uMatDif.a);
+		vec4 ambient  = vec4(vColor.rgb  * uMatAmb.rgb, uMatAmb.a);
 
 		if(uFonteLuz == 1.0){
 			//Sem influência da luz ambiente.

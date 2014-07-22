@@ -159,8 +159,8 @@ function initTexture(){
 		imageLoaded = true;
 	}
 	// texture.image.src = "imagens/streched_0-43798.png";
-	// texture.image.src = "images/terrain.png";
-	texture.image.src = "images/ps_height_16m-interpixel_0.1m-altura_16bits.png";
+	texture.image.src = "images/terrain.png";
+	// texture.image.src = "images/ps_height_16m-interpixel_0.1m-altura_16bits.png";
 	// texture.image.src = "images/lena.png";
 	// texture.image.src = "images/zelda.png";
 	// texture.image.src = "images/gcanyon_height_20m-interpixel_0.1m-altura.bmp";
@@ -170,8 +170,8 @@ function handledLoadedTexture(){
 	gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); //Prevents t-coordinate wrapping (repeating).
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); //Prevents s-coordinate wrapping (repeating).
     gl.bindTexture(gl.TEXTURE_2D, null);

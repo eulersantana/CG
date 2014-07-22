@@ -255,17 +255,17 @@ function draw(gl, o, shaderProgram, primitive) {
 		matAmb.elements[1] = 
 		matAmb.elements[2] = 0.2
 		matAmb.elements[3] = 1.0;
-	
+
 		matDif.elements[0] = 
 		matDif.elements[1] = 
 		matDif.elements[2] = 0.8;
 		matDif.elements[3] = 1.0;
-	
+
 		matSpec.elements[0] = 
 		matSpec.elements[1] = 
 		matSpec.elements[2] = 1.0;
 		matSpec.elements[3] = 1.0;
-		
+
 		Ns 					= 100.0;
 	}
 

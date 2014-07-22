@@ -1,0 +1,88 @@
+<html>
+
+<head>
+<title>MATA65 - Computacao Grafica</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script id="LuzDoSol-vs" type="x-shader/x-vertex">
+	attribute vec3 aVPosition;
+	attribute vec3 aVNorm;
+	
+	uniform mat4 uModelMat;
+	uniform mat4 uViewMat;
+	uniform mat4 uProjMat;
+	uniform mat4 uNormMat;
+	uniform vec3 uColor;
+		
+	varying vec3 vNormal;
+	varying vec3 vPosW;	
+	varying vec3 vColor;
+
+	void main(void) {
+ 		gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
+		vNormal 	= normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+ 		vPosW   	= (uModelMat * vec4(aVPosition, 1.0)).xyz;	
+		vColor  	= uColor;
+	}
+</script>
+
+<script id="LuzDoSol-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	varying vec3 	vNormal;
+	varying vec3 	vPosW;	
+	varying vec3 	vColor;
+
+	uniform vec3 	uCamPos;
+	uniform vec3 	uLPos;
+	uniform vec4 	uLColor;
+	uniform vec4 	uMatAmb;
+	uniform vec4 	uMatDif;
+	uniform vec4 	uMatSpec;
+	uniform float 	uExpSpec;
+	uniform float 	uFonteLuz;
+
+	void main(void) {
+		vec3 vL = normalize(uLPos - vPosW);
+		vec3 vV = normalize(uCamPos - vPosW);
+		vec3 vR = normalize(reflect(-vL, vNormal));
+
+		float teta  = max(dot(vL, vNormal), 0.0);
+		float omega = max(dot(vV, vR), 0.0);
+
+		vec4 specular = vec4(uLColor.rgb * uMatSpec.rgb * pow(omega,0.5 * uExpSpec), uMatSpec.a);
+		vec4 diffuse  = vec4(vColor.rgb  * uMatDif.rgb * teta, uMatDif.a);
+		vec4 ambient  = vec4(vColor.rgb  * uMatAmb.rgb, uMatAmb.a);
+
+		if(uFonteLuz == 1.0){
+			//Sem influência da luz ambiente.
+			ambient  = vec4(vColor,1.0);
+			//Aumentando o tamanho do foco de luz.
+			specular = vec4(uLColor.rgb * uMatSpec.rgb * pow(omega,0.001 * uExpSpec), uMatSpec.a);
+		}
+
+		gl_FragColor = clamp(ambient + diffuse + specular, 0.0,1.0);	
+	}
+</script>
+<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-utils.js"></script>
+<script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
+<script type="text/javascript" src="../../lib/shaders.js"></script>
+<script type="text/javascript" src="../../lib/myOBJParser.js"></script>
+<script type="text/javascript" src="../../lib/materialParser.js"></script>
+<script type="text/javascript" src="script.js"></script>
+</head>
+
+<body onload="webGLStart();">
+    <h1>Laboratorio 9</h1>
+    <h3>Exercicio:</h3>
+    <p>Com base no codigo base dessa pagina coloque iluminacao nos planetas tal que:</p>
+    <p>1) Haja luz emanando da posicao do Sol;</p>
+    <p>2) A luz refletida do planeta Mercurio seja predominantemente difusa;</p>
+    <p>3) A luz refletida do planeta Terra possua componente especular;</p>
+    <p>4) A luz refletida da Lua seja fortemente difusa;</p>
+    <p>5) A luz que chega em Mercurio seja claramente mais forte que a luz que chega na Terra.</p>
+    <canvas id="LuzDoSol" style="border: none;" width="400" height="400"></canvas>
+</body>
+
+</html>
