@@ -227,6 +227,51 @@ function initAxisVertexBuffer(gl) {
 // ********************************************************
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
+	var matAmb		= new Vector4();
+	var matDif		= new Vector4();
+	var matSpec		= new Vector4();
+	var Ns;
+	if (o.Material != null) {
+		matAmb.elements[0] = o.Material.Ka.r;
+		matAmb.elements[1] = o.Material.Ka.g;
+		matAmb.elements[2] = o.Material.Ka.b;
+		matAmb.elements[3] = o.Material.Ka.a;
+	
+		matDif.elements[0] = o.Material.Kd.r;
+		matDif.elements[1] = o.Material.Kd.g;
+		matDif.elements[2] = o.Material.Kd.b;
+		matDif.elements[3] = o.Material.Kd.a;
+	
+		matSpec.elements[0] = 1.0;//o.Material.Ks.r;
+		matSpec.elements[1] = 1.0;//o.Material.Ks.g;
+		matSpec.elements[2] = 1.0;//o.Material.Ks.b;
+		matSpec.elements[3] = 1.0;//o.Material.Ks.a;
+		
+		Ns 					= 20.0;//o.Material.Ns;		
+		}
+	else {
+		matAmb.elements[0] = 
+		matAmb.elements[1] = 
+		matAmb.elements[2] = 0.2
+		matAmb.elements[3] = 1.0;
+	
+		matDif.elements[0] = 
+		matDif.elements[1] = 
+		matDif.elements[2] = 0.8;
+		matDif.elements[3] = 1.0;
+	
+		matSpec.elements[0] = 
+		matSpec.elements[1] = 
+		matSpec.elements[2] = 1.0;
+		matSpec.elements[3] = 1.0;
+		
+		Ns 					= 100.0;
+		}
+
+	gl.uniform4fv(shader.uMatAmb, matAmb.elements);
+	gl.uniform4fv(shader.uMatDif, matDif.elements);
+	gl.uniform4fv(shader.uMatSpec, matSpec.elements);
+	gl.uniform1f(shader.uExpSpec, Ns);
 
 	if (o.vertexBuffer != null) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
@@ -258,10 +303,16 @@ var ViewMat 	= new Matrix4();
 var ProjMat 	= new Matrix4();
 var NormMat 	= new Matrix4();
 var Color		= new Vector3();
+var lightColor	= new Vector4();
 
 	Color.elements[0] = 1.0;
 	Color.elements[1] = 1.0;
 	Color.elements[2] = 1.0;
+
+	lightColor.elements[0] = 1.0;
+	lightColor.elements[1] = 1.0;
+	lightColor.elements[2] = 0.0;
+	lightColor.elements[3] = 1.0;
 
 	modelMat.setIdentity();
 	ViewMat.setIdentity();
@@ -292,14 +343,18 @@ var Color		= new Vector3();
     				);
     
     ProjMat.setPerspective( 60.0, gl.viewportWidth / gl.viewportHeight, 0.1, 25.0);
+    ViewMat.rotate(45,0.0,1.0,0.0);
+    ViewMat.rotate(-95,1.0,0.0,0.0);
     		
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.VMatUniform, false, ViewMat.elements);
 	gl.uniformMatrix4fv(shader.PMatUniform, false, ProjMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
 	gl.uniform3fv(shader.uColor, Color.elements);
+	gl.uniform4fv(shader.uLightColor, lightColor.elements);
+	gl.uniform3fv(shader.uLightPos, lightPos.elements);
 
-	draw(gl, axis, shader, gl.LINES);	
+	/*draw(gl, axis, shader, gl.LINES);	*/
 	
 	
 	// Desenha Sol
@@ -324,6 +379,11 @@ var Color		= new Vector3();
 	Color.elements[0] = 1.0;
 	Color.elements[1] = 0.3;
 	Color.elements[2] = 0.3;
+
+	lightColor.elements[0] = 1.0;
+	lightColor.elements[1] = 0.3;
+	lightColor.elements[2] = 0.0;
+	lightColor.elements[3] = 1.0;
 			
 	modelMat.setIdentity();
 	modelMat.rotate(RotMercury, 0.0, 1.0, 0.0);
@@ -334,16 +394,23 @@ var Color		= new Vector3();
 	
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform3fv(shader.uColor, Color.elements);	
+	gl.uniform3fv(shader.uColor, Color.elements);
+	gl.uniform4fv(shader.uLightColor, lightColor.elements);
+	gl.uniform3fv(shader.uLightPos, lightPos.elements);	
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
 	
-	// Desenha Lua
+	// Desenha Terra
 				
 	Color.elements[0] = 0.2;
 	Color.elements[1] = 0.2;
 	Color.elements[2] = 1.0;
+
+	lightColor.elements[0] = 0.2;
+	lightColor.elements[1] = 0.2;
+	lightColor.elements[2] = 1.0;
+	lightColor.elements[3] = 1.0;
 			
 	modelMat.setIdentity();
 	modelMat.rotate(RotEarth, 0.0, 1.0, 0.0);
@@ -355,7 +422,9 @@ var Color		= new Vector3();
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
 	gl.uniform3fv(shader.uColor, Color.elements);		
-	
+	gl.uniform4fv(shader.uLightColor, lightColor.elements);
+	gl.uniform3fv(shader.uLightPos, lightPos.elements);
+
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
 	
@@ -363,6 +432,11 @@ var Color		= new Vector3();
 	Color.elements[0] = 0.6;
 	Color.elements[1] = 0.6;
 	Color.elements[2] = 0.6;
+
+	lightColor.elements[0] = 0.6;
+	lightColor.elements[1] = 0.6;
+	lightColor.elements[2] = 0.6;
+	lightColor.elements[3] = 1.0;
 	
 	modelMat.setIdentity();
 	modelMat.rotate(RotEarth, 0.0, 1.0, 0.0);
@@ -375,7 +449,9 @@ var Color		= new Vector3();
 	
 	gl.uniformMatrix4fv(shader.MMatUniform, false, modelMat.elements);
 	gl.uniformMatrix4fv(shader.NMatUniform, false, NormMat.elements);
-	gl.uniform3fv(shader.uColor, Color.elements);		
+	gl.uniform3fv(shader.uColor, Color.elements);
+	gl.uniform4fv(shader.uLightColor, lightColor.elements);
+	gl.uniform3fv(shader.uLightPos, lightPos.elements);		
 	
 	for(var o = 0; o < model.length; o++) 
 		draw(gl, model[o], shader, gl.TRIANGLES);
@@ -403,6 +479,13 @@ function webGLStart() {
 		}
 		
 	shader.uColor 			= gl.getUniformLocation(shader, "uColor");
+	shader.uLightPos 		= gl.getUniformLocation(shader, "uLPos");
+	shader.uLightColor 		= gl.getUniformLocation(shader, "uLColor");
+	shader.uMatAmb 			= gl.getUniformLocation(shader, "uMatAmb");
+	shader.uMatDif 			= gl.getUniformLocation(shader, "uMatDif");
+	shader.uMatSpec			= gl.getUniformLocation(shader, "uMatSpec");
+	shader.uExpSpec			= gl.getUniformLocation(shader, "uExpSpec");
+	
 	
 	if (shader.uCcolor < 0 ) {
 		console.log("Error getAttribLocation"); 
@@ -414,7 +497,7 @@ function webGLStart() {
 		console.log('Failed to set the AXIS vertex information');
 		return;
 		}
-	readOBJFile("../modelos/sphere.obj", gl, 1, true);
+	readOBJFile("../../modelos/sphere.obj", gl, 1, true);
 	
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available
