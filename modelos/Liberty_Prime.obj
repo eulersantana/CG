@@ -1,6 +1,5 @@
 # 
 # 
-g qqCoisa
 mtllib Liberty_Prime.mtl
 o LibertyPrimeBody
 v 0.724484 23.551607 1.618307
@@ -13049,6 +13048,7 @@ vn 0.908567 -0.103732 0.404614
 vn -0.367351 0.258614 0.893368
 vn -0.368175 0.258736 0.893002
 usemtl LibertyPrimeBody
+g 0
 s 1
 f 1/1/1 2/2/2 3/3/3
 f 5/4/4 4/5/5 6/6/6

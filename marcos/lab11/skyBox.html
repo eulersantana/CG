@@ -53,7 +53,7 @@
  		vPosW = (uModelMat * vec4(aVPosition, 1.0)).xyz;
 		vTextCoord = aVTexCoord;
 		
-		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+		vNormal = -normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
 	}
 
 </script>
@@ -107,9 +107,7 @@
     <h1>Laboratorio 12</h1>
     <h2>Exercicio 1</h2>
     <p>Monte um SkyBox baseado no modelo do cubo carregado inicialmente nessa pagina.</p>
-
     <canvas id="skyBox" style="border: none;" width="400" height="400"></canvas>
-
 </body>
 
 </html>

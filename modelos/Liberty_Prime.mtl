@@ -9,7 +9,7 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Liberty_Prime_Body_D.tga
+map_Kd ../../Textures/Liberty_Prime_Body_D.tga
 
 newmtl LibertyPrimeLegs
 Ns 96.078431
@@ -19,4 +19,4 @@ Ks 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd Liberty_Prime_Legs_D.tga
+map_Kd ../../Textures/Liberty_Prime_Legs_D.tga

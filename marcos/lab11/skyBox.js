@@ -33,35 +33,38 @@ function initGL(canvas) {
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.enable(gl.CULL_FACE);
-	gl.frontFace(gl.CCW);
-	
+	gl.frontFace(gl.CW);
+
 	return gl;
 }
 
 // ********************************************************
 // ********************************************************
-function initTextures() {
-	
+var images = [];
+
+function initTexturesInOrder(){
 	for(var i = 0 ; i < g_drawingInfo.mtl.length ; i++) {
 		var m = g_drawingInfo.mtl[i];
 		for(var j = 0 ; j < m.materials.length ; j++) {
 			if (m.materials[j].mapKd != "") {
-				initTexture(m.materials[j].mapKd);
-				}
+				images.push(m.materials[j].mapKd);
 			}
 		}
+	}
+	console.log(images);
+	loadImage(0);
 }
 
-// ********************************************************
-// ********************************************************
-function initTexture(filename) {
-	
+function loadImage(index){
+
+	if(index >= images.length)
+		return;
+
 	var image = new Image();
-	
 	image.onload = function() {
 		var t = gl.createTexture();
-		
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 		gl.bindTexture(gl.TEXTURE_2D, t);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -73,7 +76,43 @@ function initTexture(filename) {
 		
 		texture.push(t);
 		textureOK++;
+		loadImage(index + 1);
+	}
+	image.src = images[index];
+}
+
+function initTextures() {
+	for(var i = 0 ; i < g_drawingInfo.mtl.length ; i++) {
+		var m = g_drawingInfo.mtl[i];
+		for(var j = 0 ; j < m.materials.length ; j++) {
+			if (m.materials[j].mapKd != "") {
+				initTexture(m.materials[j].mapKd);
+			}
 		}
+	}
+}
+
+// ********************************************************
+// ********************************************************
+function initTexture(filename) {
+	var image = new Image();
+	
+	image.onload = function() {
+		var t = gl.createTexture();
+
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.bindTexture(gl.TEXTURE_2D, t);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.generateMipmap(gl.TEXTURE_2D);		
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		
+		texture.push(t);
+		textureOK++;
+	}
 	image.src = filename;
 }
 
@@ -86,7 +125,7 @@ function readOBJFile(fileName, gl, scale, reverse) {
 	request.onreadystatechange = function() {
 		if (request.readyState === 4 && request.status !== 404) 
 			onReadOBJFile(request.responseText, fileName, gl, scale, reverse);
-		}
+	}
 	request.open('GET', fileName, true); // Create a request to acquire the file
 	request.send();                      // Send the request
 }
@@ -97,13 +136,13 @@ function readOBJFile(fileName, gl, scale, reverse) {
 function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 	var objDoc = new OBJDoc(fileName);	// Create a OBJDoc object
 	var result = objDoc.parse(fileString, scale, reverse);	// Parse the file
-	
+
 	if (!result) {
 		g_objDoc 		= null; 
 		g_drawingInfo 	= null;
 		console.log("OBJ file parsing error.");
 		return;
-		}
+	}
 		
 	g_objDoc = objDoc;
 }
@@ -113,7 +152,7 @@ function onReadOBJFile(fileString, fileName, gl, scale, reverse) {
 // OBJ File has been read compleatly
 function onReadComplete(gl) {
 	
-var groupModel = null;
+	var groupModel = null;
 
 	g_drawingInfo 	= g_objDoc.getDrawingInfo();
 	
@@ -157,12 +196,13 @@ var groupModel = null;
 		groupModel.Material 	= g_drawingInfo.materials[o];
 		
 		model.push(groupModel);
-		}
+	}
 		
   	for(var i = 0; i < g_drawingInfo.mtl.length; i++) 
 		for(var j = 0; j < g_drawingInfo.mtl[i].materials.length; j++) 
 			material.push(g_drawingInfo.mtl[i].materials[j]);
-	initTextures();
+
+	initTexturesInOrder();
 }
 
 // ********************************************************
@@ -274,15 +314,15 @@ function drawAxis(gl, o, shaderProgram, primitive) {
 // ********************************************************
 function draw(gl, o, shaderProgram, primitive) {
 
-var matAmb		= new Vector4();
-var matDif		= new Vector4();
-var matSpec		= new Vector4();
-var Ns;
+	var matAmb		= new Vector4();
+	var matDif		= new Vector4();
+	var matSpec		= new Vector4();
+	var Ns;
 
 	if (texture[o.Material] != null) {   	
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, texture[[o.Material]]);
-		}
+	}
 		
 	if (o.Material != -1) {
 		matAmb.elements[0] = material[o.Material].Ka.r;
@@ -301,11 +341,10 @@ var Ns;
 		matSpec.elements[3] = material[o.Material].Ks.a;
 		
 		Ns 					= material[o.Material].Ns;
-		}
-	else {
+	}else {
 		matAmb.elements[0] = 
 		matAmb.elements[1] = 
-		matAmb.elements[2] = 0.2
+		matAmb.elements[2] = 0.2;
 		matAmb.elements[3] = 1.0;
 	
 		matDif.elements[0] = 
@@ -319,7 +358,7 @@ var Ns;
 		matSpec.elements[3] = 1.0;
 		
 		Ns 					= 100.0;
-		}
+	}
 
 	gl.uniform4fv(shaderProgram.uMatAmb, matAmb.elements);
 	gl.uniform4fv(shaderProgram.uMatDif, matDif.elements);
@@ -331,7 +370,7 @@ var Ns;
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vPositionAttr, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vPositionAttr);  
-		}
+	}
 	else
 		alert("o.vertexBuffer == null");
 
@@ -339,7 +378,7 @@ var Ns;
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.normalBuffer);
 		gl.vertexAttribPointer(shaderProgram.vNormalAttr, 3, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vNormalAttr);
-		}
+	}
 	else
 		alert("o.normalBuffer == null");
 	
@@ -347,7 +386,7 @@ var Ns;
 		gl.bindBuffer(gl.ARRAY_BUFFER, o.texCoordBuffer);
 		gl.vertexAttribPointer(shaderProgram.vTexCoordAttr, 2, gl.FLOAT, false, 0, 0);
 		gl.enableVertexAttribArray(shaderProgram.vTexCoordAttr);
-		}
+	}
 	else
 		alert("o.texCoordBuffer == null");
 
@@ -414,8 +453,7 @@ function drawScene() {
 
     try {
     	gl.useProgram(textShader);
-		}
-	catch(err){
+	}catch(err){
         alert(err);
         console.error(err.description);
 	}
@@ -467,12 +505,18 @@ function handleKeyDown(event) {
 					cameraPos.elements[0] 	= 2.0 * g_drawingInfo.BBox.Max.x;
 					cameraPos.elements[1] 	= 2.0 * g_drawingInfo.BBox.Max.y;
 					cameraPos.elements[2] 	= 2.0 * g_drawingInfo.BBox.Max.z;
+					// cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
 					cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
 					cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
 					cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+
 					cameraUp.elements[0] 	= 0.0;
 					cameraUp.elements[1] 	= 1.0;
-					cameraUp.elements[2] 	= 0.0;
+					cameraUp.elements[2] 	= 0.0;					
+					
+					lightPos.elements[0]	= 0.0;
+					lightPos.elements[1]	= 0.0 * g_drawingInfo.BBox.Max.y;
+					lightPos.elements[2]	= 0.0 * g_drawingInfo.BBox.Max.z;
 					modelRotMat.setIdentity();
 					break;
 						
@@ -561,7 +605,7 @@ function webGLStart() {
 		textShader.uExpSpec < 0 ) {
 		console.log("Error getAttribLocation"); 
 		return;
-		}
+	}
 	
 	readOBJFile("../../modelos/cubeSkyBox.obj", gl, 1, true);
 	
@@ -576,24 +620,29 @@ function webGLStart() {
 			if (!axis) {
 				console.log('Failed to set the AXIS vertex information');
 				return;
-				}			
+			}			
 
-			cameraPos.elements[0] 	= 2.0 * g_drawingInfo.BBox.Max.x;
-			cameraPos.elements[1] 	= 2.0 * g_drawingInfo.BBox.Max.y;
-			cameraPos.elements[2] 	= 2.0 * g_drawingInfo.BBox.Max.z;
-			cameraLook.elements[0] 	= g_drawingInfo.BBox.Center.x;
-			cameraLook.elements[1] 	= g_drawingInfo.BBox.Center.y;
-			cameraLook.elements[2] 	= g_drawingInfo.BBox.Center.z;
+			// cameraPos.elements[0] 	= 2.0 * g_drawingInfo.BBox.Max.x;
+			// cameraPos.elements[1] 	= 2.0 * g_drawingInfo.BBox.Max.y;
+			// cameraPos.elements[2] 	= 2.0 * g_drawingInfo.BBox.Max.z;
+			cameraPos.elements[0] 	= g_drawingInfo.BBox.Center.x;
+			cameraPos.elements[1] 	= g_drawingInfo.BBox.Center.y;
+			cameraPos.elements[2] 	= g_drawingInfo.BBox.Center.z;
+
+			cameraLook.elements[0] 	= 1.0 * g_drawingInfo.BBox.Min.x;
+			cameraLook.elements[1] 	= 0.0 * g_drawingInfo.BBox.Min.y;
+			cameraLook.elements[2] 	= 0.0 * g_drawingInfo.BBox.Min.z;
+
 			cameraUp.elements[0] 	= 0.0;
 			cameraUp.elements[1] 	= 1.0;
 			cameraUp.elements[2] 	= 0.0;
 			
-			lightPos.elements[0]	= 0.0;
-			lightPos.elements[1]	= 5.0 * g_drawingInfo.BBox.Max.y;
-			lightPos.elements[2]	= 5.0 * g_drawingInfo.BBox.Max.z;
+			lightPos.elements[0]	= 0 * cameraPos.elements[0];
+			lightPos.elements[1]	= cameraPos.elements[1];//g_drawingInfo.BBox.Max.y;
+			lightPos.elements[2]	= cameraPos.elements[2];//g_drawingInfo.BBox.Max.z;
 			
 			delta 					= (g_drawingInfo.BBox.Max.x - g_drawingInfo.BBox.Min.x) * 0.05;
-			}
+		}
 		if ( (model.length > 0) && (textureOK) )
 			drawScene(gl);
 		else 
