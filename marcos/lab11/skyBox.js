@@ -19,6 +19,8 @@ var textureOK 		= 0;
 var g_objDoc 		= null;	// The information of OBJ file
 var g_drawingInfo 	= null;	// The information for drawing 3D model
 
+var lente 			= ["convexas","concavas"];
+
 // ********************************************************
 // ********************************************************
 function initGL(canvas) {
@@ -51,7 +53,6 @@ function initTexturesInOrder(){
 			}
 		}
 	}
-	console.log(images);
 	loadImage(0);
 }
 
@@ -73,7 +74,7 @@ function loadImage(index){
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.generateMipmap(gl.TEXTURE_2D);		
 		gl.bindTexture(gl.TEXTURE_2D, null);
-		
+
 		texture.push(t);
 		textureOK++;
 		loadImage(index + 1);
@@ -625,6 +626,9 @@ function webGLStart() {
 			// cameraPos.elements[0] 	= 2.0 * g_drawingInfo.BBox.Max.x;
 			// cameraPos.elements[1] 	= 2.0 * g_drawingInfo.BBox.Max.y;
 			// cameraPos.elements[2] 	= 2.0 * g_drawingInfo.BBox.Max.z;
+			
+			console.log(g_drawingInfo.BBox);
+			
 			cameraPos.elements[0] 	= g_drawingInfo.BBox.Center.x;
 			cameraPos.elements[1] 	= g_drawingInfo.BBox.Center.y;
 			cameraPos.elements[2] 	= g_drawingInfo.BBox.Center.z;
@@ -643,11 +647,12 @@ function webGLStart() {
 			
 			delta 					= (g_drawingInfo.BBox.Max.x - g_drawingInfo.BBox.Min.x) * 0.05;
 		}
+
 		if ( (model.length > 0) && (textureOK) )
 			drawScene(gl);
 		else 
 			requestAnimationFrame(tick, canvas);
-		};	
+	};	
 	tick();
 }
     
