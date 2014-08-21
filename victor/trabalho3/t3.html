@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+	<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=9"><![endif]-->
+	
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<title>CG</title>
+
+	<!-- css -->
+	<link href="../../css/bootstrap.css" rel="stylesheet">
+	<link href="../../css/bootstrap-lightbox.css" rel="stylesheet">
+	<link href="../../css/portfolio.css" rel="stylesheet">
+	<link href="../../css/icomoon-free.css" rel="stylesheet">
+	<link href="../../css/vertical-timeline.css" rel="stylesheet">
+	<link href="../../css/style.min.css" rel="stylesheet">
+	<link href="../../css/custom.css" rel="stylesheet">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+	<script id="simple-vs" type="x-shader/x-vertex">
+		attribute vec3 aVPosition;
+		attribute vec3 aVColor;
+		
+		uniform mat4 uMVPMat;
+			
+		varying vec3 vColor;
+
+		uniform mat4 uModelMat;
+		uniform mat4 uViewMat;
+		uniform mat4 uProjMat;
+			
+		void main(void) {
+			
+			vColor = aVColor;
+
+			gl_Position = uProjMat * uViewMat * uModelMat * vec4(aVPosition.xyz, 1.0);
+	 	}
+
+	</script>
+
+	<script id="simple-fs" type="x-shader/x-fragment">
+		precision mediump float;
+			
+		varying vec3 vColor;
+		
+		void main(void) {
+			gl_FragColor = vec4(vColor, 0.0);
+		}
+
+	</script>
+
+	<script id="cubeMap-vs" type="x-shader/x-vertex">
+		attribute vec3 aVPosition;
+		attribute vec3 aVNorm;
+		
+		uniform mat4 uModelMat;
+		uniform mat4 uViewMat;
+		uniform mat4 uProjMat;
+		uniform mat4 uNormMat;
+		
+		varying vec3 vNormal;
+		varying vec3 vPosW;	
+			
+		void main(void) {
+			
+			gl_Position = uProjMat * uViewMat * vec4(aVPosition.xyz, 1.0);
+	 		
+	 		vPosW = (uModelMat * vec4(aVPosition, 1.0)).xyz;
+			
+	 		vNormal = normalize(vec3(uNormMat * vec4(aVNorm, 1.0)));
+		}
+
+	</script>
+
+	<script id="cubeMap-fs" type="x-shader/x-fragment">
+		precision mediump float;
+			
+		varying vec3 vNormal;
+		varying vec3 vPosW;	
+
+		uniform samplerCube uSamplerCube;
+		uniform sampler2D uSamplerNormal;
+		uniform vec3 uCamPos;
+		
+		uniform int uLensType;
+		uniform float uRadius;
+		uniform float uRefraction;
+		uniform float uPower;
+		uniform float uAlpha;
+		uniform float uRugosity;
+		
+		void main(void) {
+				
+			vec2 coord = vec2((gl_FragCoord.x / 600.) - 0.5, (gl_FragCoord.y / 600.) - 0.5);
+			vec3 vV = normalize(uCamPos - vPosW);
+			vec3 lookup = refract(vV, vNormal, 1.);
+			vec4 texel;
+			
+			float r = 0.3;
+			float d = length(coord);
+			
+			if (uLensType > 0)
+			{
+				if (d < uRadius)
+				{
+					if (uLensType == 3)
+					{
+					// Lente Concava
+						float strength = 0.01 + uPower;
+						
+						lookup = refract(vV, vNormal, .8 + uRefraction) * vec3(-1.,-1.,-1.);
+
+						coord *= mix(1.0, smoothstep(0.0, uRadius / d, d / uRadius), strength * 0.75);
+					}
+					else if (uLensType == 2)
+					// Lente Convexa (Depois do Povo Focal)
+					{
+						float strength = .5 * uPower;
+						
+						lookup.x *= -0.3 - uRefraction;
+						lookup.z *= -0.3 - uRefraction;
+
+						//lookup = refract(vV, vNormal, 1.); // * vec3(-1.,1.,-1.);
+
+						coord *= mix(1.0, smoothstep(0.0, uRadius / d, d / uRadius), strength * 0.75);				
+					}				
+					else if (uLensType == 1) 
+					// Lente Convexa (Antes do Povo Focal)
+					{
+						float strength = .7 * uPower;
+					
+						lookup = refract(-vV, -vNormal, .9 - uRefraction);
+						//lookup = refract(-vV + vec3(5.0,0.0,0.0), -vNormal, 0.3);
+						//lookup = refract(vPosW, -vNormal, 0.3);
+
+						coord *= mix(1.0, smoothstep(0.0, uRadius / d, d / uRadius), strength * 0.75);
+					}
+
+					texel = textureCube(uSamplerCube, lookup + vec3(coord,0.0)) + uAlpha;	
+				}
+				else
+					//texel = textureCube(uSamplerCube, lookup.xyz * -1.);
+					texel = textureCube(uSamplerCube, -lookup);				
+			}
+			else if ((uLensType == 0) && (coord.x < 0.3 && coord.x > -0.3) && (coord.y < 0.3 && coord.y > -0.3))
+			{
+				vec4 normal = texture2D(uSamplerNormal, vec2(coord.x + 0.5, coord.y + 0.5));
+				vec3 lensPos = vV * vec3(-1, -1, -1);
+				vec3 refracted = refract(lensPos, normal.xyz / uRugosity, 0.5);
+				texel = textureCube(uSamplerCube, refracted) + uAlpha;
+			}
+			else
+				texel = textureCube(uSamplerCube, -lookup);			
+
+			gl_FragColor = vec4(texel.rgb, 1);
+		}
+	</script>
+
+	<script type="text/javascript" src="../../lib/webgl-utils.js"></script>
+	<script type="text/javascript" src="../../lib/cuon-matrix.js"></script>
+	<script type="text/javascript" src="../../lib/shaders.js"></script>
+	<script type="text/javascript" src="../../lib/myOBJParser2.js"></script>
+	<script type="text/javascript" src="../../lib/MaterialParser2.js"></script>
+	<script type="text/javascript" src="t3.js"></script>
+
+	<!--[if IE]><link href="css/ie.css" rel="stylesheet"><![endif]-->
+  	<style type="text/css">
+	  	body{
+	  		background: url("../../img/background-patterns/circles.png") !important;
+	  	}
+  	</style>
+</head>
+<body onload="webGLStart();">
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+					<span class="sr-only">CG</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Trabalho Final </a>
+			</div>
+			<div class="collapse navbar-collapse navbar-ex1-collapse">
+					<ul class="nav navbar-nav subMenu">
+						
+						
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</nav>
+	<div class="container" id="content" style="margin-top: 80px;">
+		<div id="letter-head" class="nav-letter-head exe" style="background-color: rgb(46, 204, 113); border-color: rgb(41, 183, 101);">
+			<p>Feitor por Euler Santana e Victor Santos.</p>
+		</div>
+			<h1></h1>
+			<canvas id="skyBox" style="border: none; float: right; margin-right: 160px;" width="600" height="600"></canvas>
+			<div class="trabalho">
+			    <div class="popover ">
+			      <div class="popover-content">
+			        <ul>
+			        	<li><div class=" btn "></div></li>
+			            <li>
+			            	<span><b>Escolha uma camera:</b></span>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios1" value="1" onchange="changeLens(this.value)" checked="true">
+							    Lente Tijolo
+							  	</label>
+							</div>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios2" value="2" onchange="changeLens(this.value)">
+							    Lente Convexa (Antes do Ponto Focal)
+							  	</label>
+							</div>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios3" value="3" onchange="changeLens(this.value)">
+							    Lente Convexa (Depois do Ponto Focal)
+							  	</label>
+							</div>
+							<div class="radio">
+							  	<label>
+							    <input type="radio" name="optionsRadios" id="optionsRadios4" value="4" onchange="changeLens(this.value)">
+							    Lente Concava
+							  	</label>
+							</div>							
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="radius">Raio = 0.2</div>
+			            		<input type="range" min="0" max="0.4" step="0.1" value="0.2" onchange="changeRadius(this.value)" />
+			            	</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="refraction">Refração = 0.3</div>
+			            		<input type="range" min="0" max="1" step="0.1" value="0.3" onchange="changeRefraction(this.value)" />
+			            	</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="power">Potencia = 1</div>
+			            		<input type="range" min="0" max="1" step="0.1" value="1" onchange="changePower(this.value)" />
+			            	</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="alpha">Transparencia = 0.2</div>
+			            		<input type="range" min="0" max="1" step="0.1" value="0.2" onchange="changeAlpha(this.value)" />
+			            	</div>
+			            </li>
+			            <li>
+			            	<div>
+			            		<div id="rugosity">Rugosidade = 0</div>
+			            		<input type="range" min="0" max="150" step="1" value="0" onchange="changeRugosity(this.value)" />
+			            	</div>
+			            </li>
+						<li>
+			            	<span><b>Rotação da câmera: </b></span></br>
+			            	<span><b></b> Utilize o Mouse </span></br>
+			            	<!-- <span><b>S: </b>Trás</span></br>
+			            	<span><b>A:	</b>Esquerda</span></br>
+			            	<span><b>D:	</b>Direita</span> -->
+			            </li>			            
+			        </ul>
+			      </div>
+			    </div>
+			</div>
+    	</div>
+	</div>
+	<!-- Fim do bloco pessoal das atividades -->
+	
+  </body>
+</html>
