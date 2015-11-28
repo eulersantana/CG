@@ -51,6 +51,8 @@ var fatorX  = 2, fatorZ = 0.5;
 // ********************************************************
 
 function webGLStart() {
+	document.onkeydown 	= handleKeyDown;
+	document.onkeyup 	= handleKeyUp;
 	
 	canvas 	= document.getElementById("imagem");
 
@@ -87,6 +89,8 @@ function webGLStart() {
 
 	initTexture();
 
+	readOBJFile("../../modelos/cubeMultiColor.obj", gl, 1, true);
+
 	var tick = function() {   // Start drawing
 		if (g_objDoc != null && g_objDoc.isMTLComplete()) { // OBJ and all MTLs are available			
 			onReadComplete(gl);
@@ -98,8 +102,6 @@ function webGLStart() {
 		}else {
 			requestAnimationFrame(tick, canvas);
 		}
-		document.onkeydown 	= handleKeyDown;
-		document.onkeyup 	= handleKeyUp;
 	};	
 	tick();
 
