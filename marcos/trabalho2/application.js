@@ -160,9 +160,9 @@ function initTexture(){
 		imageLoaded = true;
 	}
 	// texture.image.src = "imagens/streched_0-43798.png";
-	texture.image.src = "images/terrain.png";
+	// texture.image.src = "images/terrain.png";
 	// texture.image.src = "images/ps_height_16m-interpixel_0.1m-altura_16bits.png";
-	// texture.image.src = "images/lena.png";
+	texture.image.src = "images/lena.png";
 	// texture.image.src = "images/zelda.png";
 	// texture.image.src = "images/gcanyon_height_20m-interpixel_0.1m-altura.bmp";
 }
