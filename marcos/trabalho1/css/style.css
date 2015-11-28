@@ -1,0 +1,43 @@
+.player_video{padding: 10px;width: 340px;height: 260px;margin: 20px auto;}
+
+.player_video video{background: #FFF;}
+
+body{padding: 50px 0 0 0;}
+em.big{font-size: 60pt;}
+
+.quote-1, .quote-2{width: 40px;height: 30px;}
+.quote-1{background: url(../img/quote-1.png) no-repeat;}
+.quote-2{background: url(../img/quote-2.png) no-repeat;float: right;}
+.citacao{text-align: justify; text-indent: 50pt;}
+
+/* make sidebar nav vertical */ 
+@media (min-width: 768px) {
+  .sidebar-nav .navbar .navbar-collapse {
+    padding: 0;
+    max-height: none;
+  }
+  .sidebar-nav .navbar ul {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+.coluna{width: 30%;float:left;}
+.coluna .navbar{border-radius: 0px;}
+.coluna ul.navbar-nav li{border-bottom: 1px solid #101010;border-right: 1px solid #101010;color:#FFF;}
+.coluna ul.navbar-nav li h4{text-align: center;}
+.coluna ul.navbar-nav li.header{padding: 10px 0;}
+.coluna .navbar-inverse{border-color: #222; margin: 0px;}
+input[type='reset'],input[type='button']{margin-top:10px;border: 1px solid #AAA;background: #222;color:#FFF;float: right;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;}
+label{color:#fff;}
+#palco{margin: 10px auto;width: 600px;}
+.autor{font-size: 14pt; color: #FFF; padding-top: 10px}
+#preview{margin: 10px auto;}

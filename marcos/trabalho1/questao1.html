@@ -1,0 +1,254 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+		
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+	uniform vec2 uTextureSize;
+
+	//flag para saber qual o efeito em questão
+	uniform int uFlag;
+
+	//variavel para pegar o valor do filtro utilizado em %;
+	uniform float uFilterValue;
+
+	//variavel do valor gama utilizado no filtro de contraste
+	uniform float uGama;
+
+	varying vec2 vTextureCoord;
+
+	/****
+	* Funcao que tem como parametro um vec3 com os valores da cor RGB e 
+	* retorna um vec3 com os valores em HSV. 
+	*****/
+	vec3 rgbToHsv(vec3 RGB){
+
+		float r = RGB.x;
+		float g = RGB.y;
+		float b = RGB.z;
+
+		float minChannel = min(r, min(g, b));
+		float maxChannel = max(r, max(g, b));
+
+		float h = 0.0;
+		float s = 0.0;
+
+		float v = maxChannel;
+
+		float delta = maxChannel - minChannel;
+
+		if (delta != 0.0) { 
+			s = delta / v;
+			if (r == v) h = (g - b) / delta;
+			else if (g == v) h = 2.0 + (b - r) / delta;
+			else if (b == v) h = 4.0 + (r - g) / delta;
+		}
+
+		return vec3(h, s, v);
+	}
+
+	/****
+	* Funcao que tem como parametro um vec3 com os valores da cor em HSV e 
+	* retorna um vec3 com os valores em RGB. 
+	*****/
+	vec3 hsvToRgb(vec3 HSV){
+
+		vec3 RGB;
+
+		float h = HSV.x;
+		float s = HSV.y;
+		float v = HSV.z;
+
+		float i = floor(h);
+		float f = h - i;
+
+		float p = (1.0 - s);
+		float q = (1.0 - s * f);
+		float t = (1.0 - s * (1.0 - f));
+
+		if (i == 0.0) { RGB = vec3(1.0, t, p); }
+		else if (i == 1.0) { RGB = vec3(q, 1.0, p); }
+		else if (i == 2.0) { RGB = vec3(p, 1.0, t); }
+		else if (i == 3.0) { RGB = vec3(p, q, 1.0); }
+		else if (i == 4.0) { RGB = vec3(t, p, 1.0); }
+		else /* i == -1 */ { RGB = vec3(1.0, p, q); }
+
+		RGB *= v;
+
+		return RGB;
+	}
+
+	/* 
+	Função que o tamanho do pixel px, o uSampler e o vTextureCoord 
+	retorna o texture2D com aplicação do filtro de suavização 3x3.
+	*/ 
+	vec4 suaviza3x3(vec2 px,sampler2D uSampler, vec2 vTextureCoord){
+
+		const int N = 3;
+        const int base = N / 2;
+        const int invBase = base*(-1);
+
+        float n = pow(float(N),2.0);
+
+        vec4 soma = texture2D(uSampler, vTextureCoord + px * vec2(base,base));
+
+        for(int i = invBase; i <= base; i++){
+            for(int j = invBase; j < base; j++){
+                soma += texture2D(uSampler, vTextureCoord + px * vec2(i,j));
+            }	
+        }
+
+        return (soma / n);
+	
+	}
+
+	void main(void) {
+
+		vec4 color = texture2D(uSampler, vTextureCoord);//variavel com a cor base
+		vec4 cores = color;	 							//variavel que será aplicada o filtro
+		vec2 px = vec2(1.0,1.0) / uTextureSize;			//calculando o tamanho do pixel
+
+	    if(uFlag == 1){//brilho
+	    	cores = vec4(rgbToHsv(color.rgb),1.0); //convertendo para HSV
+	    	//mudando a saturação depedendo do valor passado
+	    	//Se uFilterValue = 1 a saturação vai para zero e a imagem fica em tons de cinza
+	    	float y = cores.y * (1.0 - abs(uFilterValue));
+	    	//O valor(altura) caso uFilterValue > 0 estará clareando a imagem caso contrário escurecendo 
+	    	float z = (uFilterValue > 0.0) ? cores.z + uFilterValue : cores.z * (1.0 + uFilterValue);
+	    	cores = vec4(hsvToRgb(vec3(cores.x,y,z)),1.0); //convertendo para RGB
+	    }else if(uFlag == 2){ //contraste
+			cores.x = uFilterValue * pow(cores.x, uGama);
+			cores.y = uFilterValue * pow(cores.y, uGama);
+			cores.z = uFilterValue * pow(cores.z, uGama);
+	    }else if(uFlag == 3){ //nitidez
+	    	//suavizando a img
+	    	vec4 suavizacao = suaviza3x3(px,uSampler,vTextureCoord);
+			float c = uFilterValue;
+			//criando a mascara
+			vec4 mask = color - suavizacao;
+			//adicionando a mascara na imagem multiplicada pelo fator c de intensidade
+			cores = color + c * mask;
+	    }else if(uFlag == 4){ //saturacao
+	    	cores = vec4(rgbToHsv(color.rgb),1.0);
+	    	float y = cores.y * uFilterValue;
+	    	cores = vec4(hsvToRgb(vec3(cores.x,y,cores.z)),1.0);	
+	    }
+
+	    gl_FragColor = cores;
+	}
+
+</script>
+
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
+<script type="text/javascript" src="questao1.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<style>
+	body{
+		background: #222;
+	}
+</style>
+</head>
+
+<body onload="webGLStart();">
+
+    <div id="menu" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">MATA65 - Computação Gráfica :: Trabalho 1 </a>
+        </div>
+        <div class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+    <div class="row" style="background:#222;">
+	
+	  <div class="coluna">
+	    <div class="sidebar-nav">
+	      <div id="navbar-vertical" class="navbar navbar-inverse" role="navigation">
+	        <div class="navbar-collapse collapse sidebar-navbar-collapse">	        
+	          <ul id="accordion" class="nav navbar-nav panel-group">
+	          	<li class="header">
+	          		<img class="col-sm-2" src="../images/bubble.png" alt="">
+	          		Os filtros não são acumulativos.
+	          		Mude o valor do filtro para aplicá-lo ao vídeo.
+	          	</li>
+	            <li>
+	            	<a id="h_brilho" href="#">Brilho<span style="float:right" class="badge">0</span></a>
+	            	<div class="panel-body">
+						<input id="brilho" type="range" min="-1" max="1" step="0.01">
+			        	<input type="button" value="Remover" onclick="valueDefault('brilho',0);">
+		      		</div>
+      			</li>
+	            <li>
+	            	<a id="h_contraste" href="#">Contraste<span style="float:right" class="badge"></span></a>
+	            	<div class="panel-body">
+						<input id="contraste" type="range" value="50" min="0" max="100">
+						<label>Gama: </label>
+						<span id="bGama" style="float:right" class="badge">2</span>
+						<input id="gama" type="range" value="1" min="0" max="10">
+						<br/>
+			        	<input type="button" value="Remover" onclick="valueDefault('contraste',1);">
+		      	  	</div>
+      			</li>
+	            <li>
+	            	<a id="h_nitidez" href="#">Nitidez<span style="float:right" class="badge"></span></a>
+	            	<div class="panel-body">
+						<form accept-charset="utf-8">
+							<input id="nitidez" type="range" value="1" min="0" max="10" step="0.01">	
+				    		<input type="button" value="Remover" onclick="valueDefault('nitidez',1);">
+			    		</form>
+			      	</div>
+      			</li>
+	            <li>
+	            	<a id="h_saturacao" href="#">Saturação<span style="float:right" class="badge"></span></a>
+	            	<div class="panel-body">
+						<form accept-charset="utf-8">
+							<input id="saturacao" type="range" value="1" min="0" max="1" step='0.01'>
+				    		<input type="button" value="Remover" onclick="valueDefault('saturacao',100);">
+		      			</form>
+			      	</div>
+      			</li>
+	          </ul>
+	        </div><!--/.nav-collapse -->
+	      </div>
+	    </div>
+	  </div>
+
+	  <div class="col-sm-8">
+		<div class="starter">
+			<div id="output"></div>
+			<div class="player_video">
+				<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
+				<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+				<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+			</div>
+		</div>
+	  </div>
+	
+	</div> 
+
+</body>
+
+</html>

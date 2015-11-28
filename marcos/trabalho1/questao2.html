@@ -1,0 +1,113 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+		
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+    uniform vec2 uTextureSize;
+    uniform vec2 uCentro; //centro da imagem -> dimensao / 2
+    uniform float uAlpha; //Angulo
+	
+	varying vec2 vTextureCoord;
+		
+	void main(void) {	
+
+		//mapeando as coordenadas para o tamanho da imagem
+		vec2 newCoord = vTextureCoord * uTextureSize;
+
+        newCoord -= uCentro;
+        float raio = 180.0; //raio constante
+		float percent = (raio - length(newCoord)) / raio; //pegando a relação do raio com o tamanho da vetor com as coordenadas.
+		float teta = pow(percent,2.0) * uAlpha;
+		newCoord = vec2(
+			newCoord.x * cos(teta) - newCoord.y * sin(teta),
+			newCoord.x * sin(teta) + newCoord.y * cos(teta)
+		);
+		newCoord += uCentro;
+		newCoord /= uTextureSize;
+
+		gl_FragColor = texture2D(uSampler, newCoord);
+	}
+</script>
+
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
+<script type="text/javascript" src="questao2.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body onload="webGLStart();" style="background:#222;">
+
+    <div id="menu" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">MATA65 - Computação Gráfica :: Trabalho 1 </a>
+        </div>
+        <div class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+
+    <div class="row">
+	
+	  <div class="coluna">
+	    <div class="sidebar-nav">
+	      <div id="navbar-vertical" class="navbar navbar-inverse" role="navigation">
+	        <div class="navbar-collapse collapse sidebar-navbar-collapse">	        
+	          <ul id="accordion" class="nav navbar-nav panel-group">
+	          	<li class="header">
+	          		<img class="col-sm-4" src="../images/bubble.png" alt="">
+	          		A direção que deslizar o range será o lado que ocorrerá a rotação.<br/>
+					O ângulo influênciará na quantidade de 'voltas'.
+	          	</li>
+	            <li>
+	            	<a id="h_angulo" href="#">Ângulo<span style="float:right" class="badge">0</span></a>
+	            	<div class="panel-body">
+						<input id="angulo" type="range" value="0" min="-360" max="360" step="1">
+			        	<input type="button" value="Remover" onclick="valueDefault('angulo',0);">
+		      		</div>
+      			</li>
+      			<li>
+      				<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+					<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+      			</li>
+	          </ul>
+	        </div><!--/.nav-collapse -->
+	      </div>
+	    </div>
+	  </div>
+
+	  <div class="col-sm-8">
+		<div class="starter">
+			<div id="output"></div>
+			<div class="player_video">
+				<canvas id="videoGL" width="320" height="240" style="visibility: visible;"></canvas>
+			</div>
+		</div>
+	  </div>
+	
+	</div> 
+
+</body>
+
+</html>

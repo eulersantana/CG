@@ -5,6 +5,8 @@ var shader;
 
 var video, videoImage, videoImageContext, videoTexture;
 
+var flag = {id: 0, value: 0}
+
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 window.URL = window.URL || window.webkitURL;
 
@@ -124,6 +126,10 @@ function drawScene() {
 	gl.enableVertexAttribArray(shader.vertexTextAttribute);
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertTextBuf);
 	gl.vertexAttribPointer(shader.vertexTextAttribute, vertTextBuf.itemSize, gl.FLOAT, false, 0, 0);
+	
+	gl.uniform2f(shader.textureSize, gl.viewportWidth, gl.viewportHeight);
+	gl.uniform1f(shader.alpha,document.getElementById("angulo").value);
+	gl.uniform2f(shader.centro, gl.viewportWidth/2, gl.viewportHeight/2);
 
 	gl.drawArrays(gl.TRIANGLES, 0, vertPosBuf.numItems);
 }
@@ -147,6 +153,8 @@ function webGLStart() {
 	}
 
 	navigator.getUserMedia({video: true}, gotStream, noStream);
+
+	initInputs();
 
 	// assign variables to HTML elements
 	video = document.getElementById("monitor");
@@ -175,6 +183,8 @@ function webGLStart() {
 	shader.vertexTextAttribute 		= gl.getAttribLocation(shader, "aVertexTexture");
 	shader.SamplerUniform	 		= gl.getUniformLocation(shader, "uSampler");
 	shader.textureSize	 			= gl.getUniformLocation(shader, "uTextureSize");
+	shader.alpha	 				= gl.getUniformLocation(shader, "uAlpha");
+	shader.centro	 				= gl.getUniformLocation(shader, "uCentro");
 
 	gl.uniform2f(shader.textureSize, videoImage.width, videoImage.height);
 	
@@ -204,4 +214,41 @@ function render() {
 	drawScene();
 }
 
+/* Função que pega o input, seta o valor para o badge 
+   e passa para o evento onchange a função para setar 
+   qual o filtro utilizado e o valor escolhido 
+*/
+function initInputs(){
 
+	//pegando o elemento com id 'angulo'
+	var angulo = document.getElementById("angulo");
+	//pegando o seu badge
+	var ba = $("#h_angulo > .badge");
+	//setando o valor default do input para o badge
+	ba.html(angulo.value+"°");
+	//passando um função para evento onchange executar ao modificar o valor do input
+	angulo.onchange = function(){
+		//atualizando o valor do badge com o valor do input
+		ba.html(this.value+"°");
+		//passando o valor do input e a identificação do efeito
+		filter(this.value,0);
+	}
+	
+}
+
+//Função para setar o valor, a identificação do efeito e re-renderizar o video.
+function filter(value, id){
+	flag.id = id;
+	flag.value = value;
+	render();
+}
+
+//Função para 'retirar' o efeito da imagem, sentando os valores do input para um valor padrão
+function valueDefault(id,value){
+	$("#"+id).val(value);
+	var badge = $("#h_"+id+" > .badge");
+	badge.html(value+"°");
+	flag.id = 0;
+	flag.value = 0;
+	render();
+}

@@ -1,0 +1,255 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+		
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+	uniform int cor;
+	
+	varying vec2 vTextureCoord;
+
+	void main(void) {	
+		vec4 c = texture2D(uSampler, vTextureCoord);
+		float cinza = 255.0*(c.r + c.g + c.b)/3.0;
+		float r = c.r * 255.0;
+		float g = c.g * 255.0;
+		float b = c.b * 255.0;
+		float min = 256.0;
+		float max = 0.0;
+		float delta;
+		float h;
+		float s;
+		float v;
+		float i;
+		float f,p,q,t;
+
+		if(cor == 0)//Primeira Tela
+		{
+			vec3 RGB;
+			 if(cinza >= 0.0 && cinza < 64.0){
+                    RGB = vec3(0.54, 0.09, 0.09);                
+                }else if(cinza >= 32.0 && cinza < 128.0){
+                     RGB = vec3(0.0, 1.0, 1.0);                
+                }else if(cinza >= 32.0 && cinza < 192.0){
+                    RGB = vec3(1.0, 1.0, 0.0);                   
+                }else if(cinza >= 96.0 && cinza < 256.0){
+                     RGB = vec3(1.0, 0.109, 0.682);               
+                }
+			gl_FragColor = vec4(RGB, 1.0);
+
+			
+		}
+		if(cor == 1)// Segunda tela
+		{
+			float r1 = c.r;
+			float g1 = c.g;
+			float b1 = c.b;
+
+			float minChannel ;
+			float maxChannel;
+
+			float h1 = 0.0;
+			float s1 = 0.0;
+			float v1 ;
+
+			float delta1 ;
+
+			if(r1 > maxChannel)
+				maxChannel = r1;
+			if(g1 > maxChannel)
+				maxChannel = g1;
+			if(b1 > maxChannel)
+				maxChannel = b1;
+
+			if(r < minChannel)
+				minChannel = r1;
+			if(g1 > minChannel)
+				minChannel = g1;
+			if(b1 > maxChannel)
+				minChannel = b1;
+
+			delta1 = maxChannel - minChannel;
+
+			v1 = maxChannel;
+
+			if (delta1 != 0.0) { 
+				s1 = delta1 / v1;
+
+				if (r1 == v1) h1 = (g1 - b1) / delta1;
+				else if (g1 == v1) h1 = 2.0 + (b1 - r1) / delta1;
+				else /* b == v */ h1 = 4.0 + (r1 - g1) / delta1;
+			}
+
+			vec3 RGB; /* = HSV.z; */
+
+			float i1 = floor(h1);
+			float f1 = h1 - i1;
+
+			float p1 = 1.5*(1.0 - s1);
+			float q1 = 0.1*(1.0 - s1 * f1);
+			float t1 = 0.3*(1.0 - s1 * (1.0 - f1));
+
+			if (i1 == 0.0) { RGB = vec3(1.0, t1, p1); }
+			else if (i1 == 1.0) { RGB = vec3(q1, 1.0, p1); }
+			else if (i1 == 2.0) { RGB = vec3(p1, 1.0, t1); }
+			else if (i1 == 3.0) { RGB = vec3(p1, q1, 1.0); }
+			else if (i1 == 4.0) { RGB = vec3(t1, p1, 1.0); }
+			else /* i == -1 */ { RGB = vec3(1.0, p1, q1); }
+
+			RGB *= v1;
+
+			gl_FragColor = vec4(RGB, 1.0);
+
+		}
+		if(cor == 2)//Quarta Tela
+		{
+			float r1 = c.r;
+			float g1 = c.g;
+			float b1 = c.b;
+
+			float minChannel ;
+			float maxChannel;
+
+			float h1 = 0.0;
+			float s1 = 0.0;
+			float v1 ;
+
+			float delta1 ;
+
+			if(r1 > maxChannel)
+				maxChannel = r1;
+			if(g1 > maxChannel)
+				maxChannel = g1;
+			if(b1 > maxChannel)
+				maxChannel = b1;
+
+			if(r < minChannel)
+				minChannel = r1;
+			if(g1 > minChannel)
+				minChannel = g1;
+			if(b1 > maxChannel)
+				minChannel = b1;
+
+			delta1 = maxChannel - minChannel;
+
+			v1 = maxChannel;
+
+
+			if (delta1 != 0.0) { 
+				s1 = delta1 / v1;
+
+				if (r1 == v1) h1 = (g1 - b1) / delta1;
+				else if (g1 == v1) h1 = 2.0 + (b1 - r1) / delta1;
+				else /* b == v */ h1 = 4.0 + (r1 - g1) / delta1;
+			}
+
+			vec3 RGB; /* = HSV.z; */
+
+			float i1 = floor(h1);
+			float f1 = h1 - i1;
+
+			float p1 = 0.5*(1.0 - s1);
+			float q1 = 0.8*(1.0 - s1 * f1);
+			float t1 = 0.2*(1.0 - s1 * (1.0 - f1));
+
+			if (i1 == 0.0) { RGB = vec3(1.0, t1, p1); }
+			else if (i1 == 1.0) { RGB = vec3(q1, 1.0, p1); }
+			else if (i1 == 2.0) { RGB = vec3(p1, 1.0, t1); }
+			else if (i1 == 3.0) { RGB = vec3(p1, q1, 1.0); }
+			else if (i1 == 4.0) { RGB = vec3(t1, p1, 1.0); }
+			else /* i == -1 */ { RGB = vec3(1.0, p1, q1); }
+
+			RGB *= v1;
+
+			gl_FragColor = vec4(RGB, 1.0);
+			
+		}
+		if(cor == 3)// Terceira Tela
+		{
+			vec3 RGB;
+			 if(cinza >= 0.0 && cinza < 64.0){
+                   RGB = vec3(1.0, 0.109, 0.682);                  
+                }else if(cinza >= 32.0 && cinza < 128.0){
+                    RGB = vec3(1.0, 1.0, 0.0);                   
+                }else if(cinza >= 32.0 && cinza < 192.0){
+                    RGB = vec3(0.0, 1.0, 1.0);                 
+                }else if(cinza >= 96.0 && cinza < 256.0){
+                    RGB = vec3(0.54, 0.09, 0.09);             
+                }
+			gl_FragColor = vec4(RGB, 1.0);
+
+
+		}
+	}
+	
+</script>
+
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
+<script type="text/javascript" src="questao4.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+
+<body onload="webGLStart();" style="background:#222;">
+
+    <div id="menu" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">MATA65 - Computação Gráfica :: Trabalho 1 </a>
+        </div>
+        <div class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+	
+    <div class="row">
+    	<div class="coluna">
+		    <div class="sidebar-nav">
+		      <div id="navbar-vertical" class="navbar navbar-inverse" role="navigation">
+		        <div class="navbar-collapse collapse sidebar-navbar-collapse">	        
+		          <ul id="accordion" class="nav navbar-nav panel-group">
+		          	<li>
+						<div id="output"> </div>
+					</li>
+		          	<li>
+	      				<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+						<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+	      			</li>
+		          </ul>
+		        </div><!--/.nav-collapse -->
+		      </div>
+		    </div>
+	  	</div>
+  		<div class="col-sm-8">
+			<div class="starter">
+				<div id="palco">
+					<canvas id="videoGL" width="600" height="600" style="visibility: visible;"></canvas>
+				</div>
+			</div>
+	  	</div>
+	</div> 
+
+</body>
+
+</html>

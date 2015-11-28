@@ -1,0 +1,173 @@
+<html>
+
+<head>
+<title>MATA65 - Computação Gráfica</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec2 aVertexTexture;
+		
+	varying vec2 vTextureCoord;
+	
+	void main(void) {
+		gl_Position = vec4(aVertexPosition, 1.0);
+		vTextureCoord = aVertexTexture;
+	}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+	precision mediump float;
+		
+	uniform sampler2D uSampler;
+	uniform vec3 uCor; //cor escolhida pelo usuario em RGB
+	
+	varying vec2 vTextureCoord;
+
+	/****
+	* Funcao que tem como parametro um vec3 com os valores da cor RGB e 
+	* retorna um vec3 com os valores em HSV. 
+	*****/
+	vec3 rgb_to_hsv(vec3 RGB)
+	{
+		float r = RGB.x;
+		float g = RGB.y;
+		float b = RGB.z;
+
+		float minChannel = min(r, min(g, b));
+		float maxChannel = max(r, max(g, b));
+
+		float h = 0.0;
+		float s = 0.0;
+
+		float v = maxChannel;
+
+		float delta = maxChannel - minChannel;
+
+		if (delta != 0.0) { 
+			s = delta / v;
+
+			if (r == v) h = (g - b) / delta;
+			else if (g == v) h = 2.0 + (b - r) / delta;
+			else /* b == v */ h = 4.0 + (r - g) / delta;
+		}
+
+		return vec3(h, s, v);
+	}
+
+	/****
+	* Funcao que tem como parametro um vec3 com os valores da cor em HSV e 
+	* retorna um vec3 com os valores em RGB. 
+	*****/
+	vec3 hsv_to_rgb(vec3 HSV)
+	{
+		vec3 RGB; /* = HSV.z; */
+
+		float h = HSV.x;
+		float s = HSV.y;
+		float v = HSV.z;
+
+		float i = floor(h);
+		float f = h - i;
+
+		float p = (1.0 - s);
+		float q = (1.0 - s * f);
+		float t = (1.0 - s * (1.0 - f));
+
+		if (i == 0.0) { RGB = vec3(1.0, t, p); }
+		else if (i == 1.0) { RGB = vec3(q, 1.0, p); }
+		else if (i == 2.0) { RGB = vec3(p, 1.0, t); }
+		else if (i == 3.0) { RGB = vec3(p, q, 1.0); }
+		else if (i == 4.0) { RGB = vec3(t, p, 1.0); }
+		else /* i == -1 */ { RGB = vec3(1.0, p, q); }
+
+		RGB *= v;
+
+		return RGB;
+	}
+		
+	void main(void) {	
+		vec4 c = texture2D(uSampler, vTextureCoord);
+		float cinza = (c.r + c.g + c.b)/3.0; //tons de cinza
+		float x,y,z;
+
+		x = uCor.x; //R
+		y = uCor.y; //G
+		z = uCor.z; //B
+
+		//Verificando o range da tonalidade da cor. 
+		//0.1 a mais e 0.1 a menos que a intensidade da cor
+		if(((c.r > x) && (c.r < x+0.1)) || ((c.r <= x) && (c.r > x-0.1))){
+			if(((c.g > y) && (c.g < y+0.1)) || ((c.g <= y) && (c.g > y-0.1))){
+				if(((c.b > z) && (c.b < z+0.1)) || ((c.b <= z) && (c.b > z-0.1))){
+					
+				}else
+					gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
+			}else
+				gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
+		}else
+			gl_FragColor = vec4(c.r, c.g, c.b, 1.0);
+	}
+			
+</script>
+
+<script type="text/javascript" src="../lib/webgl-utils.js"></script>
+<script type="text/javascript" src="../lib/shaders.js"></script>
+<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript" src="../js/bootstrap.js"></script>
+<script type="text/javascript" src="questao3.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+
+<body onload="webGLStart();" style="background:#222;">
+ 
+    <div id="menu" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="index.html">MATA65 - Computação Gráfica :: Trabalho 1 </a>
+        </div>
+        <div class="navbar-collapse collapse">
+        </div><!--/.navbar-collapse -->
+      </div>
+    </div>
+	
+    <div class="row">
+    	<div class="coluna">
+		    <div class="sidebar-nav">
+		      <div id="navbar-vertical" class="navbar navbar-inverse" role="navigation">
+		        <div class="navbar-collapse collapse sidebar-navbar-collapse">	        
+		          <ul id="accordion" class="nav navbar-nav panel-group">
+		          	<li>
+		            	<a id="h_selecionada" href="#">Cor selecionada<span style="float:right" class="badge">0</span></a>
+		            	<div class="panel-body">
+							<input style="float:right;width: 100%;" id="cor" type="color" name="cor" value="#000">
+							<img id="preview" width="100" height="100" />
+							<input type="file" name="image_file" id="image_file" onchange="fileSelected();">
+						</div>
+	      			</li>
+	      			<li>
+	      				<canvas id="videoImage" width="256" height="256" style="visibility: hidden;"></canvas>
+						<video id="monitor" autoplay width="320" height="240" style="visibility: hidden;"></video>
+	      			</li>
+		          </ul>
+		        </div><!--/.nav-collapse -->
+		      </div>
+		    </div>
+	  	</div>
+
+	  	<div class="col-sm-8">
+			<div class="starter">
+				<div id="palco">
+					<div id="output"> </div>
+					<canvas id="videoGL" width="600" height="600" style="visibility: visible;"></canvas>
+				</div>
+			</div>
+	  	</div>
+	</div> 
+
+</body>
+
+</html>
