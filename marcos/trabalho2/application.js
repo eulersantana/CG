@@ -564,6 +564,16 @@ function initCameras(){
     camerasUp.terreno.elements[Y]   = 1.0;
     camerasUp.terreno.elements[Z]   = 0.0;
 
+    rotZ = 180;
+    camerasPos[cameraSelecionada].elements[0]   = 0.0;
+    camerasPos[cameraSelecionada].elements[1]   = 4.0 * g_drawingInfo.BBox.Max.y;
+    camerasPos[cameraSelecionada].elements[2]   = 0.1 * g_drawingInfo.BBox.Max.z;
+    camerasLook[cameraSelecionada].elements[1]  = g_drawingInfo.BBox.Center.x;
+    camerasLook[cameraSelecionada].elements[1]  = g_drawingInfo.BBox.Center.y;
+    camerasLook[cameraSelecionada].elements[2]  = g_drawingInfo.BBox.Center.z;
+    camerasUp[cameraSelecionada].elements[0]    = 0.0;
+    camerasUp[cameraSelecionada].elements[1]    = 1.0;
+    camerasUp[cameraSelecionada].elements[2]    = 0.0;
 }
 
 // ********************************************************
